@@ -1118,7 +1118,8 @@ class ApiController extends BaseController
               $pushedAsset = SapAsset::where('serial_number', $item['serial_no'])->first();
 
                 if ($pushedAsset) {
-                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+
                 }
 
                 // Create if not found
@@ -1140,7 +1141,7 @@ class ApiController extends BaseController
                 $masAsset = MasAssets::where('serial_number', $item['serial_no'])->first();
 
                  if ($masAsset) {
-                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
                 }
 
                 // Create if not found
@@ -1158,7 +1159,7 @@ class ApiController extends BaseController
         return $this->successResponse('Asset saved successfully');
         }catch (\Exception $e) {
             // \Log::error("Asset save failed: " . $e->getMessage());
-            return $this->errorResponse('Something went wrong while saving assets. Please try again.'. $e->getMessage());
+            return $this->errorResponse('Something went wrong while saving assets. '. $e->getMessage());
         }
 
     }
