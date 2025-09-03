@@ -12,7 +12,7 @@
         <!-- Personal Information Section -->
         @include('sifa.sifa-registered-user.sifalist',['employee' => $sifaRegistration->employee])
         <hr>
-       
+
         <!-- Sifa Nomination Section -->
         @include('sifa.sifa-registration.show.sifanomination')
         <hr>
@@ -46,6 +46,18 @@
             @include('sifa.sifa-registration.show.sifaretirementnomination')
         </div>
         @endif
+        <hr>
+        <!-- Remark Section -->
+                <form action="{{ route('sifa-registered-user.sendRemark', $sifaRegistration->id) }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="remark"><strong>Remarks</strong></label>
+                        <textarea name="remark" id="remark" rows="4" class="form-control" placeholder="Write your remarks here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-2">
+                        <i class="fa fa-envelope"></i> Send Mail
+                    </button>
+                </form>
     </div>
 
 </div>

@@ -27,6 +27,8 @@
          <div class="form-group file-upload-border">
              <label for="spouse_cid">
                  <strong>Copy of Citizenship Identity Card of the member</strong>
+                 <span
+                         class="text-danger">*</span>
              </label>
              @if (!empty($sifaDocuments->spouse_cid))
              <div class="mt-3">
