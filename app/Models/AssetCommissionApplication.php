@@ -60,6 +60,11 @@ class AssetCommissionApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
+    public function requisition()
+    {
+        return $this->belongsTo(RequisitionApplication::class, 'requisition_id');
+    }
+
     public function requisitionDetail()
     {
         return $this->belongsTo(RequisitionDetail::class, 'requisition_detail_id');

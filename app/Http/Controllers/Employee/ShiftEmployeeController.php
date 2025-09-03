@@ -148,15 +148,23 @@ class ShiftEmployeeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'mas_employee_id' => 'required|exists:mas_employees,id',
-            'department_shift_id' => 'required|exists:department_wise_shifts,id',
-            'off_days' => 'required|array|min:1',
-            'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
-        ]);
+            'mas_employee_id' => 'required|exists:mas_employees,id|unique:employee_shifts,mas_employee_id',
+            // 'department_shift_id' => 'required|exists:department_wise_shifts,id',
+            // 'off_days' => 'required|array|min:1',
+            // 'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+        ],
+        [
+            'mas_employee_id.unique' => 'This employee already has a shift assigned.',
+            'mas_employee_id.exists' => 'The selected employee does not exist.',
+            'mas_employee_id.required' => 'Please select an employee.',
+    ]);
 
         $shift = new \App\Models\EmployeeShift();
         $shift->mas_employee_id = $request->mas_employee_id;
-        $shift->department_shift_id = $request->department_shift_id;
+        // $shift->department_shift_id = $request->department_shift_id;
+        $shift->morning_shift_days = json_encode($request->morning_shift_days);
+        $shift->evening_shift_days = json_encode($request->evening_shift_days);
+        $shift->night_shift_days = json_encode($request->night_shift_days);
         $shift->off_days = json_encode($request->off_days);
         $shift->save();
 
@@ -168,22 +176,30 @@ class ShiftEmployeeController extends Controller
     {
         $shift = \App\Models\EmployeeShift::findOrFail($id);
         $employees = User::all();
-        $shifts = DepartmentWiseShift::all();
-        return view('employee/shift-employee.edit', compact('shift', 'employees', 'shifts'));
+        // $shifts = DepartmentWiseShift::all();
+        return view('employee/shift-employee.edit', compact('shift', 'employees'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'mas_employee_id' => 'required|exists:mas_employees,id',
-            'department_shift_id' => 'required|exists:department_wise_shifts,id',
-            'off_days' => 'required|array|min:1',
-            'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            // 'department_shift_id' => 'required|exists:department_wise_shifts,id',
+            // 'off_days' => 'required|array|min:1',
+            // 'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+        ],
+        [
+                // 'mas_employee_id.unique' => 'This employee already has a shift assigned.',
+                'mas_employee_id.exists' => 'The selected employee does not exist.',
+                'mas_employee_id.required' => 'Please select an employee.',
         ]);
 
         $shift = EmployeeShift::findOrFail($id);
         $shift->mas_employee_id = $request->mas_employee_id;
-        $shift->department_shift_id = $request->department_shift_id;
+        // $shift->department_shift_id = $request->department_shift_id;
+        $shift->morning_shift_days = json_encode($request->morning_shift_days);
+        $shift->evening_shift_days = json_encode($request->evening_shift_days);
+        $shift->night_shift_days = json_encode($request->night_shift_days);
         $shift->off_days = $request->off_days; // if $casts exists
         $shift->updated_by = auth()->id();
         $shift->save();

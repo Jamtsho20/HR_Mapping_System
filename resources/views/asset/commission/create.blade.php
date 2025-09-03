@@ -151,20 +151,20 @@
                                     </td>
                                     <td style="min-width: 100px;">
                                         <div class="form-group mb-0">
-                                            <input type="number" name="details[AAAAA][qty]" value=""
+                                            <input type="decimal" name="details[AAAAA][qty]" value=""
                                                 class="form-control resetKeyForNew quantity-input text-right w-100" readonly required />
                                         </div>
                                     </td>
 
                                     <td>
-                                        <input type="number" name="details[AAAAA][amount]" value=""
+                                        <input type="decimal" name="details[AAAAA][amount]" value=""
                                             class="form-control  resetKeyForNew text-right" readonly
                                             required />
                                     </td>
                                     <td>
                                         <select
                                             class="form-control  resetKeyForNew select2 dzongkhag-selector"
-                                            name="details[AAAAA][dzongkhag]" required />
+                                            name="details[AAAAA][dzongkhag]" required>
                                         <option value="" disabled selected hidden>Select Your Option</option>
 
                                         </select>
@@ -180,7 +180,7 @@
                                     </td>
                                     <td>
                                         <select class="form-control  resetKeyForNew select2"
-                                            name="details[AAAAA][site]" required />
+                                            name="details[AAAAA][site]" required>
                                         <option value="" disabled selected hidden>Select Your Option</option>
                                         </select>
                                     </td>
@@ -192,7 +192,7 @@
                                 <tr class="notremovefornew">
                                     <td colspan="10"></td>
                                     <td class="text-right">
-                                        <a href="#" class="add-table-row btn btn-sm btn-info"
+                                        <a href="#" id='addRowBtn' class="add-table-row btn btn-sm btn-info"
                                             style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                     </td>
                                 </tr>
@@ -217,6 +217,24 @@
         $(document).ready(function() {
 
 
+            function checkRowLimit() {
+                const maxRows = 100;
+                const currentRows = $('#details tbody tr').not('.notremovefornew').length;
+
+                if (currentRows >= maxRows) {
+                    $('#addRowBtn').prop('disabled', true).addClass('disabled');
+                } else {
+                    $('#addRowBtn').prop('disabled', false).removeClass('disabled');
+                }
+            }
+
+            $(document).on('click', '.add-table-row', function () {
+                checkRowLimit();
+            });
+
+            $(document).on('click', '.delete-table-row', function () {
+                checkRowLimit();
+            })
             $('#details').on('input', "input[name$='[date_placed_in_service]']", function () {
                         const $row = $(this).closest('tr');
                         const dateVal = $(this).val();
@@ -271,14 +289,14 @@
                            if (assetNos.length > 0 && assetNos[0].serials?.length > 1) {
                                 const matchingItems = assetNos[0].serials;
 
-                                showConfirmationMessage(
-                                    `This GRN has ${matchingItems.length} asset item(s). Do you want to auto-select all of them?`,
+                                showConfirmationMessage(`This GRN contains ${matchingItems.length} asset item(s). A maximum of 100 item(s) can be selected per commission application. Do you want to auto-select the first 100 items?`,
                                     () => {
                                         $('#loader').show();
                                         let bulkLoading = true;
                                         let index = 0;
 
-                                        const totalItems = matchingItems.length;
+                                        // Cap the total items to 490 max
+                                        const totalItems = Math.min(matchingItems.length, 100);
 
                                         function processNext() {
                                             if (index >= totalItems) {
@@ -300,10 +318,11 @@
 
                                             if (index < totalItems - 1) {
                                                 $('.add-table-row').trigger('click');
+                                                checkRowLimit();
                                             }
 
                                             index++;
-                                            setTimeout(processNext, 100); // throttled loop
+                                            setTimeout(processNext, 50); // throttled loop
                                         }
 
                                         processNext();
@@ -312,6 +331,7 @@
                                         $('#loader').hide();
                                     }
                                 );
+
                             }
                                 },
                                 error: function(error) {
@@ -397,6 +417,12 @@
                         $row.find("input[name^='details'][name$='[qty]']").val(serialData?.quantity ?? 1);
                         $row.find("input[name^='details'][name$='[amount]']").val(serialData?.amount ?? 0.00);
 
+                        // const today = new Date();
+                        // const formattedDate = today.toISOString().split('T')[0];
+
+                        // $row.find("input[name^='details'][name$='[date_placed_in_service]']").val(
+                        //     formattedDate
+                        // )
                         const dzongkhagId = serialData.requisition_detail?.dzongkhag_id;
                         const siteId = serialData.requisition_detail?.site_id;
 

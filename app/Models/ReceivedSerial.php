@@ -12,6 +12,7 @@ class ReceivedSerial extends Model
     protected $fillable = [
         'requisition_detail_id',
         'asset_serial_no',
+        'batch_no',
         'asset_description',
         'is_commissioned',
         'is_transfered_to',

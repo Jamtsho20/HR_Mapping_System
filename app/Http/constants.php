@@ -138,3 +138,8 @@ const SIFA_LOAN_PAY_HEAD = 24;
 
 const SAP_USER_ID = 1;
 const SUPER_USER_ID = 2;
+
+//Shift Type
+const MORNING_SHIFT = 1;
+const EVENING_SHIFT = 2;
+const NIGHT_SHIFT = 3;
