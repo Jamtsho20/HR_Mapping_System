@@ -56,6 +56,23 @@ class SifaRegisteredUserController extends Controller
 
         return view('sifa.sifa-registered-user.show', compact('user', 'sifaRegistration', 'sifaDocuments'));
     }
+    public function sendRemark(Request $request, $id)
+    {
+        $request->validate([
+            'remark' => 'required|string',
+        ]);
+
+        $sifaRegistration = SifaRegistration::findOrFail($id);
+        $employee = $sifaRegistration->employee;
+
+        // Send email to employee
+        Mail::send('emails.sifaRemark', ['employee' => $employee, 'remark' => $request->remark], function ($message) use ($employee) {
+            $message->to($employee->email)
+                ->subject('Remarks on SIFA Updation');
+        });
+
+        return back()->with('success', 'Remark sent successfully to the employee.');
+    }
 
     public function sendMail(Request $request)
     {
