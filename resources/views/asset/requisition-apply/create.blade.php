@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label for="requisition_date">Requisition Date <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="requisition_date"
-                            value="{{ old('requisition_date', date('Y-m-d')) }}"  required>
+                            value="{{ old('requisition_date', date('Y-m-d')) }}"  required readonly>
 
                             <input type="hidden" name="total_quantity_required" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
 
@@ -42,7 +42,7 @@
                         <div class="form-group">
                             <label for="need_by_date">Need By Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="need_by_date"
-                                value="{{ old('need_by_date') }}" required>
+                                value="{{ old('need_by_date') }}" min="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
                     {{-- <div class="col-md-4">
