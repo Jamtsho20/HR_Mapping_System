@@ -51,12 +51,12 @@ class AssetCommissionDetail extends Model
         parent::boot();
         static::created(function ($commissionDetail) {
             // Update the is_commissioned column in received_serials
-            DB::table('received_serials')
-                ->where('id', $commissionDetail->received_serial_id) // Ensure this column exists in commissionDetail
-                ->update([
-                    'is_commissioned' => 1,
-                    'updated_at' => now()
-                ]);
+            // DB::table('received_serials')
+            //     ->where('id', $commissionDetail->received_serial_id) // Ensure this column exists in commissionDetail
+            //     ->update([
+            //         'is_commissioned' => 1,
+            //         'updated_at' => now()
+            //     ]);
 
             // $commissionDetail->loadMissing('receivedSerial.requisitionDetail');
             // \App\Models\MasAssets::create([

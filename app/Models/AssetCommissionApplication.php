@@ -135,30 +135,49 @@ class AssetCommissionApplication extends Model
                         ]);
                 }
             }
-              if ($commissionApplication->wasChanged('status') && $commissionApplication->status == 3) {
-                foreach ($commissionApplication->details as $detail) {
-                    $detail->loadMissing('receivedSerial.requisitionDetail.grnItemDetail.item');
+               if ($commissionApplication->wasChanged('status') && $commissionApplication->status == 3) {
+                    $details = $commissionApplication->details;
 
-                    $serialId = $detail->received_serial_id;
+                    // Step 1: collect serial IDs
+                    $serialIds = $details->pluck('received_serial_id')->filter()->toArray();
 
-                    if (!$serialId || MasAssets::where('received_serial_id', $serialId)->exists()) {
-                        continue;
+                    if (!empty($serialIds)) {
+                        // Step 2: find which ones already exist in MasAssets
+                        $existingSerialIds = \App\Models\MasAssets::whereIn('received_serial_id', $serialIds)
+                            ->pluck('received_serial_id')
+                            ->toArray();
+
+                        // Step 3: filter new ones
+                        $newDetails = $details->whereNotIn('received_serial_id', $existingSerialIds);
+
+                        foreach ($newDetails as $detail) {
+                            $detail->loadMissing('receivedSerial.requisitionDetail.grnItemDetail.item');
+
+                            $serialId = $detail->received_serial_id;
+
+                            // Create asset
+                            \App\Models\MasAssets::create([
+                                'serial_number'        => $detail->receivedSerial->asset_serial_no,
+                                'current_employee_id'  => $commissionApplication->created_by,
+                                'item_id'              => $detail->receivedSerial->requisitionDetail->item_id
+                                    ?? optional($detail->receivedSerial->requisitionDetail->grnItemDetail->item)->id,
+                                'current_site_id'      => $detail->site_id,
+                                'received_serial_id'   => $serialId,
+                                'commission_detail_id' => $detail->id,
+                                'initial_owner_id'     => $commissionApplication->created_by,
+                            ]);
+
+                            // Update received_serials.is_commissioned
+                            DB::table('received_serials')
+                                ->where('id', $serialId)
+                                ->update([
+                                    'is_commissioned' => 1,
+                                    'updated_at'      => now(),
+                                ]);
+                        }
                     }
-
-                    \App\Models\MasAssets::create([
-                        'serial_number' => $detail->receivedSerial->asset_serial_no,
-                        'current_employee_id' => $commissionApplication->created_by,
-                        'item_id' => $detail->receivedSerial->requisitionDetail->item_id
-                            ?? optional($detail->receivedSerial->requisitionDetail->grnItemDetail->item)->id,
-                        'current_site_id' => $detail->site_id,
-                        'received_serial_id' => $detail->received_serial_id,
-                        'commission_detail_id' => $detail->id,
-                        'initial_owner_id' => $commissionApplication->created_by,
-
-                    ]);
                 }
-            }
-        });
-    }
+            });
+        }
 
 }
