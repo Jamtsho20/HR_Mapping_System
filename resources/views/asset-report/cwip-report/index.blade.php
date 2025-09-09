@@ -44,6 +44,7 @@
                     value="{{ old('req_no', request()->get('req_no')) }}" placeholder="Comm No" />
             </div>
 
+
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -120,7 +121,10 @@
                                                     <tr>
                                                         <td>{{ $count++ }}</td> {{-- Parent index --}}
                                                         <td>{{ $serial->requisitionDetail?->grnItemDetail->item->item_group_id ?? config('global.null_value')  }}</td>
-                                                        <td>{{ $serial->requisitionDetail?->grnItemDetail->item->item_group ?? config('global.null_value')  }}</td>
+                                                        <td>{{ config('global.asset_class')[$serial->requisitionDetail?->grnItemDetail->item->item_group_id]
+                                                            ?? $serial->requisitionDetail?->grnItemDetail->item->item_group_id
+                                                            ?? config('global.null_value') }}
+                                                        </td>
                                                         <td>{{ $serial->requisitionDetail?->requisition->transaction_no ?? config('global.null_value')  }}</td>
                                                         <td>{{ $serial->requisitionDetail?->grnItemDetail->grn->grn_no ?? config('global.null_value')  }}</td>
                                                         <td>{{ $serial->requisitionDetail?->grnItemDetail->item->item_no .'-'.$serial->asset_serial_no ?? config('global.null_value')  }}</td>

@@ -22,7 +22,6 @@
                 @endforeach
             </select>
         </div>
-       
     </div>
     @endcomponent
     <br>

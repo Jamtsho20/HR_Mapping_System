@@ -783,7 +783,7 @@ class AjaxRequestController extends Controller
             }else{
                 $assetNos = MasAssets::where('current_site_id', $siteID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
-           
+
 
 
             return $this->successResponse($assetNos);
@@ -856,20 +856,21 @@ class AjaxRequestController extends Controller
             DB::beginTransaction();
             $received = $request->childData;
 
-            if(!empty($received)){
+            if (!empty($received)) {
                 foreach ($received as $item) {
-                    ReceivedSerial::where('id', $item['id'])->update([
-                        'is_received' => $item['received'],
-                        'remark' => $item['remark'] ?? null
-                    ]);
+                    if (!empty($item['id'])) {
+                        ReceivedSerial::where('id', $item['id'])->update([
+                            'is_received' => !empty($item['received']) ? 1 : 0,
+                            'remark' => $item['remark'] ?? null,
+                        ]);
+                    }
                 }
-
             }
 
-           $reqDetail = RequisitionDetail::find($request->grnId);
-            if (!$reqDetail) {
-                return $this->errorResponse('Requisition detail not found.');
-            }
+        $reqDetail = RequisitionDetail::find($request->grnId);
+        if (!$reqDetail) {
+            return $this->errorResponse('Requisition detail not found.');
+        }
 
             $reqDetail->is_received = 1;
             $reqDetail->received_quantity = (int)$request->quantity;

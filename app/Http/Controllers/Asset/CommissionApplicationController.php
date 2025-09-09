@@ -11,6 +11,7 @@ use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\AssetCommissionApplication;
+use App\Models\AssetCommissionDetail;
 use App\Models\MasCommissionTypes;
 
 class CommissionApplicationController extends Controller
@@ -59,23 +60,32 @@ class CommissionApplicationController extends Controller
             'details' => function ($q) {
                 $q->whereHas('serials', function ($query) {
                     $query->where('is_received', 1)
-                        ->where('is_commissioned', '<>', 1);
+                        ->where('is_commissioned', '<>', 1)
+                        ->whereDoesntHave('commissionDetail.assetCommission', function ($q2) {
+                            $q2->where('status', 1); // exclude serials already commissioned
+                        });
                 });
             },
             'details.grnItem',
             'details.serials' => function ($query) {
                 $query->where('is_received', 1)
-                    ->where('is_commissioned', '<>', 1);
-                }
-            ])
-            ->where('type_id', FIXED_ASSET)
-            ->where('is_received', 1)
-            ->where('created_by', auth()->user()->id)
-            ->whereHas('details.serials', function ($query) {
-                $query->where('is_received', 1)
-                    ->where('is_commissioned', '<>', 1);
-            })
-            ->get();
+                    ->where('is_commissioned', '<>', 1)
+                    ->whereDoesntHave('commissionDetail.assetCommission', function ($q2) {
+                        $q2->whereIn('status', [1, 3]);
+                    });
+            }
+        ])
+        ->where('type_id', FIXED_ASSET)
+        ->where('is_received', 1)
+        ->where('created_by', auth()->user()->id)
+        ->whereHas('details.serials', function ($query) {
+            $query->where('is_received', 1)
+                ->where('is_commissioned', '<>', 1)
+                ->whereDoesntHave('commissionDetail.assetCommission', function ($q2) {
+                    $q2->whereIn('status', [1, 3]);
+                });
+        })
+        ->get();
 
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'grnItems'));
@@ -123,18 +133,23 @@ class CommissionApplicationController extends Controller
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
-            if ($request->has('details')) {
-                foreach ($request->details as $detail) {
-                    $commissionApplication->details()->create([
-                        'received_serial_id' => $detail['asset_no'],
-                        'date_placed_in_service' => $detail['date_placed_in_service'],
-                        'dzongkhag_id' => $detail['dzongkhag'],
-                        'office_id' => $detail['office'] ?? null,
-                        'site_id' => $detail['site'],
-                        'remark' => $detail['remark'],
-                    ]);
+           if ($request->has('details')) {
+                    $detailsData = collect($request->details)->map(function($detail) use ($commissionApplication) {
+                        return [
+                            'commission_id' => $commissionApplication->id,
+                            'received_serial_id' => $detail['asset_no'],
+                            'date_placed_in_service' => $detail['date_placed_in_service'],
+                            'dzongkhag_id' => $detail['dzongkhag'],
+                            'office_id' => $detail['office'] ?? null,
+                            'site_id' => $detail['site'],
+                            'remark' => $detail['remark'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    })->toArray();
+
+                    AssetCommissionDetail::insert($detailsData);
                 }
-            }
 
             // Create a history record
             $historyService = new ApplicationHistoriesService();

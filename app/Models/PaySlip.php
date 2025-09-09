@@ -114,6 +114,35 @@ class PaySlip extends Model
         }
     }
 
+    // protected static function boot()
+    // {
+    //     parent::boot();
+
+    //     static::updated(function ($paySlip) {
+    //         if ($paySlip->isDirty('status') && $paySlip->getRawOriginal('status') != 4 && $paySlip->status['key'] == 4) {
+    //             $details = $paySlip->details()
+    //                 ->whereIn('mas_pay_head_id', [SIFA_LOAN_PAY_HEAD, 16])
+    //                 ->where('amount', '!=', 0)
+    //                 ->get();
+
+    //             $employeeIDs = [];
+
+    //             foreach ($details as $detail) {
+    //                 $employeeIDs[] = $detail->mas_employee_id;
+    //             }
+
+    //             $currentMonth = now()->format('Y-m');
+    //             $alreadyExists = \DB::table('sifaloanrepayment')
+    //                 ->whereIn('mas_employee_id', $employeeIDs)
+    //                 ->whereRaw("DATE_FORMAT(month, '%Y-%m') = ?", [$currentMonth])
+    //                 ->exists();
+
+    //             if (! $alreadyExists) {
+    //                 $paySlip->repaymentSchedule(json_encode($employeeIDs));
+    //             }
+    //         }
+    //     });
+    // }
     protected static function boot()
     {
         parent::boot();
@@ -131,15 +160,7 @@ class PaySlip extends Model
                     $employeeIDs[] = $detail->mas_employee_id;
                 }
 
-                $currentMonth = now()->format('Y-m');
-                $alreadyExists = \DB::table('sifaloanrepayment')
-                    ->whereIn('mas_employee_id', $employeeIDs)
-                    ->whereRaw("DATE_FORMAT(month, '%Y-%m') = ?", [$currentMonth])
-                    ->exists();
-
-                if (! $alreadyExists) {
-                    $paySlip->repaymentSchedule(json_encode($employeeIDs));
-                }
+                $paySlip->repaymentSchedule(json_encode($employeeIDs));
             }
         });
     }

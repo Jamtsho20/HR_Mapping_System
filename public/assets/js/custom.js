@@ -166,6 +166,7 @@
 	input.trigger('fileselect', [numFiles, label]);
 	});// We can watch for our custom `fileselect` event like this
 
+    
 	//______File Upload
 	$('.file-browserinput').on('fileselect', function(event, numFiles, label) {
 			var input = $(this).parents('.input-group').find(':text'),
@@ -191,34 +192,34 @@
 		let cancelButton = document.createElement('button');
 		cancelButton.setAttribute('class', "btn btn-danger");
 		cancelButton.innerText = "Cancel";
-	
+
 		let buttonDiv = document.createElement('div')
 		buttonDiv.setAttribute('class', "btn-list ms-auto mt-2")
-	
+
 		// Creating submit button
 		let submitButton = document.createElement('button');
 		submitButton.setAttribute('class', "btn btn-success ms-3");
 		submitButton.innerText = "Submit";
-	
+
 		// appending text are to div
 		Div.append(textArea)
 		Div.append(buttonDiv);
 		buttonDiv.append(cancelButton);
 		buttonDiv.append(submitButton);
-	
+
 		replayButtom.forEach((element, index) => {
-	
+
 			element.addEventListener('click', () => {
 				let replay = $(element).parent()
 				replay.append(Div)
-	
+
 				cancelButton.addEventListener('click', () => {
 					Div.remove()
 				})
 			})
 		})
-	
-	
+
+
 	}
 	replay()
 
@@ -280,7 +281,7 @@
 	}
 
 	/*Theme-layout*/
-	
+
 
 })(jQuery);
 

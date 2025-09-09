@@ -1131,6 +1131,28 @@ function showValidationMessage(message, documentReferrer = null) {
     });
 }
 
+function showInfoMessage(message, documentReferrer = null) {
+    Swal.fire({
+        icon: 'info', // Info icon instead of warning
+        text: message,
+        width: '400px', // Set a smaller width for the popup
+        customClass: {
+            popup: 'p-3 border-info', // Blue border for info
+            title: 'text-info fw-bold', // Blue text and bold
+            confirmButton: 'btn btn-primary btn-sm', // Small Bootstrap primary button
+            cancelButton: 'btn btn-secondary btn-sm' // Small Bootstrap secondary button
+        },
+        showCancelButton: false,
+        confirmButtonText: 'Ok',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (documentReferrer) {
+                window.location.href = documentReferrer;
+            }
+        }
+    });
+}
+
 function showConfirmationMessage(message, confirmCallback, cancelCallback = null) {
     Swal.fire({
         icon: 'warning',
@@ -1276,7 +1298,6 @@ function handleAcknowledgment(checkbox, transferId) {
                 })
                 .catch(error => {
                     let errorMessage = 'Failed to acknowledge receipt.';
-                    
                     if (error && error.message) {
                         errorMessage += ' ' + error.message;
                     }
