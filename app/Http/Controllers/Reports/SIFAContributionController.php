@@ -178,13 +178,13 @@ class SIFAContributionController extends Controller
             // Add both if they exist
             $totalAmount += $sifaFromDetails + $sifaFromColumn;
         }
-        if ($request->filled('employee_id')) {
+        if ($hasFilters) {
 
             $totalAmount =  $totalAmount - 300;
         }
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount', 'hasFilters'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Sifa-Contribution.pdf');
@@ -244,12 +244,12 @@ class SIFAContributionController extends Controller
             // Add both if they exist
             $totalAmount += $sifaFromDetails + $sifaFromColumn;
         }
-        if ($request->filled('employee_id')) {
+        if ($hasFilters) {
 
             $totalAmount =  $totalAmount - 300;
         }
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount', 'hasFilters'))->setPaper('a4', 'landscape');
 
 
 
