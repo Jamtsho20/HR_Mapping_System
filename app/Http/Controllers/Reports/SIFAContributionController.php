@@ -170,9 +170,19 @@ class SIFAContributionController extends Controller
                 $sifaFromColumn = floatval($item->sifa_contr);
             }
 
+            // if ($request->filled('employee_id')) {
+
+            //     $totalAmount += $sifaFromDetails + $sifaFromColumn - 300;
+            // }
+
             // Add both if they exist
             $totalAmount += $sifaFromDetails + $sifaFromColumn;
         }
+        if ($request->filled('employee_id')) {
+
+            $totalAmount =  $totalAmount - 300;
+        }
+
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');
 
@@ -233,6 +243,10 @@ class SIFAContributionController extends Controller
 
             // Add both if they exist
             $totalAmount += $sifaFromDetails + $sifaFromColumn;
+        }
+        if ($request->filled('employee_id')) {
+
+            $totalAmount =  $totalAmount - 300;
         }
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');
