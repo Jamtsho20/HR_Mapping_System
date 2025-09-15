@@ -104,10 +104,21 @@
             @empty
             @endforelse
             <tr>
-                <td colspan="5" class="text-right">Total:</td>
-                <td colspan="">{{ $totalAmount }}</td>
+                <td colspan="5" style="text-align: right">Membership fee:</td>
+
+                @if ($hasFilters)
+                    <td colspan=""> -300 </td>
+                @endif
                 <td></td>
             </tr>
+            <tr>
+                <td colspan="5" style="text-align: right">Total:</td>
+
+                <td colspan="">{{ $totalAmount }}</td>
+
+                <td></td>
+            </tr>
+
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

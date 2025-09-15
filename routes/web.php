@@ -38,6 +38,7 @@ use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Http\Controllers\AssetReport\AssetReturnReportController;
 use App\Http\Controllers\AssetReport\CwipReportController;
+use App\Http\Controllers\RetirementBenefitNomination\RetirementBenefitNominationController;
 use App\Http\Controllers\Sifa\SifaRegisteredUserController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
@@ -201,6 +202,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('RetirementBenefitNomination')->prefix('retirement-benefit-nomination')->group(function () {
         Route::resource('retirement-benefit-nomination', 'RetirementBenefitNominationController');
         Route::resource('retirement-benefit-list', 'RetirementBenefitUserListController');
+        Route::post('/retirement-benefit-list/{id}/send-retirement-remark', [RetirementBenefitNominationController::class, 'sendRetirementRemark'])->name('retirement-benefit-list.sendRetirementRemark');
     });
 
     // WORK STRUCTURE
