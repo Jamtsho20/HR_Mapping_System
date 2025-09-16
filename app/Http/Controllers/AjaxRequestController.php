@@ -335,17 +335,19 @@ class AjaxRequestController extends Controller
         while ($currentDate <= $toDate) {
             $formattedDate = $currentDate->format('Y-m-d');
             $dayName = $currentDate->format('l');
+            
             // Check holiday
             if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
                 $excludedDays++;
             }
 
             // Check weekly off dynamically
-            if ($excludeWeekends && in_array($dayName, $weeklyOff)) {
-                // If Saturday & employees are required on satuarday, count half-day
-                if ($dayName === 'Saturday' && $isEmployeesRequiredOnSaturday) {
-                    $excludedDays += 0.5;
-                } else {
+            if ($excludeWeekends) {
+                if ($dayName === 'Saturday') {
+                    // Special case for Saturday
+                    $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
+                } elseif (in_array($dayName, $weeklyOff)) {
+                    // Normal weekly off (e.g. Sunday)
                     $excludedDays += 1;
                 }
             }
