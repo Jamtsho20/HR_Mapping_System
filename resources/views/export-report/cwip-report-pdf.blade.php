@@ -149,19 +149,20 @@
             @forelse($receivedSerials as $serial)
                     <tr>
                         <td>{{ $count++ }}</td> {{-- Parent index --}}
-                        <td>{{ $serial->requisitionDetail?->grnItemDetail->item->item_group_id ?? config('global.null_value')  }}</td>
+                        <td>{{ $serial->requisitionDetail?->grnItemDetail?->item->item_group_id ?? config('global.null_value')  }}</td>
                         <td>
-                            {{ config('global.asset_class')[$serial->requisitionDetail?->grnItemDetail->item->item_group_id]
+                            {{ config('global.asset_class')[$serial->requisitionDetail?->grnItemDetail?->item->item_group_id]
                             ?? $serial->requisitionDetail?->grnItemDetail->item->item_group_id
                             ?? config('global.null_value') }}
                         </td>
+                        
                         <td>{{ $serial->requisitionDetail?->requisition->transaction_no ?? config('global.null_value')  }}</td>
-                        <td>{{ $serial->requisitionDetail?->grnItemDetail->grn->grn_no ?? config('global.null_value')  }}</td>
-                        <td>{{ $serial->requisitionDetail?->grnItemDetail->item->item_no .'-'.$serial->asset_serial_no ?? config('global.null_value')  }}</td>
+                        <td>{{ $serial->requisitionDetail?->grnItemDetail?->grn->grn_no ?? config('global.null_value')  }}</td>
+                        <td>{{ $serial->requisitionDetail?->grnItemDetail?->item->item_no .'-'.$serial->asset_serial_no ?? config('global.null_value')  }}</td>
                         <td title="{{ $serial->asset_description }}">
                             {{ \Illuminate\Support\Str::limit($serial->asset_description, 50, '...') }}
                         </td>
-                        <td>{{ $serial->requisitionDetail?->grnItemDetail->item->uom ?? config('global.null_value')  }}
+                        <td>{{ $serial->requisitionDetail?->grnItemDetail?->item->uom ?? config('global.null_value')  }}
                         </td>
                         <td class="text-right">{{$serial->quantity ?? 1}}</td>
                         <td>{{ $serial->requisitionDetail?->received_at ?? config('global.null_value')  }}</td>

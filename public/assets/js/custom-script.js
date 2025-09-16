@@ -390,6 +390,7 @@ var hrms = function () {
                                 typingTimer = setTimeout(function () {
                                     // Make the AJAX call after the delay
                                     $.ajax({
+                                        // url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         type: 'GET',
                                         dataType: 'json',

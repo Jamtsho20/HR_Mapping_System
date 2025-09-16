@@ -10,69 +10,66 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
                 <!-- Personal Information Section -->
                 @include('retirement-benefit-nomination.retirement-benefit-list.retirementlist',['employee' => $nomination->employee])
 
-                <label><strong>Retirement Benefit Nomination Details</strong></label>
-                <br>
-                <div class="table-responsive criteria">
-                    <table id="retirement_benefit" class="table table-condensed table-striped table-bordered table-sm">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="text-center">#</th>
-                                <th width="20%">Name</th>
-                                <th width="20%">Relationship</th>
-                                <th width="20%">CID</th>
-                                <th width="20%">Percentage of Share</th>
-                                <th width="20%">Attachments</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($nomination->details as $index => $detail)
-                            <tr>
-                                <td class="text-center">{{ $index + 1 }}</td>
-                                <td>{{ $detail->nominee_name }}</td>
-                                <td>{{ $detail->relation_with_employee }}</td>
-                                <td>{{ $detail->cid_number }}</td>
-                                <td>{{ $detail->percentage_of_share }}%</td>
-                                <td>
-                                    @if($detail->attachment)
-                                    <a href="{{ asset($detail->attachment) }}" target="_blank" class="btn btn-sm btn-primary">
-                                        View Attachment
-                                    </a>
-                                    @else
-                                    No attachment
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-danger">No nominee records found.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="mt-4">
+                    <label class="h5"><strong>Retirement Benefit Nomination Details</strong></label>
+                    <div class="table-responsive mt-2">
+                        <table id="retirement_benefit" class="table table-bordered table-striped table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th width="20%">Name</th>
+                                    <th width="20%">Relationship</th>
+                                    <th width="20%">CID</th>
+                                    <th width="20%">Percentage of Share</th>
+                                    <th width="20%">Attachments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($nomination->details as $index => $detail)
+                                <tr>
+                                    <td class="text-center">{{ $index + 1 }}</td>
+                                    <td>{{ $detail->nominee_name }}</td>
+                                    <td>{{ $detail->relation_with_employee }}</td>
+                                    <td>{{ $detail->cid_number }}</td>
+                                    <td>{{ $detail->percentage_of_share }}%</td>
+                                    <td class="text-center">
+                                        @if($detail->attachment)
+                                            <a href="{{ asset($detail->attachment) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                View
+                                            </a>
+                                        @else
+                                            <span class="text-muted">No attachment</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-danger">No nominee records found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-lg-12">
-        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
-            <div class="row">
-                <div class="col-md-12">
-                    <h6>Document History</h6>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    @include('layouts.includes.approval-details', [
-                    'approvalDetail' => $approvalDetail,
-                    'applicationStatus' => $nomination->status,
-                    ])
 
-                </div>
+            <!-- Remark Section -->
+            <div class="card-body">
+                <form action="{{ route('retirement-benefit-list.sendRetirementRemark', $nomination->id) }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="remark"><strong>Remarks</strong></label>
+                        <textarea name="remark" id="remark" rows="4" class="form-control" placeholder="Write your remarks here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-2">
+                        <i class="fa fa-envelope"></i> Send Mail
+                    </button>
+                </form>
             </div>
         </div>
     </div>

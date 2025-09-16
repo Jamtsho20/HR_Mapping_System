@@ -185,6 +185,24 @@ class RetirementBenefitNominationController extends Controller
             return back()->withInput()->with('msg_error', 'An error occurred: ' . $e->getMessage());
         }
     }
+
+    public function sendRetirementRemark(Request $request, $id)
+    {
+        $request->validate([
+            'remark' => 'required|string',
+        ]);
+
+        $nomination = RetirementBenefit::findOrFail($id);
+        $employee = $nomination->employee;
+// dd($employee->toArray());
+        // Send email to employee
+        Mail::send('emails.retirementRemark', ['employee' => $employee, 'remark' => $request->remark], function ($message) use ($employee) {
+            $message->to($employee->email)
+                ->subject('Remarks on Retirement Nomination Updation');
+        });
+
+        return back()->with('success', 'Remark sent successfully to the employee.');
+    }
     public function destroy(string $id)
     { {
             try {

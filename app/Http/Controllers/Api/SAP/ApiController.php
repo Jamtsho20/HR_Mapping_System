@@ -103,7 +103,8 @@ class ApiController extends BaseController
             'item_description' => 'required',
             'uom' => 'required',
             'status' => 'required',
-            'asset_class_id' => 'required'
+            'fa_enabled' => 'required',
+            'asset_class_id'    => 'required_if:fa_enabled,1',
         ];
 
         $validator = \Validator::make($request->all(), $rules);
@@ -284,7 +285,7 @@ class ApiController extends BaseController
                         ' and store ' . $detail['store_code']
                     );
                     }
-                
+
                 $reqDetail->received_quantity = (int)  $detail['quantity'];
                 $reqDetail->save();
 
@@ -1077,13 +1078,12 @@ class ApiController extends BaseController
 
         $rules = [
             'assets.*.employee_id' => 'required_without:assets.*.site_code',
-            'assets.*.site_code'   => 'required_without:assets.*.employee_id',
+            'assets.*.site_code'   => 'required_without:assets.*.employee_id|exists:mas_sites,code',
             'assets.*.serial_no'   => 'required',
             'assets.*.item_code'   => 'nullable',
             'assets.*.description' => 'required',
             'assets.*.quantity'    => 'required|numeric',
             'assets.*.amount'      => 'required|numeric',
-            'assets.*.current_depreciation' => 'required|numeric',
             'assets.*.uom' => 'required',
             'assets.*.capitalization_date' => 'required|date',
             'assets.*.end_date' => 'required|date',
@@ -1099,7 +1099,7 @@ class ApiController extends BaseController
         try{
         $result = DB::transaction(function () use ($assets) {
         foreach ($assets as $item) {
-                $employee   = User::find($item['employee_id'] ?? null);
+                $employee   = User::where('username', $item['employee_id'] ?? null)->first();
                 $site       = MasSite::where('code', $item['site_code'] ?? null)->first();
                 $i_code = null;
                 if (!empty($item['item_code'])) {
@@ -1119,7 +1119,8 @@ class ApiController extends BaseController
               $pushedAsset = SapAsset::where('serial_number', $item['serial_no'])->first();
 
                 if ($pushedAsset) {
-                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+
                 }
 
                 // Create if not found
@@ -1129,21 +1130,19 @@ class ApiController extends BaseController
                     'uom' => $i_code ? $i_code->uom : $item['uom'],
                     'grn_number' => $item['grn_number'] ?? null,
                     'item_description' => $i_code ? $i_code->item_description : $item['description'],
-                    'current_employee_id' => $employee?->id,
-                    'current_site_id' => $site?->id,
-                    'initial_owner_id' => $employee?->id,
                     'created_by' => auth()->id(),
                     'quantity' => $item['quantity'],
                     'amount' => $item['amount'],
                     'capitalization_date' => $item['capitalization_date'],
                     'end_date' => $item['end_date'],
+                    'category' => $item['category'],
                 ]);
 
                 // --- Push to MasAssets ---
                 $masAsset = MasAssets::where('serial_number', $item['serial_no'])->first();
 
                  if ($masAsset) {
-                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
                 }
 
                 // Create if not found
@@ -1156,22 +1155,14 @@ class ApiController extends BaseController
                     'sap_asset_id' => $pushedAsset->id,
                 ]);
 
-                return response()->json([
-                    'status' => 'created',
-                    'message' => 'Asset successfully created in both tables',
-                    'sap_asset_id' => $pushedAsset->id,
-                    'mas_asset_id' => $masAsset->id,
-                ]);
-
-
             }
         });
-        return $result;
+        return $this->successResponse('Asset saved successfully');
         }catch (\Exception $e) {
             // \Log::error("Asset save failed: " . $e->getMessage());
-            return $this->errorResponse('Something went wrong while saving assets. Please try again.'. $e->getMessage());
+            return $this->errorResponse('Something went wrong while saving assets. '. $e->getMessage());
         }
-        return $this->successResponse('Asset saved successfully');
+
     }
 
 
