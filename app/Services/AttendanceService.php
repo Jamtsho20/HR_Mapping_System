@@ -110,13 +110,13 @@ class AttendanceService
                 NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
                 FULL_DAY_SHIFT => json_decode($shiftData['full_shift_days'] ?? '[]', true) ?: [], // full day shift
             ];
-
+        
             // Detect today’s shift type id
             $todayShiftTypeId = collect($shifts)->search(function ($days) use ($today) {
                 return in_array($today, $days);
             });
-
-             if ($todayShiftTypeId) {
+            
+            if ($todayShiftTypeId) {
                 $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)
                     ->where('type_id', $todayShiftTypeId)
                     ->first();
