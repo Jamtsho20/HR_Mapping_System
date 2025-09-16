@@ -216,7 +216,9 @@ var hrms = function () {
                         }
 
                         // Handle half day by enabling/disabling options in the form
-                        if (!response.data.is_half_day) {
+                        isHalfDayAllowed = !!response.data.is_half_day;
+
+                        if (!isHalfDayAllowed) {
                             disableHalfDayOptions();
                         } else {
                             enableAllDayOptions();

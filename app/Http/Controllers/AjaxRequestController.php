@@ -6,17 +6,15 @@ use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\AssetCommissionDetail;
-use App\Models\AssetReturnApplication;
-use App\Models\AssetTransferApplication;
 use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
+use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasCommissionTypes;
 use App\Models\MasConditionField;
-use App\Models\MasDepartment;
 use App\Models\MasDzongkhag;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
@@ -50,11 +48,11 @@ use App\Models\User;
 use App\Models\MasAssets;
 use App\Models\WorkHolidayList;
 use App\Services\AssetAcknowledgementService;
+use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -121,13 +119,16 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id) //was done for json message purpose
     {
+        $attendanceService = new AttendanceService();
         try {
             $empGender = auth()->user()->gender;
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
             $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
             $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
             $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-
+            $isShiftEmp = $attendanceService->isShiftEmployee(auth()->user()->id);
+            $isEmployeesRequiredOnSaturday = $attendanceService->isEmployeesRequiredOnSaturday(auth()->user()->id);
+            // $isTphuPlingCC = $this->isTphuPlingCC();
             if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
                 return $this->errorResponse('You are not eligible to apply ' . $leaveType . ', based on your employment type.');
             }
@@ -150,11 +151,15 @@ class AjaxRequestController extends Controller
                 // If the gender and balance are valid, check leave limits and attachment requirements
                 $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
                 $isHalfDay = false;
-                if($leaveLimits){
-                    $isHalfDay = in_array(4, $leaveLimits); // Check if half day leave is allowed
-                }
-                $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
 
+                if ($leaveLimits) {
+                    if (!$isShiftEmp || $isEmployeesRequiredOnSaturday) {
+                        $isHalfDay = in_array(4, $leaveLimits);
+                    }
+                }
+
+                $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
+                
                 return $this->successResponse([
                     'balance' => $balance,
                     'leavePolicy' => $leavePolicy,
@@ -171,18 +176,32 @@ class AjaxRequestController extends Controller
 
     public function getNoOfDays(Request $request)
     {
+        $attendanceService = new AttendanceService();
         $leaveTypeId = $request->input('leave_type');
         $fromDate = new \DateTime($request->input('from_date'));
         $toDate = new \DateTime($request->input('to_date'));
         $fromDay = (int) $request->input('from_day');
         $toDay = (int) $request->input('to_day');
         $loggedInUserRegion = loggedInUserRegion();
+        $isShiftEmp = $attendanceService->isShiftEmployee(auth()->user()->id);
+        $isEmployeesRequiredOnSaturday = $attendanceService->isEmployeesRequiredOnSaturday(auth()->user()->id);
+        $weeklyOff = [];
+
+        if($isShiftEmp){
+            $weeklyOff = json_decode($isShiftEmp->off_days, true);
+        }else if($isEmployeesRequiredOnSaturday){
+            $weeklyOff = ['Sunday'];
+        }else{
+            $weeklyOff = ['Saturday', 'Sunday']; //default as regular employee will have satuarday and sunday off
+        }
 
         // Get holidays for the logged-in user's region
-        $holidayDates = $this->getHolidayDates($loggedInUserRegion);
-
+        $holidayDates = [];
+        if(!$isShiftEmp){
+            $holidayDates = $this->getHolidayDates($loggedInUserRegion);
+        }
         // Find the last working day before the new leave (skip holidays & weekends)
-        $prevLeaveEndDate = $this->getLastValidLeaveDate($fromDate, $holidayDates);
+        $prevLeaveEndDate = $this->getLastValidLeaveDate($fromDate, $holidayDates, $weeklyOff);
 
         // Fetch previous leave ending exactly one day before the new leave
         $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)
@@ -192,31 +211,34 @@ class AjaxRequestController extends Controller
             ->first();
 
         if ($leaveTypeId == CASUAL_LEAVE && $prevLeave) {
-            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate)) {
+            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff)) {
                 return $this->errorResponse('Casual Leave is not allowed, please try applying earned leave.');
             }
         }
 
-        return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates);
+        return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday);
     }
 
         /**
      * Finds the last working day before the new leave start date by skipping holidays and weekends.
      */
-    private function getLastValidLeaveDate($fromDate, $holidayDates)
+    private function getLastValidLeaveDate($fromDate, $holidayDates, $weeklyOff)
     {
         $prevDate = clone $fromDate;
         $prevDate->modify('-1 day');
 
-        // Keep moving back if the date is a holiday or weekend
-        while (in_array($prevDate->format('Y-m-d'), $holidayDates) || in_array($prevDate->format('l'), ['Saturday', 'Sunday'])) {
+        // Keep moving back if the date is a holiday or a weekly off
+        while (
+            in_array($prevDate->format('Y-m-d'), $holidayDates) ||
+            in_array($prevDate->format('l'), $weeklyOff)
+        ) {
             $prevDate->modify('-1 day');
         }
 
         return $prevDate;
     }
 
-    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate)
+    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
     {
         $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
         $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
@@ -225,7 +247,7 @@ class AjaxRequestController extends Controller
 
         // Check for weekends and holidays between previous leave and new leave
         while ($nextDay < $fromDate) {
-            if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), ['Saturday', 'Sunday'])) {
+            if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
                 $nextDay->modify('+1 day'); // Skip holidays and weekends
                 continue;
             }
@@ -239,7 +261,7 @@ class AjaxRequestController extends Controller
         return !$hasWorkingDayBetween;
     }
 
-    private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates)
+    private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday)
     {
         try {
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')
@@ -248,7 +270,7 @@ class AjaxRequestController extends Controller
                 ->first();
 
             $leaveLimits = $leavePolicy->leavePolicyPlan
-                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
+                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) 
                 : [];
             // Calculate initial days
             $dayDifference = $toDate->diff($fromDate)->days;
@@ -259,7 +281,7 @@ class AjaxRequestController extends Controller
                 ? $fromDayAdjustment + $toDayAdjustment - 1
                 : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
-            // Adjust total days based on leave policy restrictions
+            // Adjust total days based on leave policy restrictions and shift employee and check employee designation as well
             if (!empty($leaveLimits)) {
                 $excludeHolidays = in_array(1, $leaveLimits);
                 $excludeWeekends = in_array(3, $leaveLimits);
@@ -269,7 +291,9 @@ class AjaxRequestController extends Controller
                     $toDate,
                     $holidayDates,
                     $excludeHolidays,
-                    $excludeWeekends
+                    $excludeWeekends,
+                    $weeklyOff,
+                    $isEmployeesRequiredOnSaturday
                 );
             }
 
@@ -303,24 +327,26 @@ class AjaxRequestController extends Controller
         return $holidayDates;
     }
 
-    private function calculateExcludedDays($fromDate, $toDate, $holidayDates, $excludeHolidays, $excludeWeekends)
+    private function calculateExcludedDays($fromDate, $toDate, $holidayDates, $excludeHolidays, $excludeWeekends, $weeklyOff, $isEmployeesRequiredOnSaturday)
     {
         $excludedDays = 0;
         $currentDate = clone $fromDate;
 
         while ($currentDate <= $toDate) {
             $formattedDate = $currentDate->format('Y-m-d');
-            $isSunday = ($currentDate->format('w') == 0);
-            $isSaturday = ($currentDate->format('w') == 6);
-
+            $dayName = $currentDate->format('l');
+            // Check holiday
             if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
                 $excludedDays++;
-            } elseif ($excludeWeekends) {
-                if ($isSunday) {
-                    $excludedDays++;
-                }
-                if ($isSaturday) {
+            }
+
+            // Check weekly off dynamically
+            if ($excludeWeekends && in_array($dayName, $weeklyOff)) {
+                // If Saturday & employees are required on satuarday, count half-day
+                if ($dayName === 'Saturday' && $isEmployeesRequiredOnSaturday) {
                     $excludedDays += 0.5;
+                } else {
+                    $excludedDays += 1;
                 }
             }
 

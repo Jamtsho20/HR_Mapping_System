@@ -7,6 +7,7 @@ use App\Models\DepartmentWiseShift;
 use App\Models\EmployeeAttendance;
 use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
+use App\Models\MasEmployeeJob;
 use App\Models\MasOfficeTiming;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\WorkHolidayList;
@@ -21,8 +22,17 @@ class AttendanceService
         //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
         $today = Carbon::now()->format('l');
         $attendanceStatus = CREATED_STATUS;
-        // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
-        $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
+        $isShiftEmp = $this->isShiftEmployee($empId);
+        $isEmployeesRequiredOnSaturday = $this->isEmployeesRequiredOnSaturday($empId);
+        $weeklyOff = [];
+
+        if($isShiftEmp){
+            $weeklyOff = json_decode($isShiftEmp->off_days, true);
+        }else if($isEmployeesRequiredOnSaturday){
+            $weeklyOff = ['Sunday'];
+        }else{
+            $weeklyOff = ['Saturday', 'Sunday']; //default as regular employee will have satuarday and sunday off
+        }
 
         $isOnTour = TravelAuthorizationApplication::where('status', '<>', -1)
             ->where('created_by', $empId)
@@ -42,19 +52,13 @@ class AttendanceService
 
         // 2. check if employee is on leave priority over other
         $isOnLeave = LeaveApplication::where('created_by', $empId)
+            ->where('status', '<>', -1)
             ->whereDate('from_date', '<=', $currentDate->toDateString())
             ->whereDate('to_date', '>=', $currentDate->toDateString())
-            ->where('status', '<>', -1)
             ->first();
 
         if ($isOnLeave) {
             return $this->prepareLeaveStatus($isOnLeave);
-        }
-
-        // check if employee is in shift as they will have different sets of off days
-        $offDays = $isShiftEmp ? json_decode($isShiftEmp->off_days, true) : [];
-        if ($isShiftEmp && is_array($offDays) && in_array($today, $offDays)) {
-            return WEEKLY_OFF_STATUS;
         }
 
         // 3. Check if it's a holiday first (priority over weekends)
@@ -67,15 +71,14 @@ class AttendanceService
             return HOLIDAY_STATUS;
         }
 
-        // 4. Check for Sunday and Satuarday if regular employee
-        if (($currentDate->isSunday() || $currentDate->isSaturday()) && !$isShiftEmp) {
+        if (is_array($weeklyOff) && in_array($today, $weeklyOff)) {
             return WEEKLY_OFF_STATUS;
         }
 
-        // 5. Check for Saturday  commented as HALF_DAY_WEEKEND_STATUS is not req for now 
-        // if ($currentDate->isSaturday() && !$isShiftEmp) {
-        //     return HALF_DAY_WEEKEND_STATUS;
-        // }
+        // 5. Check for Saturday  commented as HALF_DAY_WEEKEND_STATUS is applied to those who attend office on Satuarday 
+        if ($currentDate->isSaturday() && $isEmployeesRequiredOnSaturday) {
+            return HALF_DAY_WEEKEND_STATUS;
+        }
 
         return $attendanceStatus;
     }
@@ -96,6 +99,7 @@ class AttendanceService
 
 
         // if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
+        //incase if shift is not set then set default mornigng/evening/night time based on checking time
         if (!empty($userData['employeeInShifts'][0])) {
             $shiftData = $userData['employeeInShifts'][0];
 
@@ -104,6 +108,7 @@ class AttendanceService
                 MORNING_SHIFT => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [], // morning
                 EVENING_SHIFT => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [], // evening
                 NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
+                FULL_DAY_SHIFT => json_decode($shiftData['full_shift_days'] ?? '[]', true) ?: [], // full day shift
             ];
 
             // Detect today’s shift type id
@@ -111,7 +116,7 @@ class AttendanceService
                 return in_array($today, $days);
             });
 
-            if ($todayShiftTypeId) {
+             if ($todayShiftTypeId) {
                 $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)
                     ->where('type_id', $todayShiftTypeId)
                     ->first();
@@ -121,10 +126,17 @@ class AttendanceService
                 $officeTiming['shift_name'] = $departmentWiseShift->shiftType->name;
             }
         } else {
-            $defaultOfficeTiming = MasOfficeTiming::where(function ($query) use ($currentMonthNum) {
-                $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
-                    ->orWhereRaw('start_month > end_month AND (? >= start_month OR ? <= end_month)', [$currentMonthNum, $currentMonthNum]);
-            })->select('start_time', 'end_time')->first();
+            $isEmployeesRequiredOnSaturday = $this->isEmployeesRequiredOnSaturday(auth()->user()->id);
+            $isSpecial = $isEmployeesRequiredOnSaturday ? 1 : 0; //if special follows different timing then rest of the employee
+
+            $defaultOfficeTiming = MasOfficeTiming::where('is_special', $isSpecial)
+                ->where(function ($query) use ($currentMonthNum) {
+                    $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
+                        ->orWhereRaw('start_month > end_month AND (? >= start_month OR ? <= end_month)', [$currentMonthNum, $currentMonthNum]);
+                })
+                ->select('start_time', 'end_time')
+                ->first();
+
             $officeTiming['start_time'] = $defaultOfficeTiming->start_time;
             $officeTiming['end_time'] = $defaultOfficeTiming->end_time;
             $officeTiming['shift_name'] = 'Regular';
@@ -238,4 +250,20 @@ class AttendanceService
                 return EOL_LEAVE_STATUS;
         }
     }
+
+    // for shift employee half day will not be allowed
+    public function isShiftEmployee($empId){
+        $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
+        return $isShiftEmp;
+    }
+
+    // employee that will attend office on Satuarday collected based on office location and if required need to check designation as well especially for RM
+    public function isEmployeesRequiredOnSaturday($empId) {
+        return MasEmployeeJob::where('mas_employee_id', $empId)
+                                ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, CC_THIMPHU_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
+                                ->where('mas_designation_id', '!=', REGIONAL_MANAGER)
+                                ->whereNotIn('mas_employee_id', [286, 292]) // at times cases comes where certain employee dont need to come to office despite of their designation and office location
+                                ->exists();
+    }
+
 }

@@ -143,3 +143,14 @@ const SUPER_USER_ID = 2;
 const MORNING_SHIFT = 1;
 const EVENING_SHIFT = 2;
 const NIGHT_SHIFT = 3;
+const FULL_DAY_SHIFT = 5;
+
+//Designation and Office
+const CC_PLING_OFFICE = 4;
+const CC_THIMPHU_OFFICE = 26;
+const NETOPS_THIMPHU_OFFICE = 27;
+const SAAS_OFFICE = 47;
+const HEAD_OFFICE = 28;
+const CC_DESIGNATION = 11;
+const REGIONAL_MANAGER = 62;
+

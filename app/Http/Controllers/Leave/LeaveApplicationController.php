@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Leave;
 use App\Http\Controllers\Controller;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\EmployeeLeave;
+use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\MasEmployeeJob;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
+use App\Models\MasShiftType;
 use App\Models\User;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
@@ -66,6 +68,8 @@ class LeaveApplicationController extends Controller
     public function create()
     {
         $leaveTypes = MasLeaveType::get(['id', 'name']);
+        // $shifts = MasShiftType::get(['id', 'name']);
+        // $isShiftEmp = EmployeeShift::where('mas_employee_id', auth()->user()->id)->exists();
         return view('leave.leave.create', compact('leaveTypes')); // Ensure the view name is correct
     }
 
