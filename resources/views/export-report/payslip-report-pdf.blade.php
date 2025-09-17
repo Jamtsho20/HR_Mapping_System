@@ -61,7 +61,7 @@
                             <tr>
                                 <td class="w-half">Basic Pay: </td>
                                 <td class="w-half text-right pr-10">
-                                    {{ number_format($payslip->employee->empJob->basic_pay, 2) }}
+                                    {{ number_format($payslip->details['basic_pay'], 2) }}
                                 </td>
                             </tr>
                             @foreach ($payslip->details['allowances'] as $key => $value)
