@@ -62,6 +62,9 @@
                                                         Night Shift
                                                     </th>
                                                     <th>
+                                                        Full Shift
+                                                    </th>
+                                                    <th>
                                                         Off Days
                                                     </th>
                                                     <th>
@@ -81,10 +84,12 @@
                                                         $mornignShiftDays = json_decode($shift->morning_shift_days, true);
                                                         $eveningShiftDays = json_decode($shift->evening_shift_days, true);
                                                         $nightShiftDays = json_decode($shift->night_shift_days, true);
+                                                        $fullShiftDays = json_decode($shift->full_shift_days, true);
                                                     @endphp
                                                     <td>{{ $mornignShiftDays ? implode(', ', $mornignShiftDays) : config('global.null_value') }}</td>
                                                     <td>{{ $eveningShiftDays ? implode(', ', $eveningShiftDays) : config('global.null_value') }}</td>
                                                     <td>{{ $nightShiftDays ? implode(', ', $nightShiftDays) : config('global.null_value') }}</td>
+                                                    <td>{{ $fullShiftDays ? implode(', ', $fullShiftDays) : config('global.null_value') }}</td>
                                                     <td>{{ $offDays ? implode(', ', $offDays) : config('global.null_value') }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)

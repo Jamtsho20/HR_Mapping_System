@@ -55,7 +55,7 @@
                         <div class="form-group">
                             <label for="commission_date">Commission Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="commission_date" id="commission_date"
-                                value="{{ old('commission_date', date('Y-m-d')) }}">
+                                value="{{ old('commission_date', date('Y-m-d')) }}" readonly>
 
                             <input type="hidden" name="total_quantity" value="" id="total-quantity-id" class="form-control resetKeyForNew total-quantity-id" readonly required />
                         </div>
@@ -172,7 +172,7 @@
 
                                     <td>
                                         <input type="date" class="form-control  resetKeyForNew"
-                                            name="details[AAAAA][date_placed_in_service]" max="{{ date('Y-m-d') }}" required />
+                                            name="details[AAAAA][date_placed_in_service]" min="{{ \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }}"  max="{{ date('Y-m-d') }}" required />
                                     </td>
 
                                     <td>
@@ -235,33 +235,69 @@
             $(document).on('click', '.delete-table-row', function () {
                 checkRowLimit();
             })
-            $('#details').on('input', "input[name$='[date_placed_in_service]']", function () {
-                        const $row = $(this).closest('tr');
-                        const dateVal = $(this).val();
-                        $row.find("input[name$='[date_placed_in_service_text]']").val(dateVal);
-                    });
+          // helper to validate date within allowed range
+        function isDateInRange(dateStr) {
+            const inputDate = new Date(dateStr);
+            if (isNaN(inputDate)) return false;
 
-                    $('#details').on('blur', "input[name$='[date_placed_in_service_text]']", function () {
-                        const $row = $(this).closest('tr');
-                        const textVal = $(this).val().trim();
-                        const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+            inputDate.setHours(0, 0, 0, 0);
 
-                        if (isValid) {
-                            $row.find("input[name$='[date_placed_in_service]']").val(textVal);
-                        }
-                    });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-                    $('#details').on('paste', "input[name$='[date_placed_in_service_text]']", function () {
-                        const input = this;
-                        setTimeout(() => {
-                            const $row = $(input).closest('tr');
-                            const textVal = $(input).val().trim();
-                            const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
-                            if (isValid) {
-                                $row.find("input[name$='[date_placed_in_service]']").val(textVal);
-                            }
-                        }, 0);
-                    });
+            const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            return inputDate >= firstOfMonth && inputDate <= today;
+        }
+
+        // sync from date input → text input
+        $('#details').on('input', "input[name$='[date_placed_in_service]']", function () {
+            const $row = $(this).closest('tr');
+            const dateVal = $(this).val();
+
+            if (dateVal && !isDateInRange(dateVal)) {
+                showErrorMessage('Invalid date! Please select a date between ' + new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] + ' and ' + new Date().toISOString().split('T')[0]);
+                $(this).val('');
+                $row.find("input[name$='[date_placed_in_service_text]']").val('');
+                return;
+            }
+
+            $row.find("input[name$='[date_placed_in_service_text]']").val(dateVal);
+        });
+
+        // sync from text input → date input (on blur)
+        $('#details').on('blur', "input[name$='[date_placed_in_service_text]']", function () {
+            const $row = $(this).closest('tr');
+            const textVal = $(this).val().trim();
+            const isValidFormat = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+
+            if (isValidFormat && isDateInRange(textVal)) {
+                $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+            } else if (textVal !== '') {
+                showErrorMessage('Invalid date! Please select a date between ' + new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] + ' and ' + new Date().toISOString().split('T')[0]);
+                $(this).val('');
+                $row.find("input[name$='[date_placed_in_service]']").val('');
+            }
+        });
+
+        // sync from text input → date input (on paste)
+        $('#details').on('paste', "input[name$='[date_placed_in_service_text]']", function () {
+            const input = this;
+            setTimeout(() => {
+                const $row = $(input).closest('tr');
+                const textVal = $(input).val().trim();
+                const isValidFormat = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+
+                if (isValidFormat && isDateInRange(textVal)) {
+                    $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+                } else if (textVal !== '') {
+                    showErrorMessage('Invalid date! Please select a date between ' + new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] + ' and ' + new Date().toISOString().split('T')[0]);
+                    $(input).val('');
+                    $row.find("input[name$='[date_placed_in_service]']").val('');
+                }
+            }, 0);
+        });
+
 
             const loader = document.getElementById('loader');
             const form = document.getElementById('commissionForm');

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->time('lunch_time_from');
             $table->time('lunch_time_to');
             $table->time('end_time'); // end time
+            $table->boolean('is_special')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             // $table->string('start_meridiem', 30)->nullable()->comment('AM/PM');

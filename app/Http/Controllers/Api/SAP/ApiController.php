@@ -103,7 +103,8 @@ class ApiController extends BaseController
             'item_description' => 'required',
             'uom' => 'required',
             'status' => 'required',
-            'asset_class_id' => 'required'
+            'fa_enabled' => 'required',
+            'asset_class_id'    => 'required_if:fa_enabled,1',
         ];
 
         $validator = \Validator::make($request->all(), $rules);

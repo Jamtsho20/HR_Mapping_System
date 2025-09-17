@@ -216,7 +216,9 @@ var hrms = function () {
                         }
 
                         // Handle half day by enabling/disabling options in the form
-                        if (!response.data.is_half_day) {
+                        isHalfDayAllowed = !!response.data.is_half_day;
+
+                        if (!isHalfDayAllowed) {
                             disableHalfDayOptions();
                         } else {
                             enableAllDayOptions();
@@ -388,6 +390,7 @@ var hrms = function () {
                                 typingTimer = setTimeout(function () {
                                     // Make the AJAX call after the delay
                                     $.ajax({
+                                        // url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         type: 'GET',
                                         dataType: 'json',

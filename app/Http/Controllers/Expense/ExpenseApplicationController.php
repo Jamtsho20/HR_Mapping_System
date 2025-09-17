@@ -128,7 +128,7 @@ class ExpenseApplicationController extends Controller
 
 
         $applicationIds = DsaClaimApplication::whereCreatedBy(loggedInUser())
-            ->whereIn('status', [1,3])
+            ->whereIn('status', [1,2,3])
             ->pluck('id'); // Get only the IDs
 
         
