@@ -105,7 +105,7 @@
                                             <tbody>
                                                 @forelse($attendanceRecords as $record)
                                                 <tr>
-                                                    <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}" style="text-align: right;">{{ $loop->iteration }}</td>
+                                                    <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}" style="text-align: right;">{{ $attendanceRecords->firstItem() + $loop->index }}</td>
                                                     <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}">{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
                                                     <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>

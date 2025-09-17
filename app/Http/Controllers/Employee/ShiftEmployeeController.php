@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\DepartmentWiseShift;
 use App\Models\EmployeeShift;
 use App\Models\User;
 use App\Services\DelegationService;
@@ -165,6 +164,7 @@ class ShiftEmployeeController extends Controller
         $shift->morning_shift_days = json_encode($request->morning_shift_days);
         $shift->evening_shift_days = json_encode($request->evening_shift_days);
         $shift->night_shift_days = json_encode($request->night_shift_days);
+        $shift->full_shift_days = json_encode($request->full_shift_days);
         $shift->off_days = json_encode($request->off_days);
         $shift->save();
 
@@ -200,6 +200,7 @@ class ShiftEmployeeController extends Controller
         $shift->morning_shift_days = json_encode($request->morning_shift_days);
         $shift->evening_shift_days = json_encode($request->evening_shift_days);
         $shift->night_shift_days = json_encode($request->night_shift_days);
+        $shift->full_shift_days = json_encode($request->full_shift_days);
         $shift->off_days = $request->off_days; // if $casts exists
         $shift->updated_by = auth()->id();
         $shift->save();

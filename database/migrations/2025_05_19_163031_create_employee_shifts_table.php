@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_employee_id')->index()->constrained('mas_employees')->cascadeOnUpdate()->restrictOnDelete();
             // $table->foreignId('department_shift_id')->index()->constrained('department_wise_shifts')->cascadeOnUpdate()->restrictOnDelete();
+            $table->json('full_shift_days')->nullable()->comment('Array of full shift days like ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satuarday"]');
             $table->json('morning_shift_days')->nullable()->comment('Array of morning shift days like ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satuarday"]');
             $table->json('evening_shift_days')->nullable()->comment('Array of evening shift days like ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satuarday"]');
             $table->json('night_shift_days')->nullable()->comment('Array of night shift days like ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satuarday"]');

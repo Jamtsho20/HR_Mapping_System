@@ -15,6 +15,7 @@ class EmployeeShift extends Model
         'morning_shift_days',
         'evening_shift_days',
         'night_shift_days',
+        'full_shift_days',
         'off_days'
     ];
 
@@ -22,6 +23,7 @@ class EmployeeShift extends Model
         'morning_shift_days' => 'array',
         'evening_shift_days' => 'array',
         'night_shift_days' => 'array',
+        'full_shift_days' => 'array',
         'off_days' => 'array'
     ];
 

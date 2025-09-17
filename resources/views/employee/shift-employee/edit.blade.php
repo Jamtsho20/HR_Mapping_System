@@ -75,6 +75,23 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
+                        <label for="full_shift_days" class="form-label">Full Shift Day(s)</label>
+                        @php
+                        $fullDaysArray = json_decode($shift->full_shift_days, true) ?: [];
+                        $weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                        @endphp
+
+                        <select name="full_shift_days[]" class="form-control select2" multiple>
+                            @foreach ($weekDays as $day)
+                            <option value="{{ $day }}" {{ in_array($day, $fullDaysArray) ? 'selected' : '' }}>
+                                {{ $day }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
                         <label for="off_days" class="form-label">Off Days</label>
                         @php
                         $offDaysArray = json_decode($shift->off_days, true) ?: [];
