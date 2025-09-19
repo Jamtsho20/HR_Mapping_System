@@ -73,9 +73,9 @@
                                                                     <th>
                                                                         EMPLOYEE
                                                                     </th>
-                                                                    <th>
+                                                                    {{-- <th>
                                                                         DATE
-                                                                    </th>
+                                                                    </th> --}}
                                                                     <th>
                                                                         EXPENSE TYPE
                                                                     </th>
@@ -100,7 +100,7 @@
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName }} </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}</td>
+                                                                    {{-- <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}</td> --}}
                                                                     <td>{{ $expense->type->name }}
                                                                     </td>
                                                                     <td class="text-right">{{formatAmount($expense->amount) }}</td>
@@ -185,9 +185,9 @@
                                                                     <th>
                                                                         EMPLOYEE
                                                                     </th>
-                                                                    <th>
+                                                                    {{-- <th>
                                                                         DATE
-                                                                    </th>
+                                                                    </th> --}}
                                                                     <th>
                                                                         TOTAL PAYABLE AMOUNT
                                                                     </th>
@@ -214,7 +214,7 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName }}
 
-                                                                    <td>{{ $dsaClaim->created_at->format('d-M-Y') }}
+                                                                    {{-- <td>{{ $dsaClaim->created_at->format('d-M-Y') }} --}}
                                                                     <td class="text-right">{{ formatAmount($dsaClaim->net_payable_amount )}}
                                                                     </td>
                                                                     <td class="text-right">
@@ -302,9 +302,9 @@
                                                                     <th>
                                                                         EMPLOYEE
                                                                     </th>
-                                                                    <th>
+                                                                    {{-- <th>
                                                                         CLAIM DATE
-                                                                    </th>
+                                                                    </th> --}}
                                                                     <th>
                                                                         CLAIM TYPE
                                                                     </th>
@@ -333,7 +333,7 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName}}
 
-                                                                    <td>{{ \Carbon\Carbon::parse($transfer->created_at)->format('d-M-Y') }}</td>
+                                                                    {{-- <td>{{ \Carbon\Carbon::parse($transfer->created_at)->format('d-M-Y') }}</td> --}}
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
                                                                     </td>

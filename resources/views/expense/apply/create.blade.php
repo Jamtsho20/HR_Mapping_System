@@ -1028,7 +1028,7 @@
     calculateNetPayable();
 });
 
-$(document).on("click", ".add-table-row", function () {
+$(document).on("click", ".add-table-row-dsa", function () {
     const table = $(this).closest("table");
     const lastRow = table.find("tr:last"); // Get the last row
     const newRow = lastRow.clone(); // Clone last row
@@ -1143,7 +1143,7 @@ $(document).on("click", ".delete-table-row", function () {
 });
 
 // Example: When a row is added, you might want to update the constraints as well:
-$(document).on("click", ".add-table-row", function () {
+$(document).on("click", ".add-table-row-dsa", function () {
     // Assume your row cloning or creation logic here
     // After adding the new row, update constraints for the group:
     const travelAuthClassMatch = $(this).closest("[class*='travel-auth-']").attr('class')?.match(/travel-auth-(\d+)/);
@@ -1403,9 +1403,8 @@ document.addEventListener("click", function (event) {
                             <td colspan="9"></td>
                             <td class="text-right">
                                <a href="#" class=" add-row-btn btn btn-sm btn-info "  style="font-size: 12px">
-    <i class="fa fa-plus"></i> Add New Row
-</a>
-
+                                    <i class="fa fa-plus"></i> Add New Row
+                                </a>
                             </td>
                         </tr>`;
                     tbody.append(btnRow);
@@ -1423,11 +1422,11 @@ document.addEventListener("click", function (event) {
 
 
 
-// Event listener for dynamically added buttons
-$(document).on("click", ".add-specific-row", function (e) {
-    e.preventDefault();
-    addNewRow(this);
-});
+                // Event listener for dynamically added buttons
+                $(document).on("click", ".add-specific-row", function (e) {
+                    e.preventDefault();
+                    addNewRow(this);
+                });
 
 
                     // Update the grand total
@@ -1453,16 +1452,17 @@ $(document).on("click", ".add-specific-row", function (e) {
     }
 }
 
-$(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', function() {
-    const maxVal = parseFloat($(this).attr('max')); // Get max value
-    const currentVal = parseFloat($(this).val());   // Get current value
+            $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', function() {
+                const maxVal = parseFloat($(this).attr('max')); // Get max value
+                const currentVal = parseFloat($(this).val());   // Get current value
 
-    if (currentVal > maxVal) {
-        showErrorMessage(`Value cannot be more than the number of days`);
-        $(this).val(maxVal); // Reset to max value
-        $(this).trigger("change");
-    }
-});
+                if (currentVal > maxVal) {
+                    showErrorMessage(`Value cannot be more than the number of days`);
+                    $(this).val(maxVal); // Reset to max value
+                    $(this).trigger("change");
+                }
+            });
+
             function getTravelAuthorizationDetails() {
                 const travelAuthorizationId = $("#travel_autorization").val();
 
@@ -1565,7 +1565,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
                     <tr class="notremovefornew">
                         <td colspan="9"></td>
                         <td class="text-right">
-                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
+                            <a href="#" class="add-table-row-dsa btn btn-sm btn-info" style="font-size: 12px">
                                 <i class="fa fa-plus"></i> Add New Row
                             </a>
                         </td>

@@ -23,7 +23,7 @@
                         <tbody>
                             <tr>
                                 <th style="width:35%;">Leave Type <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
+                                    &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $leave->leaveType->name }}</td>
                             </tr>
                             <tr>
@@ -33,18 +33,26 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th style="width:35%;">From Date<span class="pull-right d-none d-sm-block">:</span>
-                                    &nbsp;&nbsp;</th>
+                                <th style="width:35%;">From Date <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
                                     {{ \Carbon\Carbon::parse($leave->from_date)->format('d-M-Y') }}
-                                    ({{ config('global.leave_days')[$leave->from_day] ?? 'N/A' }})
+                                    @if($leave->from_day == 1 && $leave->to_day == 1)
+                                    ({{ config('global.leave_days')[1] }}) {{-- Full Day --}}
+                                    @elseif(in_array($leave->from_day, [2,3]))
+                                    ({{ config('global.leave_days')[$leave->from_day] }})
+                                    @endif
                                 </td>
                             </tr>
+
                             <tr>
-                                <th style="width:35%;">To Date <span class="pull-right d-none d-sm-block">:</span>
-                                    &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y') }}
-                                    ({{ config('global.leave_days')[$leave->to_day] ?? 'N/A' }})
+                                <th style="width:35%;">To Date <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y') }}
+                                    @if($leave->from_day == 1 && $leave->to_day == 1)
+                                    ({{ config('global.leave_days')[1] }}) {{-- Full Day --}}
+                                    @elseif(in_array($leave->to_day, [2,3]))
+                                    ({{ config('global.leave_days')[$leave->to_day] }})
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
@@ -114,7 +122,11 @@
 
             const itemType = 1;
             var action = $(this).data('value');
-            var selectedItems = [{{$leave->id}}];
+            var selectedItems = [{
+                {
+                    $leave - > id
+                }
+            }];
             var routeUrl = $(this).data('route');
             var itemClass = $(this).data('item-class');
 
