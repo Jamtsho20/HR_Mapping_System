@@ -8,6 +8,7 @@ use App\Models\BankLoan;
 use App\Models\FinalPaySlip;
 use App\Models\MasPayHead;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -41,15 +42,21 @@ class LoanReportController extends Controller
 
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
-            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id')
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
+            ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
             ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
             ->where('mas_employees.is_active', 1)
-            ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type') // Select the columns you need, including pay_head name
-            ->paginate(config('global.pagination')) // Paginate the results
-            ->withQueryString(); // Retain the query string in the pagination links
+            ->filter($request)
+            ->select(
+                'final_pay_slips.*',
+                'loan_e_m_i_deductions.*',
+                'mas_pay_heads.name as pay_head_name',
+                'mas_loan_types.name as loan_type'
+            )
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
 
 
 
@@ -109,15 +116,21 @@ class LoanReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $loans =      FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+        $loans =     FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
-            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
-            ->where('mas_employees.is_active', 1)
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id')
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
-            ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
+            ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
+            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
+            ->where('mas_employees.is_active', 1)
+            ->filter($request)
+            ->select(
+                'final_pay_slips.*',
+                'loan_e_m_i_deductions.*',
+                'mas_pay_heads.name as pay_head_name',
+                'mas_loan_types.name as loan_type'
+            )->get();
 
 
 
@@ -155,13 +168,19 @@ class LoanReportController extends Controller
         $loans =
             FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
-            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
-            ->where('mas_employees.is_active', 1)
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id')
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
-            ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
+            ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
+            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
+            ->where('mas_employees.is_active', 1)
+            ->filter($request)
+            ->select(
+                'final_pay_slips.*',
+                'loan_e_m_i_deductions.*',
+                'mas_pay_heads.name as pay_head_name',
+                'mas_loan_types.name as loan_type'
+            )->get();
 
         $totalLoans = $loans->sum(function ($loan) {
             return $loan->amount ?? 0;

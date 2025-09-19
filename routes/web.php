@@ -23,6 +23,7 @@ use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LeaveEncashmentReportController;
 use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
+use App\Http\Controllers\Ltc\LeaveTravelConcessionController;
 use App\Http\Controllers\Reports\PayComparisionReportController;
 use App\Http\Controllers\Reports\PayslipReportController;
 use App\Http\Controllers\Reports\PFReportController;
@@ -283,6 +284,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-disburse', 'AdvanceSifaLoanController');
         Route::put('advance-loan/sifa-disburse/{id}/disburse', [AdvanceSifaLoanController::class, 'disburse'])
             ->name('sifa-disburse.disburse');
+
+        // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
+        // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
+    });
+
+
+
+    // ADVANCE/LOAN
+    Route::namespace('LTC')->prefix('ltc')->group(function () {
+        Route::resource('ltc', 'LeaveTravelConcessionController');
+
 
         // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
         // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
