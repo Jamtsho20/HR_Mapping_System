@@ -132,9 +132,9 @@
                         </li>
                         @foreach ($menus as $menuKey => $menu)
                             <li class="slide">
-                                <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);">
+                                <a class="side-menu__item " data-bs-toggle="slide" href="javascript:void(0);" style="padding: 10px 25px!important;">
                                     <i class="side-menu__icon fa {{ $menu->icon }}"></i>
-                                    <span class="side-menu__label">{{ $menu->name }}</span>
+                                    <span class="side-menu__label ">{{ $menu->name }}</span> 
                                     <i class="angle fa fa-angle-right"></i>
                                 </a>
                                 <ul class="slide-menu">
