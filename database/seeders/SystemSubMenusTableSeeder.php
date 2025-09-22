@@ -170,9 +170,12 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 20, 'name' => 'Good Receipt Report', 'route' => 'asset-report/good-receipt-report', 'display_order' => 6],
 
             //submenu for my profile
-            ['system_menu_id' => 20, 'name' => 'My Profile', 'route' => 'my-profile/my-profile', 'display_order' => 1],
-            ['system_menu_id' => 20, 'name' => 'My Paysilp', 'route' => 'my-profile/my-payslip', 'display_order' => 2],
-            ['system_menu_id' => 20, 'name' => 'My Asset', 'route' => 'my-profile/my-asset', 'display_order' => 3],
+            ['system_menu_id' => 21, 'name' => 'My Profile', 'route' => 'my-profile/my-profile', 'display_order' => 1],
+            ['system_menu_id' => 21, 'name' => 'My Paysilp', 'route' => 'my-profile/my-payslip', 'display_order' => 2],
+            ['system_menu_id' => 21, 'name' => 'My Asset', 'route' => 'my-profile/my-asset', 'display_order' => 3],
+
+          
+
         ]);
     }
 }

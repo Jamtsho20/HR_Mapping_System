@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Payroll;
+namespace App\Http\Controllers\Ltc;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveTravelConcession;
@@ -12,14 +12,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class LTCController extends Controller
+class LeaveTravelConcessionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:payroll/ltc,view')->only('index');
-        $this->middleware('permission:payroll/ltc,create')->only('store');
-        $this->middleware('permission:payroll/ltc,edit')->only('update');
-        $this->middleware('permission:payroll/ltc,delete')->only('destroy');
+        $this->middleware('permission:ltc/ltc,view')->only('index');
+        $this->middleware('permission:ltc/ltc,create')->only('store');
+        $this->middleware('permission:ltc/ltc,edit')->only('update');
+        $this->middleware('permission:ltc/ltc,delete')->only('destroy');
     }
 
     /**
@@ -57,41 +57,41 @@ class LTCController extends Controller
             ['status' => 0]
         );
 
-        foreach ($employees as $employee) {
-            $isFirstTimeLTC = LeaveTravelConcessionDetail::whereMasEmployeeId($employee->id)->count() == 0;
-            $noProbation = $employee->no_probation == 1 ? true : false;
-            $employementType = $employee->empJob->mas_employment_type_id;
+        // foreach ($employees as $employee) {
+        //     $isFirstTimeLTC = LeaveTravelConcessionDetail::whereMasEmployeeId($employee->id)->count() == 0;
+        //     $noProbation = $employee->no_probation == 1 ? true : false;
+        //     $employementType = $employee->empJob->mas_employment_type_id;
 
-            $durationOfService = $employee->durationOfService();
-            $monthsSinceRegularization = $durationOfService['months'];
-            $monthsInService = $durationOfService['monthsOfService'];
+        //     $durationOfService = $employee->durationOfService();
+        //     $monthsSinceRegularization = $durationOfService['months'];
+        //     $monthsInService = $durationOfService['monthsOfService'];
 
-            if ($isFirstTimeLTC) {
-                if ($noProbation) { // No Probation
-                    if ($employementType == 1) { // Regular
-                        $eligible = $monthsInService >= 12;
-                    }
-                } else {
-                    if ($employementType == 1) { // Regular
-                        $eligible = $monthsSinceRegularization >= 18;
-                    }
-                }
-            } else {
-                $eligible = true;
-            }
+        //     if ($isFirstTimeLTC) {
+        //         if ($noProbation) { // No Probation
+        //             if ($employementType == 1) { // Regular
+        //                 $eligible = $monthsInService >= 12;
+        //             }
+        //         } else {
+        //             if ($employementType == 1) { // Regular
+        //                 $eligible = $monthsSinceRegularization >= 18;
+        //             }
+        //         }
+        //     } else {
+        //         $eligible = true;
+        //     }
 
-            if ($eligible) {
-                $amount = PaySlipDetailView::whereMasEmployeeId($employee->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
-                if (is_null($amount)) {
-                    return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
-                }
-                LeaveTravelConcessionDetail::firstOrCreate([
-                    'ltc_id' => $ltc->id,
-                    'mas_employee_id' => $employee->id,
-                    'amount' => $amount,
-                ]);
-            }
-        }
+        //     if ($eligible) {
+        //         $amount = PaySlipDetailView::whereMasEmployeeId($employee->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
+        //         if (is_null($amount)) {
+        //             return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
+        //         }
+        //         LeaveTravelConcessionDetail::firstOrCreate([
+        //             'ltc_id' => $ltc->id,
+        //             'mas_employee_id' => $employee->id,
+        //             'amount' => $amount,
+        //         ]);
+        //     }
+        // }
 
         return view('payroll.ltc.index', compact('privileges', 'ltcs'));
     }

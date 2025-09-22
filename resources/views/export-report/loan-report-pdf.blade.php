@@ -66,6 +66,9 @@
                     Employee Name
                 </th>
                 <th>
+                    Employee ID
+                </th>
+                <th>
                     Bank
                 </th>
                 <th>
@@ -91,6 +94,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $loan->employee->name }}</td>
+                    <td>{{ $loan->employee->username }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
                     <td>{{ $loan->loan_type }}</td>
@@ -104,7 +108,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="6" style="text-align:right">Total:</td>
+                <td colspan="7" style="text-align:right">Total:</td>
                 <td>{{ $totalLoans }}</td>
                 <td></td>
             </tr>
