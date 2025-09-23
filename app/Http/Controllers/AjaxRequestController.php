@@ -240,7 +240,7 @@ class AjaxRequestController extends Controller
 
     private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
     {
-        $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
+        $prevLeaveEnd = new \DateTime($prevLeaveEndDate); 
         $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
         // Flag to track if there's a working day in between
         $hasWorkingDayBetween = false;
