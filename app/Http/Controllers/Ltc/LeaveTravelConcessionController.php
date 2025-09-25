@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Ltc;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinalPaySlip;
 use App\Models\LeaveTravelConcession;
 use App\Models\LeaveTravelConcessionDetail;
 use App\Models\PaySlipDetailView;
@@ -30,7 +31,7 @@ class LeaveTravelConcessionController extends Controller
         $privileges = $request->instance();
 
         $year = date("Y");
-        $month = 10; // Explicitly setting October here
+        $month = Carbon::now()->month;
 
         // Retrieve employees based on employment type and length of service
         $employees = User::with(['empJob' => function ($query) {
@@ -48,7 +49,9 @@ class LeaveTravelConcessionController extends Controller
             })
             ->whereRaw("MONTH(date_of_appointment) = ?", [$month])
             ->select(['id', 'name', 'date_of_appointment', 'no_probation'])
+            ->whereIsActive(1)
             ->get();
+
 
         $ltcs = LeaveTravelConcession::all();
         // Retrieve or create LeaveTravelConcession for the month
@@ -57,41 +60,57 @@ class LeaveTravelConcessionController extends Controller
             ['status' => 0]
         );
 
-        // foreach ($employees as $employee) {
-        //     $isFirstTimeLTC = LeaveTravelConcessionDetail::whereMasEmployeeId($employee->id)->count() == 0;
-        //     $noProbation = $employee->no_probation == 1 ? true : false;
-        //     $employementType = $employee->empJob->mas_employment_type_id;
 
-        //     $durationOfService = $employee->durationOfService();
-        //     $monthsSinceRegularization = $durationOfService['months'];
-        //     $monthsInService = $durationOfService['monthsOfService'];
+        $eligible = false; // initialize each iteration
+        foreach ($employees as $employee) {
 
-        //     if ($isFirstTimeLTC) {
-        //         if ($noProbation) { // No Probation
-        //             if ($employementType == 1) { // Regular
-        //                 $eligible = $monthsInService >= 12;
-        //             }
-        //         } else {
-        //             if ($employementType == 1) { // Regular
-        //                 $eligible = $monthsSinceRegularization >= 18;
-        //             }
-        //         }
-        //     } else {
-        //         $eligible = true;
-        //     }
+            $isFirstTimeLTC = LeaveTravelConcessionDetail::where('mas_employee_id', $employee->id)->count() == 0;
+            $noProbation = $employee->no_probation == 1;
+            $employmentType = $employee->empJob->mas_employment_type_id;
+            // dd($employmentType);
+            $durationOfService = $employee->durationOfService();
+            $monthsSinceRegularization = $durationOfService['months'];
+            $monthsInService = $durationOfService['monthsOfService'];
 
-        //     if ($eligible) {
-        //         $amount = PaySlipDetailView::whereMasEmployeeId($employee->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
-        //         if (is_null($amount)) {
-        //             return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
-        //         }
-        //         LeaveTravelConcessionDetail::firstOrCreate([
-        //             'ltc_id' => $ltc->id,
-        //             'mas_employee_id' => $employee->id,
-        //             'amount' => $amount,
-        //         ]);
-        //     }
-        // }
+            if ($isFirstTimeLTC) {
+                if ($noProbation && ($employmentType == 1 || $employmentType == 2)) {
+                    // Regular employee, no probation
+                    $eligible = $monthsInService >= 12;
+                } elseif ($employmentType == 1 || $employmentType == 2) {
+                    // Regular employee, with probation
+                    $eligible = $monthsSinceRegularization >= 18;
+                }
+            }
+            // else {
+            //     // Already had LTC before
+            //     $eligible = true;
+            // }
+            // dd($eligible);
+            if ($eligible) {
+                // dd($employee->id);
+                $amount = FinalPaySlip::where('mas_employee_id', $employee->id)
+                    ->where('for_month', Carbon::now()->subMonth()->format('Y-m-01'))
+                    ->selectRaw("JSON_VALUE(details, '$.basic_pay') as basic_pay")
+                    ->value('basic_pay');
+            
+                if (is_null($amount)) {
+                    // dd($employee->id);
+                    continue;
+                    return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
+                }
+
+                // Insert or update the LTC detail
+                LeaveTravelConcessionDetail::updateOrCreate(
+                    [
+                        'ltc_id' => $ltc->id,
+                        'mas_employee_id' => $employee->id,
+                    ],
+                    [
+                        'amount' => $amount,
+                    ]
+                );
+            }
+        }
 
         return view('payroll.ltc.index', compact('privileges', 'ltcs'));
     }
