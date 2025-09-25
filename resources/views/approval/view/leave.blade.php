@@ -122,11 +122,7 @@
 
             const itemType = 1;
             var action = $(this).data('value');
-            var selectedItems = [{
-                {
-                    $leave - > id
-                }
-            }];
+           var selectedItems = [{{ $leave->id }}];
             var routeUrl = $(this).data('route');
             var itemClass = $(this).data('item-class');
 

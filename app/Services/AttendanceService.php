@@ -76,7 +76,7 @@ class AttendanceService
         }
 
         // 5. Check for Saturday  commented as HALF_DAY_WEEKEND_STATUS is applied to those who attend office on Satuarday 
-        if ($currentDate->isSaturday() && $isEmployeesRequiredOnSaturday) {
+        if ($currentDate->isSaturday() && !$isShiftEmp && $isEmployeesRequiredOnSaturday) {
             return HALF_DAY_WEEKEND_STATUS;
         }
 
