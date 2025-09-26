@@ -191,6 +191,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('shift-types', 'MasShiftTypesController');
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
+    
+    //Training Module
+    Route::namespace('TrainingMaster')->prefix('training')->group(function () {
+        Route::resource('training-types', 'MasTrainingTypesController');
+        Route::resource('training-funding-types', 'MasTrainingFundingTypesController');
+        Route::resource('training-natures', 'MasTrainingNatureController');
+        Route::resource('training-expense-types', 'MasTrainingExpenseTypeController');
+        Route::resource('training-evaluation-types', 'MasTrainingEvaluationTypeController');
+        Route::resource('training-lists', 'MasTrainingListController');
+
+    });
 
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
@@ -336,6 +347,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Team')->prefix('team')->group(function () {
         Route::resource('my-team', 'TeamController');
     });
+
 
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {

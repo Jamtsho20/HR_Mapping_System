@@ -38,6 +38,8 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 20, 'name' => 'Asset Report', 'icon' => 'fa-users', 'display_order' => 20],
             ['id' => 21, 'name' => 'My Profile', 'icon' => 'fa-users', 'display_order' => 21],
             ['id' => 22, 'name' => 'Retirement Benefit Nomination', 'icon' => 'fa-users', 'display_order' => 22],
+            ['id' => 23, 'name' => 'Training Master', 'icon' => 'fa-users', 'display_order' => 23],
+            ['id' => 24, 'name' => 'Training', 'icon' => 'fa-users', 'display_order' => 24],
         ]);
     }
 }

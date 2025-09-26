@@ -174,7 +174,12 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 21, 'name' => 'My Paysilp', 'route' => 'my-profile/my-payslip', 'display_order' => 2],
             ['system_menu_id' => 21, 'name' => 'My Asset', 'route' => 'my-profile/my-asset', 'display_order' => 3],
 
-          
+            //submenu for retirement benefit nomination
+            ['system_menu_id' => 22, 'name' => 'Retirement Benefit Nomination', 'route' => 'retirement-benefit-nomination/retirement-benefit-nomination', 'display_order' => 1],
+            ['system_menu_id' => 22, 'name' => 'Retirement Benefit List', 'route' => 'retirement-benefit-nomination/retirement-benefit-list', 'display_order' => 2],
+
+            //submenu for training module
+            ['system_menu_id' => 23, 'name' => 'Training Module', 'route' => 'training-module/training-module', 'display_order' => 1],
 
         ]);
     }
