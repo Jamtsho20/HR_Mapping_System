@@ -8,20 +8,21 @@
             text-align: left !important;
             white-space: pre-line;
         }
-
     </style>
 @endpush
 
 @section('content')
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('samsung-deduction-report-excel.export', Request::query()) }}" data-toggle="tooltip"
-                data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+            {{-- <a href="{{ route('samsung-deduction-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+                data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a> --}}
             <a href="{{ route('attendance-summary-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
 
         </div>
+
     </div>
+    <br>
     <div class="block">
         <div class="block">
 

@@ -33,17 +33,17 @@
                             <div class="dataTables_scroll">
                                 <div class="dataTables_scrollHead"
                                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                    <div class="dataTables_scrollHeadInner"
+                                    <div class="dataTables_scrollHeadInner freeze-table-col-wrapper"
                                         style="box-sizing: content-box; padding-right: 0px;">
                                         <table
                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                             id="basic-datatable table-responsive">
                                             <thead>
-                                                <tr role="row" class="thead-light">
-                                                    <th>
-                                                        Sl. No
+                                                <tr role="row" class="thead-light" style="text-align: center;">
+                                                    <th class="{{ $employeeShifts->count() ? 'freeze-col' : '' }}">
+                                                        #
                                                     </th>
-                                                    <th>
+                                                    <th class="{{ $employeeShifts->count() ? 'freeze-col' : '' }}">
                                                         Employee
                                                     </th>
                                                     {{-- <th>
@@ -75,8 +75,9 @@
                                             <tbody>
                                                 @forelse($employeeShifts as $shift)
                                                 <tr>
-                                                    <td>{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
-                                                    <td>{{ $shift->masEmployee->emp_id_name }}</td>
+                                                    <td class="{{ $employeeShifts->count() ? 'freeze-col' : '' }}" style="text-align: right;">{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
+                                                    <td class="{{ $employeeShifts->count() ? 'freeze-col' : '' }}">{{ $shift->masEmployee->emp_id_name }}</td>
+                                    
                                                     {{-- <td>{{ $shift->departmentShift->name }}</td>
                                                     <td>{{ $shift->departmentShift->formatted_start_time .' - '. $shift->departmentShift->formatted_end_time}}</td> --}}
                                                     @php
