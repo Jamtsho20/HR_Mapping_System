@@ -159,7 +159,7 @@ class AjaxRequestController extends Controller
                 }
 
                 $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
-                
+
                 return $this->successResponse([
                     'balance' => $balance,
                     'leavePolicy' => $leavePolicy,
@@ -240,7 +240,7 @@ class AjaxRequestController extends Controller
 
     private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
     {
-        $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
+        $prevLeaveEnd = new \DateTime($prevLeaveEndDate); 
         $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
         // Flag to track if there's a working day in between
         $hasWorkingDayBetween = false;
@@ -270,7 +270,7 @@ class AjaxRequestController extends Controller
                 ->first();
 
             $leaveLimits = $leavePolicy->leavePolicyPlan
-                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) 
+                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
                 : [];
             // Calculate initial days
             $dayDifference = $toDate->diff($fromDate)->days;
@@ -335,7 +335,7 @@ class AjaxRequestController extends Controller
         while ($currentDate <= $toDate) {
             $formattedDate = $currentDate->format('Y-m-d');
             $dayName = $currentDate->format('l');
-            
+
             // Check holiday
             if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
                 $excludedDays++;
@@ -807,7 +807,7 @@ class AjaxRequestController extends Controller
 
 
             if($siteID == null){
-                $assetNos = MasAssets::where('current_employee_id', $empID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                $assetNos = MasAssets::where('current_employee_id', $empID)->where('current_site_id', null)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }else{
                 $assetNos = MasAssets::where('current_site_id', $siteID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }

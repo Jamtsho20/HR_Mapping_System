@@ -274,7 +274,7 @@ class AttendanceSummaryController extends Controller
         return compact('departments', 'sections', 'desiredRoles', 'departmentId', 'sectionId', 'mdRole');
     }
 
-    public function exportSamsungDeduction(Request $request)
+    public function exportAttendanceSummary(Request $request)
     {
 
         $collection = collect($this->attendancesData);
@@ -356,14 +356,14 @@ class AttendanceSummaryController extends Controller
 
 
         // Return the PDF download
-        return $pdf->stream('SamsungDeduction-Report.pdf');
+        return $pdf->stream('AttendanceSummary-Report.pdf');
     }
 
-    public function exportSamsungDeductionExcel(Request $request)
-    {
-        $samsungDeductions = $this->prepareQuery($request)
-            ->get();
+    // public function exportSamsungDeductionExcel(Request $request)
+    // {
+    //     $samsungDeductions = $this->prepareQuery($request)
+    //         ->get();
 
-        return Excel::download(new SamsungDeductionExport($request, $samsungDeductions), 'samsung-deduction-report.xlsx');
-    }
+    //     return Excel::download(new SamsungDeductionExport($request, $samsungDeductions), 'samsung-deduction-report.xlsx');
+    // }
 }

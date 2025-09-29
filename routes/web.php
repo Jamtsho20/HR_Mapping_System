@@ -39,6 +39,7 @@ use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Http\Controllers\AssetReport\AssetReturnReportController;
 use App\Http\Controllers\AssetReport\CwipReportController;
+use App\Http\Controllers\Attendance\AttendanceDetailController;
 use App\Http\Controllers\RetirementBenefitNomination\RetirementBenefitNominationController;
 use App\Http\Controllers\Sifa\SifaRegisteredUserController;
 use App\Jobs\UpdateEmployeePasswordJob;
@@ -224,9 +225,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendance-detail', 'AttendanceDetailController')->except('create', 'show', 'edit');
     });
 
-    // attendance report
-    Route::get('/attendance-summary-pdf', [AttendanceSummaryController::class, 'exportSamsungDeduction'])
+    // attendance summary report
+    Route::get('/attendance-summary-pdf', [AttendanceSummaryController::class, 'exportAttendanceSummary'])
         ->name('attendance-summary-pdf.export');
+
+    // attendance detail report
+    Route::get('/attendance-detail-pdf', [AttendanceDetailController::class, 'exportAttendanceDetail'])
+        ->name('attendance-detail-pdf.export');
 
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {

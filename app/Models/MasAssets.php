@@ -5,6 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
+use App\Models\MasItem;
+use App\Models\User;
+use App\Models\MasSite;
+use App\Models\CommissionDetail;
+use App\Models\AssetTransferDetail;
+use App\Models\AssetReturnDetail;
+use App\Models\SapAsset;
+
 
 
 class MasAssets extends Model
@@ -62,7 +70,7 @@ class MasAssets extends Model
 
     public function returnDetail()
     {
-        return $this->belongsTo(ReturnDetail::class, 'return_detail_id');
+        return $this->belongsTo(AssetReturnDetail::class, 'return_detail_id');
     }
 
     public function initialOwner()
@@ -80,6 +88,16 @@ class MasAssets extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('serial_number') && $request->query('serial_number') != '') {
+            $query->where('serial_number', 'LIKE', '%' . $request->query('serial_number') . '%');
+        }
+
+        if ($request->has('current_site_id') && $request->query('current_site_id') != '') {
+            $query->where('current_site_id', $request->query('current_site_id'));
+        }
+    }
 
     protected static function boot()
 {

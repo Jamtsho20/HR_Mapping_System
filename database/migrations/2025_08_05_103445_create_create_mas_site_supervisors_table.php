@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('create_mas_site_supervisors');
+        Schema::dropIfExists('mas_site_supervisors');
     }
 };
