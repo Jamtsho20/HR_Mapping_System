@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\TrainingMaster;
+namespace App\Http\Controllers\TrainingApplication;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasCountry;
@@ -16,10 +16,10 @@ class MasTrainingListController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:training/training-lists,view')->only('index');
-        $this->middleware('permission:training/training-lists,create')->only('store');
-        $this->middleware('permission:training/training-lists,edit')->only('update');
-        $this->middleware('permission:training/training-lists,delete')->only('destroy');
+        $this->middleware('permission:training-application/training-lists,view')->only('index');
+        $this->middleware('permission:training-application/training-lists,create')->only('store');
+        $this->middleware('permission:training-application/training-lists,edit')->only('update');
+        $this->middleware('permission:training-application/training-lists,delete')->only('destroy');
     }
 
     public function index(Request $request)
@@ -28,7 +28,7 @@ class MasTrainingListController extends Controller
 
         $trainingLists = MasTrainingList::filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'));
 
-        return view('training.training-lists.index', compact('privileges', 'trainingLists'));
+        return view('training-application.training-lists.index', compact('privileges', 'trainingLists'));
     }
 
     public function create()
@@ -39,7 +39,7 @@ class MasTrainingListController extends Controller
         $country = MasCountry::get(['id', 'name']);
         $dzonkhag = MasDzongkhag::get(['id', 'dzongkhag']);
         $department = MasDepartment::where('status', 1)->get(['id', 'name']);
-        return view('training.training-lists.create', compact('trainingTypes', 'fundingTypes', 'country', 'dzonkhag', 'department','trainingNatures'));
+        return view('training-application.training-lists.create', compact('trainingTypes', 'fundingTypes', 'country', 'dzonkhag', 'department','trainingNatures'));
     }
     public function store(Request $request)
     {
@@ -74,7 +74,7 @@ class MasTrainingListController extends Controller
         $training->created_by = auth()->user()->id;
         $training->save();
 
-        return redirect()->route('training-lists.index')->with('success', 'Training List created successfully.');
+        return redirect()->route('training-application.training-lists.index')->with('success', 'Training List created successfully.');
     }
 
 

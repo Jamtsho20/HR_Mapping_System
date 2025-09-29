@@ -192,14 +192,25 @@ Route::middleware('auth')->group(function () {
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
     
-    //Training Module
+    //Training Master Module
     Route::namespace('TrainingMaster')->prefix('training')->group(function () {
         Route::resource('training-types', 'MasTrainingTypesController');
         Route::resource('training-funding-types', 'MasTrainingFundingTypesController');
         Route::resource('training-natures', 'MasTrainingNatureController');
         Route::resource('training-expense-types', 'MasTrainingExpenseTypeController');
         Route::resource('training-evaluation-types', 'MasTrainingEvaluationTypeController');
+        // Route::resource('training-lists', 'MasTrainingListController');
+
+    });
+    //Training Module
+    Route::namespace('TrainingApplication')->prefix('training-application')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
+        Route::resource('training-budget', 'TrainingBudgetAllocationController');
+        Route::resource('training-evaluations', 'TrainingEvaluationController');
+        Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
+        Route::resource('training-applications', 'TrainingApplicationController');
+        Route::resource('trainee-lists', 'TraineeListController');
+        Route::resource('training-materials', 'TrainingMaterialsController');
 
     });
 
