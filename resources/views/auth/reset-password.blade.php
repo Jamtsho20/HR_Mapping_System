@@ -1,3 +1,5 @@
+
+@include('layouts.partials.header')
 @extends('auth.partials.main')
 @section('page-title', 'Reset Password')
 @section('content')

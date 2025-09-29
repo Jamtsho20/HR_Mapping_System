@@ -144,6 +144,7 @@ class AdvanceLoanApplicationApiController extends Controller
                 $advanceApplication->type_id = $request->advance_type;
                 $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
                 $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
+                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
 
                 $advanceApplication->amount = $request->amount ?? null;
                 $advanceApplication->attachment = $attachment ?? null; // Store attachment path

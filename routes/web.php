@@ -23,6 +23,7 @@ use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LeaveEncashmentReportController;
 use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
+use App\Http\Controllers\Ltc\LeaveTravelConcessionController;
 use App\Http\Controllers\Reports\PayComparisionReportController;
 use App\Http\Controllers\Reports\PayslipReportController;
 use App\Http\Controllers\Reports\PFReportController;
@@ -38,6 +39,7 @@ use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Http\Controllers\AssetReport\AssetReturnReportController;
 use App\Http\Controllers\AssetReport\CwipReportController;
+use App\Http\Controllers\Attendance\AttendanceDetailController;
 use App\Http\Controllers\RetirementBenefitNomination\RetirementBenefitNominationController;
 use App\Http\Controllers\Sifa\SifaRegisteredUserController;
 use App\Jobs\UpdateEmployeePasswordJob;
@@ -223,9 +225,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendance-detail', 'AttendanceDetailController')->except('create', 'show', 'edit');
     });
 
-    // attendance report
-    Route::get('/attendance-summary-pdf', [AttendanceSummaryController::class, 'exportSamsungDeduction'])
+    // attendance summary report
+    Route::get('/attendance-summary-pdf', [AttendanceSummaryController::class, 'exportAttendanceSummary'])
         ->name('attendance-summary-pdf.export');
+
+    // attendance detail report
+    Route::get('/attendance-detail-pdf', [AttendanceDetailController::class, 'exportAttendanceDetail'])
+        ->name('attendance-detail-pdf.export');
 
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
@@ -283,6 +289,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-disburse', 'AdvanceSifaLoanController');
         Route::put('advance-loan/sifa-disburse/{id}/disburse', [AdvanceSifaLoanController::class, 'disburse'])
             ->name('sifa-disburse.disburse');
+
+        // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
+        // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
+    });
+
+
+
+    // ADVANCE/LOAN
+    Route::namespace('LTC')->prefix('ltc')->group(function () {
+        Route::resource('ltc', 'LeaveTravelConcessionController');
+
 
         // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
         // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');

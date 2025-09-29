@@ -280,6 +280,8 @@ class EmployeeController extends Controller
             'personal.date_of_appointment' => 'required|date',
             'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ];
+
+        $userPassword = $user ? $user->password : null;
         $request->validate($rules);
 
         if (!$user || !isset($personalInfo['cid_copy'])) {
@@ -323,7 +325,7 @@ class EmployeeController extends Controller
             'username' => $user ? $user->username : fixEmployeeId($this->fetchHighestEmpId() + 1),
             'employee_id' => $user ? $user->employee_id : $this->fetchHighestEmpId() + 1,
             // 'password' => bcrypt(config('global.default_password')),
-            'password' => bcrypt(date('Ymd', strtotime($personalInfo['dob'])) . ($user ? $user->employee_id : $this->fetchHighestEmpId() + 1)),
+            'password' => $userPassword ? $userPassword : bcrypt(date('Ymd', strtotime($personalInfo['dob'])) . ($user ? $user->employee_id : $this->fetchHighestEmpId() + 1)),
 
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
