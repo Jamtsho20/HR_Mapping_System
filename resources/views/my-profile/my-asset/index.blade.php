@@ -21,9 +21,9 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>
-                                {{ $asset->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial->asset_serial_no ?? config('global.null_value') }}
+                                {{ $asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial?->asset_serial_no ?? config('global.null_value') }}
                             </td>
-                            <td>{{ $asset->item->item_description }}</td>
+                            <td>{{ $asset->item?->item_description }}</td>
                         </tr>
                         @empty
                         <tr>
