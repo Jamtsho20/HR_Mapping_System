@@ -87,7 +87,11 @@ class AssetTransferApplicationController extends Controller
         $privileges = $request->instance();
         $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
         $transferTypes = MasTransferType::get(['id', 'name']);
-        return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes'));
+
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
+            $query->where('current_employee_id', auth()->user()->id);
+        })->get();
+        return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes', 'toBeTransferedToUserAsset'));
     }
 
 
@@ -101,8 +105,16 @@ class AssetTransferApplicationController extends Controller
             $query->where('current_employee_id', auth()->user()->id);
         })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
 
+        $dzongkhag_ids = MasSiteSupervisor::where('employee_id', auth()->user()->id)->pluck('dzongkhag_id');
+        $sites = MasSite::whereIn('dzongkhag_id', $dzongkhag_ids)->get();
+        $site_ids = $sites->pluck('id'); // collect all site IDs
+
+        $siteAsset = MasAssets::whereHas('site', function ($query) use ($site_ids) {
+            $query->whereIn('current_site_id', $site_ids);
+        })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+
         // $userAssets = $assets->concat($assetTransfer);
-        return view('asset.asset-transfer.my_asset_index',compact('privileges', 'transferTypes', 'toBeTransferedToUserAsset', 'transferedToUser'));
+        return view('asset.asset-transfer.my_asset_index',compact('privileges', 'transferTypes', 'toBeTransferedToUserAsset', 'transferedToUser', 'siteAsset', 'sites'));
     }
     /**
      * Show the form for creating a new resource.

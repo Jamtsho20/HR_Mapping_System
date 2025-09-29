@@ -117,12 +117,11 @@ class AdvanceLoanApplicationApiController extends Controller
             $date = formatDate(request('date'));
 
             $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
-
-            if ($reqType == 2 ){
-                try{
+            if ($reqType->id == 2) {
+                try {
                     $travel = TravelAuthorizationApplication::findOrFail($request->travel_authorization_no);
-                }catch (\Illuminate\Database\Eloquent\ModelNotFoundException){
-                    return $this->errorResponse("Travel authorization application not found.")
+                } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                    return $this->errorResponse('Travel authorization application not found.');
                 }
             }
             $lastTransaction = AdvanceApplication::latest('id')->first();
@@ -144,6 +143,7 @@ class AdvanceLoanApplicationApiController extends Controller
                 $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
                 $advanceApplication->type_id = $request->advance_type;
                 $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
+                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
                 $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
 
                 $advanceApplication->amount = $request->amount ?? null;
