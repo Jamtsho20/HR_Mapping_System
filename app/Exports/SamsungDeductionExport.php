@@ -27,7 +27,6 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
     {
         $serialNo = 1;
 
-
         return $this->deductions->map(function ($loans) use (&$serialNo) {
             return [
                 $serialNo++,
@@ -39,7 +38,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
                 getDisplayDateFormat($loans->end_date),
                 $loans->recurring_months,
                 \Carbon\Carbon::parse($loans->for_month)->format('F Y'),
-                formatAmount($loans->amount, false),
+                formatAmount($loans->emi_amount, false),
             ];
         });
     }
