@@ -37,7 +37,7 @@ class AdvanceSifaLoanController extends Controller
 
         $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $advance->id);
 
-        $employeeId = loggedInUser();
+        $employeeId = $empDetails->id;
         $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
 
         $netPay = DB::table('final_pay_slips')
