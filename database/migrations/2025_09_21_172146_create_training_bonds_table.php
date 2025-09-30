@@ -17,6 +17,9 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->json('attachment')->nullable()->comment('multiple attachment will be stored');
+            $table->foreignId("created_by")->index()->constrained('mas_employees');
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
+        
             $table->timestamps();
         });
     }

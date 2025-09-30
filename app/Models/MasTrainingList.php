@@ -23,7 +23,7 @@ class MasTrainingList extends Model
         'institute',
         'start_date',
         'end_date',
-        'amount_allotted',
+        'amount_allocated',
     ];
 
     public function trainingType()
@@ -55,6 +55,22 @@ class MasTrainingList extends Model
     {
         return $this->belongsTo(MasDepartment::class, 'department_id');
     }
+
+    public function budget()
+    {
+        return $this->hasMany(TrainingBudgetAllocation::class, 'training_list_id');
+    }
+
+    /**
+     * Get the training list's bonds.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function bond()
+    {
+        return $this->hasMany(TrainingBond::class, 'training_list_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {

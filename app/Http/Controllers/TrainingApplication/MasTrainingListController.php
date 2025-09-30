@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasCountry;
 use App\Models\MasDepartment;
 use App\Models\MasDzongkhag;
+use App\Models\MasTrainingExpenseType;
 use App\Models\MasTrainingFundingType;
 use App\Models\MasTrainingList;
 use App\Models\MasTrainingNature;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 
 class MasTrainingListController extends Controller
 {
+    private $filePath = 'images/training/';
     public function __construct()
     {
         $this->middleware('permission:training-application/training-lists,view')->only('index');
@@ -39,11 +41,50 @@ class MasTrainingListController extends Controller
         $country = MasCountry::get(['id', 'name']);
         $dzonkhag = MasDzongkhag::get(['id', 'dzongkhag']);
         $department = MasDepartment::where('status', 1)->get(['id', 'name']);
-        return view('training-application.training-lists.create', compact('trainingTypes', 'fundingTypes', 'country', 'dzonkhag', 'department','trainingNatures'));
+        $trainingExpenseTypes = MasTrainingExpenseType::get(['id', 'name']);
+        return view('training-application.training-lists.create', compact('trainingTypes', 'fundingTypes', 'country', 'dzonkhag', 'department', 'trainingNatures', 'trainingExpenseTypes'));
     }
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'type_id' => 'required|integer|exists:mas_training_types,id',
+    //         'training_nature_id' => 'required|integer|exists:mas_training_natures,id',
+    //         'funding_type_id' => 'required|integer|exists:mas_training_funding_types,id',
+    //         'country_id' => 'nullable|integer|exists:mas_countries,id',
+    //         'dzongkhag_id' => 'nullable|integer|exists:mas_dzongkhags,id',
+    //         'location' => 'nullable|string|max:255',
+    //         'institute' => 'required|string|max:255',
+    //         'start_date' => 'required|date',
+    //         'end_date' => 'required|date|after_or_equal:start_date',
+    //         'department_id' => 'required|integer|exists:mas_departments,id',
+    //         'amount_allotted' => 'nullable|numeric|min:0',
+    //     ]);
+
+    //     $training = new \App\Models\MasTrainingList();
+    //     $training->title = $request->title;
+    //     $training->type_id = $request->type_id;
+    //     $training->training_nature_id = $request->training_nature_id;
+    //     $training->funding_type_id = $request->funding_type_id;
+    //     $training->country_id = $request->country_id;
+    //     $training->dzongkhag_id = $request->dzongkhag_id;
+    //     $training->location = $request->location;
+    //     $training->institute = $request->institute;
+    //     $training->start_date = $request->start_date;
+    //     $training->end_date = $request->end_date;
+    //     $training->department_id = $request->department_id;
+    //     $training->amount_allocated = $request->amount_allotted;
+    //     $training->created_by = auth()->user()->id;
+    //     $training->save();
+
+    //     return redirect()->route('training-application.training-lists.index')->with('success', 'Training List created successfully.');
+    // }
+
     public function store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
+            // Training List validation
             'title' => 'required|string|max:255',
             'type_id' => 'required|integer|exists:mas_training_types,id',
             'training_nature_id' => 'required|integer|exists:mas_training_natures,id',
@@ -55,9 +96,24 @@ class MasTrainingListController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'department_id' => 'required|integer|exists:mas_departments,id',
-            'amount_allotted' => 'nullable|numeric|min:0',
-        ]);
+            'amount_allocated' => 'nullable|numeric|min:0',
 
+            // Budget validation (array of expense types)
+            'budget.*.training_expense_type_id' => 'required|integer|exists:mas_training_expense_types,id',
+            'budget.*.amount_allocated' => 'required|numeric|min:0',
+            'budget.*.by_company' => 'required|numeric|min:0',
+            'budget.*.by_sponsor' => 'required|numeric|min:0',
+
+            // Bond validation
+            'bond.start_date' => 'required|date',
+            'bond.end_date' => 'required|date|after_or_equal:bond.start_date',
+            'bond.attachment.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
+        ]);
+        if ($request->type_id == 1) {
+            $request->merge(['country_id' => 7]);
+        }
+
+        //  Create Training List
         $training = new \App\Models\MasTrainingList();
         $training->title = $request->title;
         $training->type_id = $request->type_id;
@@ -70,32 +126,73 @@ class MasTrainingListController extends Controller
         $training->start_date = $request->start_date;
         $training->end_date = $request->end_date;
         $training->department_id = $request->department_id;
-        $training->amount_allocated = $request->amount_allotted;
+        $training->amount_allocated = $request->amount_allocated;
         $training->created_by = auth()->user()->id;
         $training->save();
 
-        return redirect()->route('training-application.training-lists.index')->with('success', 'Training List created successfully.');
+        //  Store Budget Allocations
+        if ($request->has('budget')) {
+            foreach ($request->budget as $b) {
+                \App\Models\TrainingBudgetAllocation::create([
+                    'training_list_id' => $training->id,
+                    'training_expense_type_id' => $b['training_expense_type_id'],
+                    'amount_allocated' => $b['amount_allocated'],
+                    'by_company' => $b['by_company'],
+                    'by_sponsor' => $b['by_sponsor'],
+                ]);
+            }
+        }
+
+        //  Store Training Bond
+        if ($request->has('bond')) {
+            $attachments = [];
+
+            if ($request->hasFile('bond.attachment')) {
+                foreach ($request->file('bond.attachment') as $file) {
+                    $path = uploadImageToDirectory($file, $this->filePath);
+
+                    if (!empty($path)) {
+                        $attachments[] = $path;
+                    }
+                }
+            }
+
+            \App\Models\TrainingBond::create([
+                'training_list_id' => $training->id,
+                'start_date'       => $request->bond['start_date'],
+                'end_date'         => $request->bond['end_date'],
+                'attachment'       => !empty($attachments) ? json_encode($attachments) : null,
+            ]);
+        }
+
+
+        return redirect()->route('training-lists.index')
+            ->with('success', 'Training List, Budget & Bond created successfully.');
     }
+
 
 
     public function edit($id)
     {
-        $trainingList = MasTrainingList::findOrFail($id);
+        $trainingList = MasTrainingList::with('budget', 'bond')->findOrFail($id);
 
-        // Load related dropdown data
-        $trainingTypes = MasTrainingType::get(['id', 'name']);;
-        $trainingNatures = MasTrainingNature::get(['id', 'name']);;
-        $fundingTypes = MasTrainingFundingType::get(['id', 'name']);;
-        $countries = MasCountry::get(['id', 'name']);;
-        $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);;
+        $trainingTypes = MasTrainingType::get(['id', 'name']);
+        $trainingNatures = MasTrainingNature::get(['id', 'name']);
+        $fundingTypes = MasTrainingFundingType::get(['id', 'name']);
+        $countries = MasCountry::get(['id', 'name']);
+        $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
+        $departments = MasDepartment::where('status', 1)->get(['id', 'name']);
+        $trainingExpenseTypes = MasTrainingExpenseType::get(['id', 'name']);
 
-        return view('training.training-lists.edit', compact(
-            'trainingList', 
-            'trainingTypes', 
-            'trainingNatures', 
-            'fundingTypes', 
-            'countries', 
-            'dzongkhags'
+        return view('training-application.training-lists.edit', compact(
+            'trainingList',
+            'trainingTypes',
+            'trainingNatures',
+            'fundingTypes',
+            'countries',
+            'dzongkhags',
+            'departments',
+            'trainingExpenseTypes'
         ));
     }
 
@@ -149,7 +246,7 @@ class MasTrainingListController extends Controller
         ]);
 
         return redirect()->route('training-lists.index')
-                         ->with('success', 'Training List updated successfully.');
+            ->with('success', 'Training List updated successfully.');
     }
 
 

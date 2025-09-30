@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('amount_allocated', 12, 2);
             $table->decimal('by_company', 12, 2)->comment('amount funded by company for particular expense.');
             $table->decimal('by_sponsor', 12, 2)->comment('amount funded by sponsor for particular expense.');
+            $table->foreignId("created_by")->index()->constrained('mas_employees');
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
 
             $table->timestamps();
         });
