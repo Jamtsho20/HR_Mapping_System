@@ -119,6 +119,7 @@ class ExpenseApplicationController extends Controller
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
+            ->whereStatus(3)
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'transaction_no'])
             ->toArray();

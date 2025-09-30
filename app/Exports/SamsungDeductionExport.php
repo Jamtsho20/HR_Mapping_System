@@ -27,7 +27,6 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
     {
         $serialNo = 1;
 
-
         return $this->deductions->map(function ($loans) use (&$serialNo) {
             return [
                 $serialNo++,

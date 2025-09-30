@@ -111,17 +111,17 @@
                                     <div class="dataTables_scroll">
                                         <div class="dataTables_scrollHead"
                                             style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
+                                            <div class="dataTables_scrollHeadInner freeze-table-col-wrapper"
                                                 style="box-sizing: content-box; padding-right: 0px;">
                                                 <table
                                                     class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row" class="thead-light">
-                                                            <th>
+                                                            <th class="{{ $employees->count() ? 'freeze-col' : '' }}">
                                                                 SL no
                                                             </th>
-                                                            <th>
+                                                            <th class="{{ $employees->count() ? 'freeze-col' : '' }}">
                                                                 Employee Id
                                                             </th>
                                                             <th>
@@ -173,8 +173,8 @@
                                                     <tbody>
                                                         @forelse($employees as $employee)
                                                         <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $employee->username }}</td>
+                                                            <td class="{{ $employees->count() ? 'freeze-col' : '' }}">{{ $loop->iteration }}</td>
+                                                            <td class="{{ $employees->count() ? 'freeze-col' : '' }}">{{ $employee->username }}</td>
                                                             <td>{{ $employee->name }}</td>
                                                             <td>{{ $employee->cid_no }}</td>
                                                             <td>
@@ -257,8 +257,12 @@
                                                         @endforelse
                                                     </tbody>
                                                 </table>
-                                                <div>{{ $employees->links() }}</div>
                                             </div>
+                                            @if ($employees->hasPages())
+                                                <div class="card-footer">
+                                                    {{ $employees->links() }}
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

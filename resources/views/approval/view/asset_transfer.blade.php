@@ -114,17 +114,17 @@
                                                             {{ $loop->iteration }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial->asset_serial_no }}
+                                                            {{ $detail->receivedSerial?->asset_serial_no }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{  $detail->receivedSerial->asset_description ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description  }}
+                                                            {{  $detail->receivedSerial?->asset_description ?? $detail->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description  }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                                            {{ $detail->receivedSerial?->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial?->requisitionDetail->grnItemDetail->item->uom }}
                                                         </td>
-                                                        <td class="text-right">{{ $detail->receivedSerial->quantity ?? 1 }}</td>
+                                                        <td class="text-right">{{ $detail->receivedSerial?->quantity ?? 1 }}</td>
                                                         <td class="text-right">
-                                                            {{ $detail->receivedSerial->amount }}
+                                                            {{ $detail->receivedSerial?->amount }}
                                                         </td>
                                                         <td class="text-center">
                                                             {{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}

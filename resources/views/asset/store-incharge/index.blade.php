@@ -8,9 +8,27 @@
 @endif
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
+@component('layouts.includes.filter')
+                {{-- <div class="col-6 form-group">
+                    <select class="form-control" id="current_site_id" name="current_site_id">
+                        <option value="" disabled selected hidden>Select Site</option>
+                        @foreach ($sites as $site)
+                            <option value="{{ $site->id }}" {{ request()->get('current_site_id') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                        @endforeach
+                    </select>
+                </div> --}}
+
+                <div class="col-6 form-group">
+                    <input placeholder="Serial Number" type="text" name="serial_number" class="form-control" value="{{ request()->get('serial_number') }}">
+                </div>
+            @endcomponent
 <div class="row row-sm">
+    @if(!$toBeReturned->isEmpty())
     <div class="col-lg-12">
         <div class="card">
+            <div class="card-header">
+               <h3 class="card-title">Returns Awaiting Acknowledgement</h3>
+           </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -34,11 +52,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-
-                                            @if(!$toBeReturned->isEmpty())
-                                            <tr>
-                                                <td colspan="7" class="text-center text-info">Returns Awaiting Acknowledgement</td>
-                                            </tr>
                                             @forelse($toBeReturned as $application)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
@@ -78,8 +91,8 @@
                                             </tr>
                                             @empty
                                             @endforelse
-                                            @endif
-                                            @if(!$returned->isEmpty())
+
+                                            {{-- @if(!$returned->isEmpty())
                                             <tr>
                                                 <td colspan="7" class="text-center text-info">Returned Assets</td>
                                             </tr>
@@ -123,7 +136,7 @@
                                             <tr>
                                                 <td colspan="7" class="text-center text-info">No Returns Found</td>
                                             </tr>
-                                            @endif
+                                            @endif --}}
                                         </tbody>
 
                                     </table>
@@ -137,6 +150,53 @@
             </div>
         </div>
     </div>
+
+    @endif
+
+    <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Store Asset List</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style=" overflow-y: auto;">
+                            <table class="table table-condensed table-striped table-bordered table-sm">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Serial Number</th>
+                                        <th>Item Description</th>
+                                        <th>Cost</th>
+                                        <th>Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($returnedAssets as $index => $asset)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>
+                                            {{ $asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial?->asset_serial_no ?? config('global.null_value') }}
+                                        </td>
+                                        <td>{{ $asset->item->item_description }}</td>
+                                        <td>{{ $asset->receivedSerial?->amount ?? $aset->sapAssets->amount ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->receivedSerial?->quantity ?? $aset->sapAssets->quantity ?? config('global.null_value') }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="12" class="text-center text-danger">No assets found</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            @if ($returnedAssets->hasPages())
+                                <div class="card-footer">
+                                    {{ $returnedAssets->links() }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
 </div>
 </div>
 </div>
