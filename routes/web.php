@@ -192,6 +192,28 @@ Route::middleware('auth')->group(function () {
         Route::resource('shift-types', 'MasShiftTypesController');
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
+    
+    //Training Master Module
+    Route::namespace('TrainingMaster')->prefix('training')->group(function () {
+        Route::resource('training-types', 'MasTrainingTypesController');
+        Route::resource('training-funding-types', 'MasTrainingFundingTypesController');
+        Route::resource('training-natures', 'MasTrainingNatureController');
+        Route::resource('training-expense-types', 'MasTrainingExpenseTypeController');
+        Route::resource('training-evaluation-types', 'MasTrainingEvaluationTypeController');
+        // Route::resource('training-lists', 'MasTrainingListController');
+
+    });
+    //Training Module
+    Route::namespace('TrainingApplication')->prefix('training-application')->group(function () {
+        Route::resource('training-lists', 'MasTrainingListController');
+        Route::resource('training-budget', 'TrainingBudgetAllocationController');
+        Route::resource('training-evaluations', 'TrainingEvaluationController');
+        Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
+        Route::resource('training-applications', 'TrainingApplicationController');
+        Route::resource('trainee-lists', 'TraineeListController');
+        Route::resource('training-materials', 'TrainingMaterialsController');
+
+    });
 
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
@@ -341,6 +363,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Team')->prefix('team')->group(function () {
         Route::resource('my-team', 'TeamController');
     });
+
 
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
