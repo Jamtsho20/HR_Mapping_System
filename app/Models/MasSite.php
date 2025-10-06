@@ -26,6 +26,11 @@ class MasSite extends Model
         return $this->belongsTo(User::class, 'site_supervisor');
     }
 
+      public function siteSupervisors()
+    {
+        return $this->hasMany(MasSiteSupervisor::class, 'dzongkhag_id', 'dzongkhag_id');
+    }
+
 
     public function scopeFilter($query, $request)
     {

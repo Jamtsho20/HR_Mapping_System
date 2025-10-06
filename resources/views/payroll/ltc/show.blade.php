@@ -36,6 +36,7 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
+                                                            <th>SL no</th>
                                                             <th>Employee</th>
                                                             <th>Amount</th>
                                                             <th>Approved</th>
@@ -45,6 +46,8 @@
                                                     <tbody>
                                                         @forelse ($details as $record)
                                                             <tr>
+                                                                <td>{{ ($details->currentPage() - 1) * $details->perPage() + $loop->iteration }}
+                                                                </td>
                                                                 <td>{{ $record->employee->name }}
                                                                     ({{ $record->employee->employee_id }})
                                                                 </td>

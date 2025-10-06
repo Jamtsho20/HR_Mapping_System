@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssetReturnApplication;
 use App\Models\MasDzongkhag;
 use App\Models\MasStore;
+use App\Models\MasAssets;
 use Illuminate\Http\Request;
 
 class StoreInchargeController extends Controller
@@ -34,19 +35,27 @@ class StoreInchargeController extends Controller
                     });
                 }])
                 ->get();
-            $returned = AssetReturnApplication::where('received_acknowledged', 1)->
-            whereHas('details.store', function ($query) use ($inchargeId) {
-                    $query->where('store_incharge', $inchargeId);
-                })
-                ->with(['details' => function ($query) use ($inchargeId) {
-                    $query->whereHas('store', function ($query) use ($inchargeId) {
-                        $query->where('store_incharge', $inchargeId);
-                    });
-                }])->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+            // $returned = AssetReturnApplication::where('received_acknowledged', 1)->
+            // whereHas('details.store', function ($query) use ($inchargeId) {
+            //         $query->where('store_incharge', $inchargeId);
+            //     })
+            //     ->with(['details' => function ($query) use ($inchargeId) {
+            //         $query->whereHas('store', function ($query) use ($inchargeId) {
+            //             $query->where('store_incharge', $inchargeId);
+            //         });
+            //     }])->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+
+            $store_id = MasStore::where('store_incharge', $inchargeId)->pluck('id');
+            $returnedAssets = MasAssets::whereHas('returnDetail', function ($q) use ($store_id) {
+                $q->whereIn('store_id', $store_id);
+            })
+            ->where('status', 3)
+            ->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+
 
             // $userAssets = $assets->concat($assetTransfer);
 
-        return view('asset.store-incharge.index', compact('privileges','toBeReturned', 'returned'));
+        return view('asset.store-incharge.index', compact('privileges','toBeReturned', 'returnedAssets'));
     }
 
     public function show(string $id)

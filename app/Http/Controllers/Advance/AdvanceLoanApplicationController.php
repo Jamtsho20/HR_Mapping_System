@@ -216,13 +216,7 @@ class AdvanceLoanApplicationController extends Controller
         $employeeId = loggedInUser();
         $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
 
-        $netPay = DB::table('final_pay_slips')
-            ->where('mas_employee_id', $employeeId)
-            ->where('for_month', $lastMonth)
-            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
-
-        $netPay = floatval($netPay); // Ensure float
-        $eligibilityAmount = min($netPay * 3, 100000); // Max cap
+        
 
         // Check for active SIFA loan and latest repayment
         $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
@@ -236,14 +230,17 @@ class AdvanceLoanApplicationController extends Controller
         $outstandingAmount = 0;
         $netPayable = null;
         $latestRepayment = null;
+        $toBeAddedToNetPay = 0;
 
+        
+    
         if ($lastApprovedSifaLoan) {
             $isActiveLoan = DB::table('loan_e_m_i_deductions')
                 ->where('advance_application_id', $lastApprovedSifaLoan->id)
-                ->where('is_paid_off', 0)
+             
                 ->first();
 
-            if ($isActiveLoan) {
+            if ($isActiveLoan->is_paid_off == 0) {
                 $latestRepayment = DB::table('sifaloanrepayment')
                     ->where('advance_application_id', $lastApprovedSifaLoan->id)
                     ->orderByDesc('month')
@@ -274,8 +271,27 @@ class AdvanceLoanApplicationController extends Controller
 
                     $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
                 }
+            }else{
+                $toBeAddedToNetPay = $isActiveLoan->amount ?? 0;
+                
             }
-        }
+        }else{
+            $isActiveLoan = DB::table('loan_e_m_i_deductions')
+                ->where('mas_employee_id', $employeeId)
+                ->where('mas_pay_head_id',24)
+                ->where('is_paid_off', 1)
+                ->first();
+        
+            $toBeAddedToNetPay = $isActiveLoan->amount ?? 0;
+            }
+
+        $netPay = DB::table('final_pay_slips')
+            ->where('mas_employee_id', $employeeId)
+            ->where('for_month', $lastMonth)
+            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+// dd($netPay, $toBeAddedToNetPay);
+        $netPay = floatval($netPay) + $toBeAddedToNetPay; // Ensure float
+        $eligibilityAmount = min($netPay * 3, 100000); // Max cap
 
         return view(
             'advance-loan.apply.create',
@@ -402,6 +418,7 @@ class AdvanceLoanApplicationController extends Controller
             ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
 
         $netPay = floatval($netPay); // cast safely
+        
         $eligibilityAmount = min($netPay * 3, 100000);
         $advance->netPay = $netPay;
 

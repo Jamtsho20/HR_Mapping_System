@@ -37,69 +37,100 @@ class LeaveTravelConcessionController extends Controller
         $employees = User::with(['empJob' => function ($query) {
             $query->select('mas_employee_id', 'mas_employment_type_id');
         }])
-            ->where(function ($query) {
-                $query->whereHas('empJob', function ($q) {
-                    $q->where('mas_employment_type_id', 2) // Probationers
-                        ->whereRaw("DATEDIFF(CURDATE(), date_of_appointment) >= ?", [365 * 1.5]);
-                })
-                    ->orWhereHas('empJob', function ($q) {
-                        $q->where('mas_employment_type_id', 1) // Regular employees
-                            ->whereRaw("DATEDIFF(CURDATE(), date_of_appointment) >= ?", [365 * 1]);
-                    });
-            })
-            ->whereRaw("MONTH(date_of_appointment) = ?", [$month])
-            ->select(['id', 'name', 'date_of_appointment', 'no_probation'])
             ->whereIsActive(1)
-            ->get();
+            ->select(['id', 'name', 'date_of_appointment', 'no_probation'])
+            ->get()
+            ->filter(function ($employee) use ($month) {
+                $appointmentDate = Carbon::parse($employee->date_of_appointment);
+                $appointmentMonth = $appointmentDate->month;
+                $serviceDays = $appointmentDate->diffInDays(Carbon::now());
+                $serviceMonths = $appointmentDate->diffInMonths(Carbon::now());
 
+                $isProbationer   = optional($employee->empJob)->mas_employment_type_id == 2;
+                $isRegular       = optional($employee->empJob)->mas_employment_type_id == 1;
+                $isNoProbation   = $employee->no_probation == 1;
+
+                // 🚫 Rule 1: Probationers need at least 18 months (and only in their appointment month)
+                if ($isProbationer) {
+                    return $serviceDays >= (365 * 1.5) && $appointmentMonth == $month;
+                }
+
+                // 🚫 Rule 2: Regular employees need at least 12 months (and only in their appointment month)
+                if ($isRegular) {
+                    return $serviceDays >= 365 && $appointmentMonth == $month;
+                }
+
+                // 🚫 Rule 3: No-probation employees → eligible only in their appointment month after 12 months
+                if ($isNoProbation) {
+                    return $serviceMonths >= 12 && $appointmentMonth == $month;
+                }
+
+                // 🚫 Rule 4: Joined before May 2013 → only in January
+                if ($appointmentDate->lt(Carbon::create(2013, 5, 1))) {
+                    return $month == 1;
+                }
+
+                return false;
+            });
+
+        dd($employees);
 
         $ltcs = LeaveTravelConcession::all();
+
         // Retrieve or create LeaveTravelConcession for the month
         $ltc = LeaveTravelConcession::firstOrCreate(
             ['for_month' => "$year-$month-01"],
             ['status' => 0]
         );
 
-
-        $eligible = false; // initialize each iteration
         foreach ($employees as $employee) {
+            $eligible = false; // reset each iteration
 
             $isFirstTimeLTC = LeaveTravelConcessionDetail::where('mas_employee_id', $employee->id)->count() == 0;
             $noProbation = $employee->no_probation == 1;
             $employmentType = $employee->empJob->mas_employment_type_id;
-            // dd($employmentType);
             $durationOfService = $employee->durationOfService();
             $monthsSinceRegularization = $durationOfService['months'];
             $monthsInService = $durationOfService['monthsOfService'];
 
-            if ($isFirstTimeLTC) {
+            // ✅ Condition 1: Employees who joined before May 2013 → Only in January
+            if (Carbon::parse($employee->date_of_appointment)->lt(Carbon::create(2013, 5, 1))) {
+                if ($month == 1) {
+                    $eligible = true;
+                } else {
+                    continue; // 🚫 Skip them outside January
+                }
+            }
+
+            // ✅ Condition 2: Long-term executive employees → Only in January
+            if ($employee->is_long_term_executive ?? false) {
+                if ($month == 1) {
+                    $eligible = true;
+                } else {
+                    continue; // 🚫 Skip outside January
+                }
+            }
+
+            // Existing condition for first-time LTC
+            if (!$eligible && $isFirstTimeLTC) {
                 if ($noProbation && ($employmentType == 1 || $employmentType == 2)) {
-                    // Regular employee, no probation
                     $eligible = $monthsInService >= 12;
                 } elseif ($employmentType == 1 || $employmentType == 2) {
-                    // Regular employee, with probation
                     $eligible = $monthsSinceRegularization >= 18;
                 }
             }
-            // else {
-            //     // Already had LTC before
-            //     $eligible = true;
-            // }
-            // dd($eligible);
+
             if ($eligible) {
-                // dd($employee->id);
                 $amount = FinalPaySlip::where('mas_employee_id', $employee->id)
                     ->where('for_month', Carbon::now()->subMonth()->format('Y-m-01'))
                     ->selectRaw("JSON_VALUE(details, '$.basic_pay') as basic_pay")
                     ->value('basic_pay');
-            
+
                 if (is_null($amount)) {
-                    // dd($employee->id);
                     continue;
                     return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
                 }
 
-                // Insert or update the LTC detail
                 LeaveTravelConcessionDetail::updateOrCreate(
                     [
                         'ltc_id' => $ltc->id,
@@ -114,6 +145,8 @@ class LeaveTravelConcessionController extends Controller
 
         return view('payroll.ltc.index', compact('privileges', 'ltcs'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.
