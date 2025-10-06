@@ -38,7 +38,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
                 getDisplayDateFormat($loans->end_date),
                 $loans->recurring_months,
                 \Carbon\Carbon::parse($loans->for_month)->format('F Y'),
-                formatAmount($loans->emi_amount, false),
+                formatAmount($loans->details['deductions']['Samsung Ded'], false)
             ];
         });
     }
