@@ -256,6 +256,60 @@ class LeaveApplicationController extends Controller
         }
     }
 
+    public function leaveBalance(Request $request)
+    {
+        try {
+            $balances = EmployeeLeave::filter($request)->with(['employee:id,name', 'leaveType:id,name'])->where('mas_employee_id', auth()->user()->id)->get();
+            return $this->successResponse($balances, 'Leave balances retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+
+    public function getLeaveData($currentYear)
+    {
+        // Get all leave types for the current user with their names
+        $leaveTypes = EmployeeLeave::with('leaveType:id,name')
+            ->where('mas_employee_id', auth()->id())
+            ->whereIn('mas_leave_type_id', [1, 2])
+            ->whereYear('created_at', $currentYear)
+            ->get();
+
+
+        $response = $leaveTypes->map(function ($leaveType) use ($currentYear) {
+
+            // Calculate the total leave days for each status
+            $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
+                ->createdBy() // Scope for the logged-in user
+                ->whereYear('created_at', $currentYear) // Filter by current year
+                ->where('type_id', $leaveType->mas_leave_type_id)
+                // ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId)) // Filter by leave type if provided
+                ->groupBy('status') // Group by status (approved, in-progress, etc.)
+                ->pluck('total_days', 'status');
+
+            // Get the employee's closing leave balance
+            $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
+                ->where('mas_leave_type_id', $leaveType->mas_leave_type_id)
+                ->value('closing_balance') ?? 0;
+
+            // Calculate leave days for each status
+            $approvedLeave = $statusCounts[3] ?? 0; // Approved status (assuming 3 is the status code for approved)
+            $inProgressLeave = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress status (Pending = 1, Rejected = 2)
+
+            // Calculate remaining balance after deducting approved and in-progress leave days
+            // $remainingBalance = $balance - $approvedLeave - $inProgressLeave;
+            return [
+                'leaveTypeId' => $leaveType->mas_leave_type_id,
+                'leaveTypeName' => $leaveType->leaveType->name ?? 'Unknown',
+                'Approved' => $statusCounts[3] ?? 0,
+                'Balance' => $balance,
+                'In-Progress' => ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),
+            ];
+        });
+        return response()->json($response);
+    }
+
     private function handleLeaveApplication(Request $request, $leaveApplication = null)
     { //common function to handle store and update of leave
         $userDetails = User::where('id', loggedInUser())->first();
