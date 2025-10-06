@@ -89,14 +89,20 @@ class LeaveApplicationController extends Controller
     public function store(Request $request)
     {
         $result = $this->handleLeaveApplication($request);
-        // If handleLeaveApplication() returns a JSON (error), return immediately
+        // Convert JsonResponse (error) to array for message check
         if ($result instanceof \Illuminate\Http\JsonResponse) {
-            return $result;
+            $json = $result->getData(true);
+            // If error, stop and return same response
+            if (($json['status'] ?? null) === 'error') {
+                return response()->json($json);
+            }
+            // Otherwise treat as array (just in case)
+            $result = $json;
         }
-        // If $result is a RedirectResponse, return it immediately
+
+        // Handle redirect case
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            // return response()->json($result);
-            return response()->json($result);
+            return response()->json(['status' => 'error', 'message' => 'Unexpected redirect.']);
         }
         
         $validator = \Validator::make($request->all(), $this->rules, $this->messages);
@@ -106,11 +112,6 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-        
-        // If $result is a JsonResponse, convert to array
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
-            $result = $result->getData(true); // converts JSON to array
-        }
 
         try {
             DB::beginTransaction();
