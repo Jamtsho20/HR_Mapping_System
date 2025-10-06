@@ -88,102 +88,68 @@ class LeaveApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $result = $this->handleLeaveApplication($request);
+        // If handleLeaveApplication() returns a JSON (error), return immediately
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+        // If $result is a RedirectResponse, return it immediately
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            // return response()->json($result);
+            return response()->json($result);
+        }
+        
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        
+        // If $result is a JsonResponse, convert to array
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            $result = $result->getData(true); // converts JSON to array
+        }
+
         try {
+            DB::beginTransaction();
 
-            $result = $this->handleLeaveApplication($request);
-            // If $result is a RedirectResponse, return it immediately
-            if ($result instanceof \Illuminate\Http\RedirectResponse) {
-                return response()->json($result);
-            }
+            $leaveApplication = LeaveApplication::create([
+                'type_id' => $request->leave_type,
+                'from_day' => $request->from_day,
+                'to_day' => $request->to_day,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'no_of_days' => $request->no_of_days,
+                'remarks' => $request->remarks,
+                'attachment' => $result['attachment'],
+                'status' => $approverByHierarchy['application_status'],
+            ]);
+            // Create a history record
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
 
-            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
-            if ($validator->fails()) {
-                return $this->validationErrorResponse($validator->errors());
-            }
-            $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-            $approvalService = new ApprovalService();
-            $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-            $matchingLeaves = prepareLeaveCombination(Carbon::parse($request->from_date));
-            if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-                $msg = 'Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.';
-                return response()->json(['status' => 'error', 'message' => $msg]);
-            }
-
-
-            try {
-                DB::beginTransaction();
-
-                $leaveApplication = LeaveApplication::create([
-                    'type_id' => $request->leave_type,
-                    'from_day' => $request->from_day,
-                    'to_day' => $request->to_day,
-                    'from_date' => $request->from_date,
-                    'to_date' => $request->to_date,
-                    'no_of_days' => $request->no_of_days,
-                    'remarks' => $request->remarks,
-                    'attachment' => $result['attachment'],
-                    'status' => $approverByHierarchy['application_status'],
-                ]);
-                // Create a history record
-                $historyService = new ApplicationHistoriesService();
-                // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
-                if ($request->leave_type == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-                    if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
-                        DB::table('employee_leaves')
-                            ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
-                            ->where('mas_employee_id', $matchingLeaves[0]->created_by)
-                            ->update([
-                                'leaves_availed' => DB::raw('leaves_availed + ' . $matchingLeaves[0]->no_of_days),
-                                'closing_balance' => DB::raw('closing_balance + ' . $matchingLeaves[0]->no_of_days),
-                            ]);
-
-                        // Deduct from the second leave type (decrement) which is converted leave type
-                        DB::table('employee_leaves')
-                            ->where('mas_leave_type_id', EARNED_LEAVE)
-                            ->where('mas_employee_id', $matchingLeaves[0]->created_by)
-                            ->update([
-                                'leaves_availed' => DB::raw('leaves_availed - ' . $matchingLeaves[0]->no_of_days),
-                                'closing_balance' => DB::raw('closing_balance - ' . $matchingLeaves[0]->no_of_days),
-                            ]);
-
-                        DB::table('leave_applications')->where('id', $matchingLeaves[0]->id)->update(['type_id' => 2]);
-                        DB::table('application_histories')
-                            ->where('application_type', \App\Models\MasLeaveType::class)
-                            ->where('application_id', $matchingLeaves[0]->id)
-                            ->update([
-                                'hierarchy_id' => $approverByHierarchy['hierarchy_id'],
-                                'max_level_id' => $approverByHierarchy['max_level_id'],
-                                'next_level_id' => $approverByHierarchy['next_level']->id,
-                                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
-                                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
-                                'level_sequence' => $approverByHierarchy['next_level']->sequence,
-                            ]);
-                    }
+            // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
+            DB::commit();
+            if (isset($approverByHierarchy['approver_details'])) {
+                $leaveType = MasLeaveType::where('id', $request->leave_type)->value('name');
+                $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
+                $emailSubject = 'Leave';
+                try {
+                    // Mail::raw('This is a test email', function ($message) {
+                    //     $message->to('heranghalley123@gmail.com')->subject('Test Email');
+                    // });
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                } catch (\Exception $e) {
+                    \Log::error('Error sending mail for ' . $request->leave_type . ': ' . $e->getMessage());
                 }
-                $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
-
-                // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
-                DB::commit();
-                if (isset($approverByHierarchy['approver_details'])) {
-                    $leaveType = MasLeaveType::where('id', $request->leave_type)->value('name');
-                    $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
-                    $emailSubject = 'Leave';
-                    try {
-                        Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
-                    } catch (\Exception $e) {
-                        \Log::error('Error sending mail for ' . $request->leave_type . ': ' . $e->getMessage());
-                    }
-                }
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return $this->errorResponse($e->getMessage());
-                // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
             }
-
-            return $this->successResponse($leaveApplication, 'Leave Application created successfully');
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->errorResponse($e->getMessage());
         }
+        return $this->successResponse($leaveApplication, 'Leave has been applied successfully.');
     }
 
     /**
@@ -265,9 +231,9 @@ class LeaveApplicationController extends Controller
                 return $this->errorResponse($e->getMessage());
                 // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
             }
-            return $this->successResponse($leaveApplication, 'Leave Application updated successfully');
+            return $this->successResponse($leaveApplication, 'Leave has been updated successfully.');
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage() . "ddd ");
+            return $this->errorResponse($e->getMessage());
         }
     }
 
@@ -345,6 +311,9 @@ class LeaveApplicationController extends Controller
     private function handleLeaveApplication(Request $request, $leaveApplication = null)
     { //common function to handle store and update of leave
         $userDetails = User::where('id', loggedInUser())->first();
+        if($request->no_of_days <= 0){
+            return response()->json(['status' => 'error', 'message' => 'No of days must be greater than 0. Please correct and try again.']);
+        }
         if ($request->leave_type == EXTRA_ORDINARY_LEAVE && !$userDetails->no_probation) {
             $dateOfAppointment = new DateTime($userDetails->regularized_on);
             $currentDate = new DateTime('now');

@@ -145,7 +145,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('leave_balance_chart/{current_year}', [LeaveApplicationController::class, 'getLeaveData']);
         Route::get('getleavebalancebyleavetype/{id}', [AjaxRequestController::class, 'getLeaveBalance']);
         Route::get('getnoofdaysbydate', [AjaxRequestController::class, 'getNoOfDays']);
-        Route::get('validateleavecombination', [AjaxRequestController::class, 'validateLeaveCombinations']);
+        // Route::get('validateleavecombination', [AjaxRequestController::class, 'validateLeaveCombinations']);
 
         //approval
         Route::resource('leave_encashment_approval', 'LeaveEncashmentApprovalController');
