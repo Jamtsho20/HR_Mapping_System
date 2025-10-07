@@ -47,6 +47,7 @@ use App\Mail\SendCredentialsMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AssetUploadController;
 
 
 
@@ -589,6 +590,11 @@ Route::middleware('auth')->group(function () {
     Route::post('assets/receive-consumable', 'AjaxRequestController@receiveConsumable');
     // Route::get('aaa/{employeeID}', [AdvanceLoanApplicationController::class, 'repaymentSchedule']);
     Route::get('assets/getGrnDetails/{grnNo}', 'AjaxRequestController@getGrnDetailByGrnNo');
+
+
+
+    Route::get('/upload-assets', [AssetUploadController::class, 'create'])->name('assets.upload.view');
+    Route::post('/upload-assets', [AssetUploadController::class, 'uploadAssets'])->name('assets.upload');
 });
 
 
