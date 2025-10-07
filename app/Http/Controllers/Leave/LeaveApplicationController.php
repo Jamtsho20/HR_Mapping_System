@@ -86,7 +86,7 @@ class LeaveApplicationController extends Controller
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
-
+    
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
@@ -249,6 +249,9 @@ class LeaveApplicationController extends Controller
     private function handleLeaveApplication(Request $request, $leaveApplication = null)
     { //common function to handle store and update of leave
         $userDetails = User::where('id', loggedInUser())->first();
+        if($request->no_of_days <= 0){
+            return back()->withInput()->with('msg_error', 'No of days must be greater than 0. Please correct and try again.');
+        }
         if ($request->leave_type == EXTRA_ORDINARY_LEAVE && !$userDetails->no_probation) {
             $dateOfAppointment = new DateTime($userDetails->regularized_on);
             $currentDate = new DateTime('now');
