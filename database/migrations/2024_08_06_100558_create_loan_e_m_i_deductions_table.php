@@ -24,7 +24,9 @@ return new class extends Migration
             $table->integer("recurring_months")->nullable();
             $table->text("remarks")->nullable();
             $table->boolean("is_paid_off")->default(0)->comment("1 for Yes, 0 for No");
-
+            $table->foreignId('created_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('paid_off_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }

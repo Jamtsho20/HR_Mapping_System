@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class LoanEMIDeduction extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
     protected $fillable = [
         'mas_pay_head_id',
         'mas_employee_id',
@@ -21,6 +22,7 @@ class LoanEMIDeduction extends Model
         'remark',
         'is_paid_of',
         'advance_application_id',
+        'paid_off_by'
     ];
 
     public function employee()
