@@ -23,6 +23,7 @@ use App\Models\MasTransferType;
 use App\Models\MasTravelType;
 use App\Models\Role;
 use App\Models\SystemHierarchy;
+use App\Models\TrainingApplicationType;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -92,6 +93,7 @@ class ApprovalRuleController extends Controller
             11 => MasTransferType::class,
             12 => MasReturnType::class,
             13 => MasRetirementBenefitTypes::class,
+            14 => TrainingApplicationType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

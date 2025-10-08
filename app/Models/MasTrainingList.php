@@ -71,6 +71,11 @@ class MasTrainingList extends Model
         return $this->hasMany(TrainingBond::class, 'training_list_id');
     }
 
+    public function nature()
+    {
+        return $this->belongsTo(MasTrainingNature::class, 'training_nature_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {

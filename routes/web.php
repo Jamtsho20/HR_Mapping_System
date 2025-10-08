@@ -206,7 +206,7 @@ Route::middleware('auth')->group(function () {
     //Training Module
     Route::namespace('TrainingApplication')->prefix('training-application')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
-        Route::resource('training-budget', 'TrainingBudgetAllocationController');
+        // Route::resource('training-budget', 'TrainingBudgetAllocationController');
         Route::resource('training-evaluations', 'TrainingEvaluationController');
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
         Route::resource('training-applications', 'TrainingApplicationController');
@@ -214,6 +214,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('training-materials', 'TrainingMaterialsController');
 
     });
+    Route::get('training-applications/training-list/{id}/details', [App\Http\Controllers\TrainingApplication\TrainingApplicationController::class, 'getTrainingListDetails'])
+    ->name('training-applications.training-list.details');
 
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {

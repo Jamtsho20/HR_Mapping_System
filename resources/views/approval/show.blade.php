@@ -75,6 +75,8 @@
             $user = empDetails($data->created_by);
         @endphp
         @include('approval.view.retirement', ['nomination' => $data, 'user' => $user])
+    @elseif ($tab == 14)
+        @include('approval.view.training', ['return' => $data, 'empDetails' => $empDetails])
     @endif
 
 @endsection
