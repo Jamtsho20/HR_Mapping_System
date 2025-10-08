@@ -24,6 +24,7 @@ class MasTrainingList extends Model
         'start_date',
         'end_date',
         'amount_allocated',
+        'department_id',
     ];
 
     public function trainingType()

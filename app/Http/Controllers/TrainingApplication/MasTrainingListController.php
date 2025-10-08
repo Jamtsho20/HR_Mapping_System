@@ -12,6 +12,7 @@ use App\Models\MasTrainingList;
 use App\Models\MasTrainingNature;
 use App\Models\MasTrainingType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MasTrainingListController extends Controller
 {
@@ -199,11 +200,63 @@ class MasTrainingListController extends Controller
     /**
      * Update the specified training list in storage.
      */
+    // public function update(Request $request, $id)
+    // {
+    //     //dd($request->all());
+    //     $trainingList = MasTrainingList::findOrFail($id);
+
+    //     // Validation
+    //     $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'type_id' => 'required|exists:mas_training_types,id',
+    //         'training_nature_id' => 'required|exists:mas_training_natures,id',
+    //         'funding_type_id' => 'required|exists:mas_training_funding_types,id',
+    //         'country_id' => 'nullable|exists:mas_countries,id',
+    //         'dzongkhag_id' => 'nullable|exists:mas_dzongkhags,id',
+    //         'location' => 'nullable|string|max:255',
+    //         'institute' => 'required|string|max:255',
+    //         'start_date' => 'required|date',
+    //         'end_date' => 'required|date|after_or_equal:start_date',
+    //         'amount_allocated' => 'nullable|numeric',
+    //         'department_id' => 'required|integer|exists:mas_departments,id',
+    //     ]);
+
+    //     // Adjust fields based on type (in-country/ex-country)
+    //     if ($request->type_id == 1) { // In-country
+    //         $countryId = null;
+    //         $dzongkhagId = $request->dzongkhag_id;
+    //     } elseif ($request->type_id == 2) { // Ex-country
+    //         $countryId = $request->country_id;
+    //         $dzongkhagId = null;
+    //     } else {
+    //         $countryId = null;
+    //         $dzongkhagId = null;
+    //     }
+
+    //     // Update training list
+    //     $trainingList->update([
+    //         'title' => $request->title,
+    //         'type_id' => $request->type_id,
+    //         'training_nature_id' => $request->training_nature_id,
+    //         'funding_type_id' => $request->funding_type_id,
+    //         'country_id' => $countryId,
+    //         'dzongkhag_id' => $dzongkhagId,
+    //         'location' => $request->location,
+    //         'institute' => $request->institute,
+    //         'start_date' => $request->start_date,
+    //         'end_date' => $request->end_date,
+    //         'amount_allocated' => $request->amount_allocated,
+    //         'department_id' => $request->department_id,
+    //     ]);
+
+    //     return redirect()->route('training-lists.index')
+    //         ->with('success', 'Training List updated successfully.');
+    // }
     public function update(Request $request, $id)
     {
+    // dd($request->all());
         $trainingList = MasTrainingList::findOrFail($id);
 
-        // Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'type_id' => 'required|exists:mas_training_types,id',
@@ -216,13 +269,17 @@ class MasTrainingListController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'amount_allocated' => 'nullable|numeric',
+            'department_id' => 'required|integer|exists:mas_departments,id',
+            'budget.*.training_expense_type_id' => 'required|exists:mas_training_expense_types,id',
+            'budget.*.amount_allocated' => 'required|numeric|min:0',
+            'bond.start_date' => 'required|date',
+            'bond.end_date' => 'required|date|after_or_equal:bond.start_date',
         ]);
 
-        // Adjust fields based on type (in-country/ex-country)
-        if ($request->type_id == 1) { // In-country
+        if ($request->type_id == 1) {
             $countryId = null;
             $dzongkhagId = $request->dzongkhag_id;
-        } elseif ($request->type_id == 2) { // Ex-country
+        } elseif ($request->type_id == 2) {
             $countryId = $request->country_id;
             $dzongkhagId = null;
         } else {
@@ -230,24 +287,60 @@ class MasTrainingListController extends Controller
             $dzongkhagId = null;
         }
 
-        // Update training list
-        $trainingList->update([
-            'title' => $request->title,
-            'type_id' => $request->type_id,
-            'training_nature_id' => $request->training_nature_id,
-            'funding_type_id' => $request->funding_type_id,
-            'country_id' => $countryId,
-            'dzongkhag_id' => $dzongkhagId,
-            'location' => $request->location,
-            'institute' => $request->institute,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'amount_allocated' => $request->amount_allocated,
-        ]);
+        DB::transaction(function () use ($trainingList, $request, $countryId, $dzongkhagId) {
+            $trainingList->update([
+                'title' => $request->title,
+                'type_id' => $request->type_id,
+                'training_nature_id' => $request->training_nature_id,
+                'funding_type_id' => $request->funding_type_id,
+                'country_id' => $countryId,
+                'dzongkhag_id' => $dzongkhagId,
+                'location' => $request->location,
+                'institute' => $request->institute,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'amount_allocated' => $request->amount_allocated,
+                'department_id' => $request->department_id,
+            ]);
 
-        return redirect()->route('training-lists.index')
-            ->with('success', 'Training List updated successfully.');
+            $trainingList->budget()->delete(); // remove old records
+
+            foreach ($request->budget ?? [] as $budget) {
+                $trainingList->budget()->create([
+                    'training_expense_type_id' => $budget['training_expense_type_id'],
+                    'amount_allocated' => $budget['amount_allocated'],
+                    'by_company' => $budget['by_company'],
+                    'by_sponsor' => $budget['by_sponsor'],
+                    'created_by' => auth()->id(),
+                ]);
+            }
+            $bond = $trainingList->bond()->firstOrNew([]);
+            $bond->start_date = $request->bond['start_date'];
+            $bond->end_date = $request->bond['end_date'];
+
+            // Handle attachments
+            $attachments = $request->bond['attachment'] ?? [];
+            $uploaded = [];
+
+            // Save new uploaded files (if any)
+            if ($request->hasFile('bond.attachment')) {
+                foreach ($request->file('bond.attachment') as $file) {
+                    $path = $file->store('uploads/training_bonds', 'public');
+                    $uploaded[] = 'storage/' . $path;
+                }
+            }
+
+            // Merge with existing
+            $existing = $request->input('existing_documents', []);
+            $bond->attachment = json_encode(array_merge($existing, $uploaded));
+            $bond->save();
+        });
+
+        return redirect()
+            ->route('training-lists.index')
+            ->with('success', 'Training List, Budget, and Bond updated successfully.');
     }
+
 
 
     public function destroy($id)
