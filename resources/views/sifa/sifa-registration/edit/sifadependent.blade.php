@@ -10,7 +10,7 @@
                 <th>Dependent Name</th>
                 <th>Relationship with Employee</th>
                 <th>CID</th>
-                <th>Attachment</th>
+                <th>Attachments(CID/Birth Certificate)</th>
                 <th class="text-center">Action</th>
             </tr>
         </thead>
