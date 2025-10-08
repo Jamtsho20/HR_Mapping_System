@@ -9,7 +9,7 @@
                 <th width="25%">Name</th>
                 <th width="25%">Relationship</th>
                 <th width="25%">CID</th>
-                <th width="25%">Attachments</th>
+                <th width="25%">Attachments(CID/Birth Certificate)</th>
             </tr>
         </thead>
         <tbody>

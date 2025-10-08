@@ -8,7 +8,7 @@
                 <th width="20%">Dependent Name</th>
                 <th width="00%">Relationship with Employee</th>
                 <th width="20%">CID</th>
-                <th width="20%">Attachments</th>
+                <th width="20%">Attachments(CID/Birth Certificate)</th>
             </tr>
         </thead>
         <tbody>

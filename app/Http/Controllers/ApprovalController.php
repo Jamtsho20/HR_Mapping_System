@@ -387,36 +387,36 @@ class ApprovalController extends Controller
                         $timestamp = $data['timestamp'];
                         $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
 
-                        return [
-                            "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
-                            "ItemName" => $item->item_description,
-                            "ForeignName" => $item->item_no,
-                            "ItemsGroupCode" => 102,
-                            "ItemType" => "F",
-                            "AssetClass" => $item->item_group_id,
-                            "AssetGroup" => null,
-                            "InventoryNumber" => null,
-                            "U_Employee" => $application->employee->username . " " . $application->employee->name,
-                            "AssetSerialNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}",
-                            "Location" => null,
-                            "ItemProjects" => [
-                                [
-                                    "LineNumber" => 0,
-                                    "ValidFrom" => $detail->date_placed_in_service,
-                                    "ValidTo" => null,
-                                    "Project" => $detail->site->code
+                            return [
+                                "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
+                                "ItemName" => $item->item_description,
+                                "ForeignName" => $item->item_no,
+                                "ItemsGroupCode" => 102,
+                                "ItemType" => "F",
+                                "AssetClass" => $item->item_group_id,
+                                "AssetGroup" => null,
+                                "InventoryNumber" => null,
+                                "U_Employee" => $detail->receivedSerial->requisitionDetail->grnItem->grn_no ?? null,
+                                "AssetSerialNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}",
+                                "Location" => null,
+                                "ItemProjects" => [
+                                    [
+                                        "LineNumber" => 0,
+                                        "ValidFrom" => $detail->date_placed_in_service,
+                                        "ValidTo" => null,
+                                        "Project" => $detail->site->code
+                                    ]
+                                    ],
+                                "ItemDistributionRules" => [
+                                    [
+                                        "LineNumber" => 0,
+                                        "ValidFrom" => $detail->date_placed_in_service,
+                                        "ValidTo" => null,
+                                        "DistributionRule4" => 'DUMMY'
+                                    ]
                                 ]
-                            ],
-                            "ItemDistributionRules" => [
-                                [
-                                    "LineNumber" => 0,
-                                    "ValidFrom" => $detail->date_placed_in_service,
-                                    "ValidTo" => null,
-                                    "DistributionRule4" => 'DUMMY'
-                                ]
-                            ]
-                        ];
-                    })->toArray(),
+                            ];
+                        })->toArray(),
 
                     "AssetDocumentLineCollection" => $itemsWithTimestamp->map(function ($data) {
                         $detail = $data['detail'];

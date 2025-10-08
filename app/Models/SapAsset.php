@@ -12,6 +12,7 @@ class SapAsset extends Model
     protected $fillable = [
                    'item_id',
                    'serial_number',
+                   'asset_number',
                    'uom',
                    'grn_number',
                    'item_description',

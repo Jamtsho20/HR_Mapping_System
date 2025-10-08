@@ -59,7 +59,7 @@
                                                             <td>{{ $site->code }}  </td>
                                                             <td>{{ $site->dzongkhag->dzongkhag }}</td>
                                                             <td>{{ $site->created_at }}  </td>
-                                                            <td>{{ $site->supervisor->name ?? '-' }}  </td>
+                                                            <td>{{ $site->supervisor->name ?? $site->siteSupervisors?->first()?->employee?->name  ??  '-' }}  </td>
                                                             <td>{{ $site->status==1 ? 'Active': 'Inactive' }}</td>
 
 
