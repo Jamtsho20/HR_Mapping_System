@@ -254,7 +254,7 @@ class MasTrainingListController extends Controller
     // }
     public function update(Request $request, $id)
     {
-    // dd($request->all());
+        //  dd($request->all());
         $trainingList = MasTrainingList::findOrFail($id);
 
         $request->validate([
@@ -318,21 +318,48 @@ class MasTrainingListController extends Controller
             $bond->start_date = $request->bond['start_date'];
             $bond->end_date = $request->bond['end_date'];
 
-            // Handle attachments
-            $attachments = $request->bond['attachment'] ?? [];
-            $uploaded = [];
+            // // Handle attachments
+            // $attachments = $request->bond['attachment'] ?? [];
+            // $uploaded = [];
 
-            // Save new uploaded files (if any)
-            if ($request->hasFile('bond.attachment')) {
-                foreach ($request->file('bond.attachment') as $file) {
-                    $path = $file->store('uploads/training_bonds', 'public');
-                    $uploaded[] = 'storage/' . $path;
+            // // Save new uploaded files (if any)
+            // if ($request->hasFile('bond.attachment')) {
+            //     foreach ($request->file('bond.attachment') as $file) {
+            //         $path = $file->store('uploads/training_bonds', 'public');
+            //         $uploaded[] = 'storage/' . $path;
+            //     }
+            // }
+
+            // // Merge with existing
+            // $existing = $request->input('existing_documents', []);
+            // $bond->attachment = json_encode(array_merge($existing, $uploaded));
+            // Handle attachments
+            if ($request->hasFile('bond.attachment') || $request->filled('existing_documents')) {
+                // Get existing documents (if any)
+                $existingDocuments = $request->input('existing_documents', []);
+
+                // Upload new attachments
+                $uploadedDocuments = [];
+                if ($request->hasFile('bond.attachment')) {
+                    foreach ($request->file('bond.attachment') as $file) {
+                        $uploadedDocuments[] = uploadImageToDirectory($file, $this->filePath);
+                    }
                 }
+
+                // Merge new and existing documents
+                $file = array_merge($existingDocuments, $uploadedDocuments);
+            } else {
+                // No new documents; remove old ones if they exist
+                if ($bond->attachment) {
+                    delete_image($bond->attachment); // delete from storage
+                    $bond->attachment = null;
+                    $bond->save();
+                }
+
+                $file = $bond->attachment ? json_decode($bond->attachment, true) : [];
             }
 
-            // Merge with existing
-            $existing = $request->input('existing_documents', []);
-            $bond->attachment = json_encode(array_merge($existing, $uploaded));
+            $bond->attachment = json_encode($file);
             $bond->save();
         });
 
