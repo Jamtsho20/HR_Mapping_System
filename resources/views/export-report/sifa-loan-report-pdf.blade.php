@@ -129,6 +129,7 @@
                     <th>Closing Balance</th>
                     <th>% Outstanding</th>
                     <th>paid off date</th>
+                    <th>paid off by</th>
                 </tr>
             </thead>
             <tbody>
@@ -147,6 +148,17 @@
                     <td>{{ number_format($repayment->percentage_outstanding, 2) }}%</td>
                     <td>{{$repayment->advanceApplication->emiDeduction?->is_paid_off == 1 ? getDisplayDateFormat($repayment->advanceApplication->emiDeduction->updated_at) : '-'}}</td>
                     </td>
+                    @php
+                    $emi = $repayment->advanceApplication->emiDeduction;
+                    $paidOffBy = '-';
+
+                    if ($emi && $emi->is_paid_off == 1) {
+                    $user = \App\Models\User::find($emi->paid_off_by);
+                    $paidOffBy = $user->name ?? $user->username ?? '-';
+                    }
+                    @endphp
+
+                    <td>{{ $paidOffBy }}</td>
                 </tr>
                 @empty
                 <tr>
