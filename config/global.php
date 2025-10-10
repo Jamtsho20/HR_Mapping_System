@@ -296,8 +296,8 @@ return [
             'name' => App\Models\RetirementBenefit::class,
             'post_to_sap' => false,
             'email_subject' => 'Retirement Benefit Nomination',
-            'approver_mail_content' => 'has applied retirement benefit for your endorsement.',
-            'initiator_mail_content' => 'Your retirement benefit has been'
+            'approver_mail_content' => 'has applied retirement benefit nomination for your endorsement.',
+            'initiator_mail_content' => 'Your retirement benefit nomination has been'
         ]
 
     ],
