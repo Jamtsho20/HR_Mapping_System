@@ -119,7 +119,7 @@ class ExpenseApplicationController extends Controller
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
-            ->whereStatus(3)
+            ->whereNot('status', -1)
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'transaction_no'])
             ->toArray();
@@ -132,7 +132,7 @@ class ExpenseApplicationController extends Controller
             ->whereIn('status', [1,2,3])
             ->pluck('id'); // Get only the IDs
 
-        
+
         $excludedTravelIds = collect(
             DsaClaimApplication::whereIn('id', $applicationIds)
                 ->select('travel_authorization_id')
@@ -143,7 +143,7 @@ class ExpenseApplicationController extends Controller
                 ->get()
                 ->pluck('travel_authorization_id')
         )->filter()->values()->toArray();
-        
+
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
@@ -193,8 +193,8 @@ class ExpenseApplicationController extends Controller
         $expenseType = MasExpenseType::where('id', $request->expense_type)->first();
         $lastTransaction = ExpenseApplication::latest('id')->first();
         $expenseApplicationNo = generateTransactionNumber1($expenseType, $lastTransaction, 'transaction_no');
-      
-      
+
+
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
 
@@ -203,7 +203,7 @@ class ExpenseApplicationController extends Controller
             return back()->withInput()->with('msg_error', 'Expense Application Number already exists. Please try again.');
         }
 
-        
+
 
         if ($approverByHierarchy) {
             try {
@@ -289,7 +289,7 @@ class ExpenseApplicationController extends Controller
         // dd($expense);
         $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
 
-      
+
 
         return view('expense.apply.show', compact('expense','approvalDetail'));
     }

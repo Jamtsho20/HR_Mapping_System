@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MasSite;
+use App\Models\MasDzongkhag;
+use App\Models\User;
 
 class MasSiteSupervisor extends Model
 {
@@ -19,7 +21,7 @@ class MasSiteSupervisor extends Model
 
     public function employee()
     {
-        return $this->belongsTo(MasEmployee::class, 'employee_id');
+        return $this->belongsTo(User::class, 'employee_id');
     }
 
     public function dzongkhag()

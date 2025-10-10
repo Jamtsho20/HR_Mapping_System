@@ -48,6 +48,7 @@ use App\Models\TrainingEvaluationAnswer;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AssetUploadController;
 
 
 
@@ -207,7 +208,7 @@ Route::middleware('auth')->group(function () {
     //Training Module
     Route::namespace('TrainingApplication')->prefix('training-application')->name('training-application.')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
-        Route::resource('training-budget', 'TrainingBudgetAllocationController');
+        // Route::resource('training-budget', 'TrainingBudgetAllocationController');
         Route::resource('training-evaluations', 'TrainingEvaluationController');
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
         
@@ -215,6 +216,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('trainee-lists', 'TraineeListController');
         Route::resource('training-materials', 'TrainingMaterialsController');
     });
+    Route::get('training-applications/training-list/{id}/details', [App\Http\Controllers\TrainingApplication\TrainingApplicationController::class, 'getTrainingListDetails'])
+    ->name('training-applications.training-list.details');
 
 
     //MY PROFILE
@@ -619,6 +622,11 @@ Route::middleware('auth')->group(function () {
     Route::post('assets/receive-consumable', 'AjaxRequestController@receiveConsumable');
     // Route::get('aaa/{employeeID}', [AdvanceLoanApplicationController::class, 'repaymentSchedule']);
     Route::get('assets/getGrnDetails/{grnNo}', 'AjaxRequestController@getGrnDetailByGrnNo');
+
+
+
+    Route::get('/upload-assets', [AssetUploadController::class, 'create'])->name('assets.upload.view');
+    Route::post('/upload-assets', [AssetUploadController::class, 'uploadAssets'])->name('assets.upload');
 });
 
 

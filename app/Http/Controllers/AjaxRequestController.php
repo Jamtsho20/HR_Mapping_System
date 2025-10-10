@@ -46,6 +46,9 @@ use App\Models\SystemHierarchyLevel;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
 use App\Models\MasAssets;
+use App\Models\MasTrainingList;
+use App\Models\MasTrainingType;
+use App\Models\TrainingApplicationType;
 use App\Models\WorkHolidayList;
 use App\Services\AssetAcknowledgementService;
 use App\Services\AttendanceService;
@@ -417,7 +420,8 @@ class AjaxRequestController extends Controller
             10 => MasCommissionTypes::class,
             11 => MasTransferType::class,
             12 => MasReturnType::class,
-            13 => MasRetirementBenefitTypes::class
+            13 => MasRetirementBenefitTypes::class,
+            14 => MasTrainingType::class
         ];
 
         if (isset($modelMap[$id])) {

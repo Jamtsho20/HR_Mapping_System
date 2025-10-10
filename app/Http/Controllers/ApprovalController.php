@@ -19,6 +19,7 @@ use App\Models\DsaClaimMappings;
 use App\Models\EmployeeLeave;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHead;
+use App\Models\TrainingApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
 use App\Services\ApprovalService;
@@ -357,34 +358,34 @@ class ApprovalController extends Controller
             }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($commission) {  // sap data for asset commissioning
-           $groupedApplications = $application->details->groupBy(function ($detail) {
-                    return $detail->date_placed_in_service;
-                });
+            $groupedApplications = $application->details->groupBy(function ($detail) {
+                return $detail->date_placed_in_service;
+            });
 
-               $allItemsWithTimestamp = collect();
-
-
-                $groupedApplications->each(function ($group) use (&$allItemsWithTimestamp) {
-                    foreach ($group as $detail) {
-                        $allItemsWithTimestamp->push([
-                            'detail' => $detail,
-                            'timestamp' => now()->format('ym-Hi-s-u') . '-' . Str::random(3),
-                            'date' => $detail->date_placed_in_service
-                        ]);
-                        usleep(500);
-                    }
-                });
+            $allItemsWithTimestamp = collect();
 
 
-                $groupedWithTimestamps = $allItemsWithTimestamp->groupBy('date');
+            $groupedApplications->each(function ($group) use (&$allItemsWithTimestamp) {
+                foreach ($group as $detail) {
+                    $allItemsWithTimestamp->push([
+                        'detail' => $detail,
+                        'timestamp' => now()->format('ym-Hi-s-u') . '-' . Str::random(3),
+                        'date' => $detail->date_placed_in_service
+                    ]);
+                    usleep(500);
+                }
+            });
 
 
-                $postFields = $groupedWithTimestamps->map(function ($itemsWithTimestamp, $date) use ($application) {
-                    return [
-                        "Items" => $itemsWithTimestamp->map(function ($data) use ($application) {
-                            $detail = $data['detail'];
-                            $timestamp = $data['timestamp'];
-                            $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
+            $groupedWithTimestamps = $allItemsWithTimestamp->groupBy('date');
+
+
+            $postFields = $groupedWithTimestamps->map(function ($itemsWithTimestamp, $date) use ($application) {
+                return [
+                    "Items" => $itemsWithTimestamp->map(function ($data) use ($application) {
+                        $detail = $data['detail'];
+                        $timestamp = $data['timestamp'];
+                        $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
 
                             return [
                                 "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
@@ -395,7 +396,7 @@ class ApprovalController extends Controller
                                 "AssetClass" => $item->item_group_id,
                                 "AssetGroup" => null,
                                 "InventoryNumber" => null,
-                                "U_Employee" => $application->employee->username . " " . $application->employee->name,
+                                "U_Employee" => $detail->receivedSerial->requisitionDetail->grnItem->grn_no ?? null,
                                 "AssetSerialNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}",
                                 "Location" => null,
                                 "ItemProjects" => [
@@ -417,23 +418,23 @@ class ApprovalController extends Controller
                             ];
                         })->toArray(),
 
-                        "AssetDocumentLineCollection" => $itemsWithTimestamp->map(function ($data) {
-                            $detail = $data['detail'];
-                            $timestamp = $data['timestamp'];
-                            $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
+                    "AssetDocumentLineCollection" => $itemsWithTimestamp->map(function ($data) {
+                        $detail = $data['detail'];
+                        $timestamp = $data['timestamp'];
+                        $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
 
-                            return [
-                                "AssetNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
-                                "Quantity" => $detail->receivedSerial->quantity ?? 1,
-                                "TotalLC" => $detail->receivedSerial->amount
-                            ];
-                        })->toArray(),
+                        return [
+                            "AssetNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
+                            "Quantity" => $detail->receivedSerial->quantity ?? 1,
+                            "TotalLC" => $detail->receivedSerial->amount
+                        ];
+                    })->toArray(),
 
-                        "AssetValueDate" => $date,
-                        "DocumentDate" => $date,
-                        "PostingDate" => $date
-                    ];
-                })->values()->toArray();
+                    "AssetValueDate" => $date,
+                    "DocumentDate" => $date,
+                    "PostingDate" => $date
+                ];
+            })->values()->toArray();
 
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($accountCode == DSA_ACCOUNT_CODE) {
@@ -605,8 +606,17 @@ class ApprovalController extends Controller
             ->where('application_id', $id)
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
+        $trainingApplication = TrainingApplication::with([
+            'trainingList.trainingType',
+            'trainingList.trainingNature',
+            'trainingList.fundingType',
+            'trainingList.department',
+            'trainingList.dzongkhag',
+            'trainingList.country',
+            'trainees.employee',
+        ])->findOrFail($id);
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance', 'eligibilityAmount', 'netPay', 'lastMonth'));
+        return view('approval.show', compact('data', 'tab', 'trainingApplication','empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
 
     public function edit(Request $request, $id)
@@ -845,7 +855,6 @@ class ApprovalController extends Controller
                 try {
                     foreach ($receiverIds as $receiverUserId) {
                         Mail::to([$receiverEmail])->send(new AssetReturnMail($requestingUserId, $receiverUserId, $emailSubject, $type));
-
                     }
                 } catch (\Exception $e) {
 
@@ -872,12 +881,12 @@ class ApprovalController extends Controller
                 $emailSubject = 'Travel Authorization Application';
 
                 // Send the email
-                if($gm->id != $updatedBy->id){
-                try {
-                    Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
-                } catch (\Exception $e) {
-                    log::error('Failed to send email: ' . $e->getMessage());
-                }
+                if ($gm->id != $updatedBy->id) {
+                    try {
+                        Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
+                    } catch (\Exception $e) {
+                        log::error('Failed to send email: ' . $e->getMessage());
+                    }
                 }
             }
             if ($appType['name'] == 'SIFA LOAN') {

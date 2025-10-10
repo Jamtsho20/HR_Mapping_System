@@ -24,6 +24,7 @@ class MasTrainingList extends Model
         'start_date',
         'end_date',
         'amount_allocated',
+        'department_id',
     ];
 
     public function trainingType()
@@ -69,6 +70,11 @@ class MasTrainingList extends Model
     public function bond()
     {
         return $this->hasMany(TrainingBond::class, 'training_list_id');
+    }
+
+    public function nature()
+    {
+        return $this->belongsTo(MasTrainingNature::class, 'training_nature_id');
     }
 
     public function scopeFilter($query, $request)

@@ -837,6 +837,7 @@ class ApiController extends BaseController
                         "AssetClass" => $item['AssetClass'] ?? "Furnitures",
                         "AssetGroup" => $item['AssetGroup'] ?? null,
                         "InventoryNumber" => $item['InventoryNumber'] ?? null,
+                        "U_Employee" => $item['U_Employee'] ?? null,
                         "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
                         "Location" => $item['Location'] ?? null,
                         "ItemProjects" => [
@@ -1076,10 +1077,16 @@ class ApiController extends BaseController
             $assets = [$assets];
         }
 
+        if (empty($assets)) {
+            return $this->errorResponse('No assets provided.');
+        }
+
+
         $rules = [
             'assets.*.employee_id' => 'required_without:assets.*.site_code',
             'assets.*.site_code'   => 'required_without:assets.*.employee_id|exists:mas_sites,code',
-            'assets.*.serial_no'   => 'required',
+            'assets.*.serial_no'   => 'required_without:assets.*.asset_no',
+            'assets.*.asset_no'    => 'required_without:assets.*.serial_no',
             'assets.*.item_code'   => 'nullable',
             'assets.*.description' => 'required',
             'assets.*.quantity'    => 'required|numeric',
@@ -1097,7 +1104,7 @@ class ApiController extends BaseController
         }
 
         try{
-        $result = DB::transaction(function () use ($assets) {
+        DB::transaction(function () use ($assets) {
         foreach ($assets as $item) {
                 $employee   = User::where('username', $item['employee_id'] ?? null)->first();
                 $site       = MasSite::where('code', $item['site_code'] ?? null)->first();
@@ -1126,6 +1133,7 @@ class ApiController extends BaseController
                 // Create if not found
                 $pushedAsset = SapAsset::create([
                     'serial_number' => $item['serial_no'],
+                    'asset_number' => $item['asset_no'],
                     'item_id' => $i_code?->id,
                     'uom' => $i_code ? $i_code->uom : $item['uom'],
                     'grn_number' => $item['grn_number'] ?? null,
@@ -1151,7 +1159,7 @@ class ApiController extends BaseController
                     'current_employee_id' => $employee?->id,
                     'current_site_id' => $site?->id,
                     'initial_owner_id' => $employee?->id,
-                    'created_by' => auth()->id(),
+                    'created_by' => auth()->id() ?? 2,
                     'sap_asset_id' => $pushedAsset->id,
                 ]);
 

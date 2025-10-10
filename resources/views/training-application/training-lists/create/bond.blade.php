@@ -5,13 +5,13 @@
          <!-- Start Date -->
          <div class="col-md-6 mb-3">
              <label for="bond_start_date">Start Date <span class="text-danger">*</span></label>
-             <input type="date" name="bond[start_date]" id="bond_start_date" value="{{ old('bond.start_date') }}" class="form-control" required>
+             <input type="date" name="bond[start_date]" id="bond_start_date" value="{{ old('bond.start_date') }}" class="form-control" >
          </div>
 
          <!-- End Date -->
          <div class="col-md-6 mb-3">
              <label for="bond_end_date">End Date <span class="text-danger">*</span></label>
-             <input type="date" name="bond[end_date]" id="bond_end_date" value="{{ old('bond.end_date') }}" class="form-control" required>
+             <input type="date" name="bond[end_date]" id="bond_end_date" value="{{ old('bond.end_date') }}" class="form-control" >
          </div>
 
          <!-- Attachments -->
@@ -22,7 +22,7 @@
                      <!-- <span class="file-instruction">Drag files here or</span> -->
                      <span class="file-browse-button">Upload Files</span>
                  </div>
-                 <input class="file-browse-input" type="file" multiple hidden name="bond[attachment][]" multiple {{ empty($employee->empDoc->other) ? 'required' : '' }} accept="image/*,.pdf,.doc,.docx">
+                 <input class="file-browse-input" type="file" multiple hidden name="bond[attachment][]" multiple {{ empty($employee->empDoc->other) ? '' : '' }} accept="image/*,.pdf,.doc,.docx">
 
              </div>
              <ul class="file-list">

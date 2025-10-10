@@ -119,7 +119,8 @@
                                         @include('approval.approvals.asset_return_approval')
                                     @elseif ($id == 13)
                                         @include('approval.approvals.retirement_approval')
-
+                                    @elseif ($id == 14)
+                                        @include('approval.approvals.training_approval')
                                     @endif
 
                                 </div>

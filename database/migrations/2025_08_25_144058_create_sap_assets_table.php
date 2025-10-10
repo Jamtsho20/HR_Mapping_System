@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('item_id')->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('serial_number')->unique();
+            $table->string('asset_number')->unique();
             $table->string('uom', 20);
             $table->string('grn_number');
             $table->string('item_description');

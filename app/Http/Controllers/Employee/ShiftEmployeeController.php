@@ -38,10 +38,10 @@ class ShiftEmployeeController extends Controller
 
     $employeeShifts = $employeeShiftsQuery->orderBy('created_at', 'desc')
         ->paginate(config('global.pagination'));
-
+    
     // Prepare employees for filter dropdown
     $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
-
+    
     $privileges = $request->instance();
 
     return view('employee/shift-employee.index', compact('privileges', 'employeeShifts', 'employees'));
@@ -104,7 +104,7 @@ class ShiftEmployeeController extends Controller
         }
 
         return User::whereHas('empJob', fn($q) => $q->where('mas_section_id', $user->empJob->mas_section_id))
-            ->where('id', '!=', $loggedInUserId)
+            // ->where('id', $loggedInUserId)
             ->pluck('id')
             ->toArray();
     }
