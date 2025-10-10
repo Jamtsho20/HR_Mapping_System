@@ -2,7 +2,7 @@
 @section('page-title', 'Create New Training Application')
 @section('content')
 
-<form action="{{ route('training-applications.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('training-application.training-applications.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="card">
