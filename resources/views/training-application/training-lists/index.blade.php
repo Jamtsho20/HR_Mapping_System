@@ -3,7 +3,7 @@
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('training-lists.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Training Lists</a>
+<a href="{{ route('training-application.training-lists.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Training Lists</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
@@ -91,12 +91,12 @@
                                                     <td>{{ number_format($training->amount_allocated, 2) }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
-                                                        <a href="{{ route('training-lists.edit', $training->id) }}" class="btn btn-sm btn-outline-success mb-1">
+                                                        <a href="{{ route('training-application.training-lists.edit', $training->id) }}" class="btn btn-sm btn-outline-success mb-1">
                                                             <i class="fa fa-edit"></i> EDIT
                                                         </a>
                                                         @endif
                                                         @if ($privileges->delete)
-                                                        <a href="#" class="delete-btn btn btn-sm btn-outline-danger" data-url="{{ route('training-lists.destroy', $training->id) }}">
+                                                        <a href="#" class="delete-btn btn btn-sm btn-outline-danger" data-url="{{ route('training-application.training-lists.destroy', $training->id) }}">
                                                             <i class="fa fa-trash"></i> DELETE
                                                         </a>
                                                         @endif

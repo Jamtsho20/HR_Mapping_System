@@ -44,6 +44,7 @@ use App\Http\Controllers\RetirementBenefitNomination\RetirementBenefitNomination
 use App\Http\Controllers\Sifa\SifaRegisteredUserController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
+use App\Models\TrainingEvaluationAnswer;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -204,16 +205,17 @@ Route::middleware('auth')->group(function () {
 
     });
     //Training Module
-    Route::namespace('TrainingApplication')->prefix('training-application')->group(function () {
+    Route::namespace('TrainingApplication')->prefix('training-application')->name('training-application.')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
         Route::resource('training-budget', 'TrainingBudgetAllocationController');
         Route::resource('training-evaluations', 'TrainingEvaluationController');
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
+        
         Route::resource('training-applications', 'TrainingApplicationController');
         Route::resource('trainee-lists', 'TraineeListController');
         Route::resource('training-materials', 'TrainingMaterialsController');
-
     });
+
 
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
@@ -503,6 +505,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-good-transfer-report', [AssetTransferReportController::class, 'print'])->name('good-transfer-report-print');
     Route::get('/print-good-return-report', [AssetReturnReportController::class, 'print'])->name('good-return-report-print');
     Route::get('/print-cwip-report', [CwipReportController::class, 'printCwip'])->name('cwip-report-print');
+
+
+    Route::get('training-evaluations-answers/export', [TrainingEvaluationAnswer::class, 'export'])
+     ->name('training-application.training-evaluations-answers.export');
+
     //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');

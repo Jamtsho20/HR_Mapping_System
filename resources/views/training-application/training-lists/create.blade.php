@@ -2,7 +2,7 @@
 @section('page-title', 'Create New Training Lists')
 @section('content')
 
-<form action="{{ route('training-lists.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('training-application.training-lists.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <!-- Training List Details -->

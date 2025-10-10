@@ -166,7 +166,7 @@ class MasTrainingListController extends Controller
         }
 
 
-        return redirect()->route('training-lists.index')
+        return redirect()->route('training-application.training-lists.index')
             ->with('success', 'Training List, Budget & Bond created successfully.');
     }
 
@@ -245,7 +245,7 @@ class MasTrainingListController extends Controller
             'amount_allocated' => $request->amount_allocated,
         ]);
 
-        return redirect()->route('training-lists.index')
+        return redirect()->route('training-application.training-lists.index')
             ->with('success', 'Training List updated successfully.');
     }
 

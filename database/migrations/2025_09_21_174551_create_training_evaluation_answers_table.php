@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('training_evaluation_answers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('evaluation_id')->constrained('training_evaluations')->restrictOnUpdate()->restrictOnUpdate();
+            $table->foreignId('evaluation_id')->constrained('training_evaluations')->cascadeOnUpdate()->cascadeOnDelete();
             $table->text('answer');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
