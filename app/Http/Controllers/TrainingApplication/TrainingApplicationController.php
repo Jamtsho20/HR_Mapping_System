@@ -113,16 +113,15 @@ class TrainingApplicationController extends Controller
     public function store(Request $request)
     {
         //dd($request->all());
-        // Get training application type id (not used much here)
-        $trainingApplicationId = TrainingApplicationType::first()->id;
+        // $trainingApplicationId = TrainingApplicationType::first()->id;
+        $trainingList = \App\Models\MasTrainingList::findOrFail($request->training_list_id);
+
+        // Get the training type_id from the selected list
+        $typeId = $trainingList->type_id;
 
         $conditionFields = approvalHeadConditionFields(TRAINING_APPVL_HEAD, $request);
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(
-            $trainingApplicationId,
-            \App\Models\TrainingApplicationType::class,
-            $conditionFields ?? []
-        );
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($typeId, \App\Models\MasTrainingType::class, $conditionFields ?? []);
 
         // Validation
         $request->validate([
@@ -137,7 +136,7 @@ class TrainingApplicationController extends Controller
 
             // Create Training Application
             $trainingApplication = new TrainingApplication();
-            $trainingApplication->type_id = $trainingApplicationId;
+            $trainingApplication->type_id = $typeId;
             $trainingApplication->training_list_id = $request->training_list_id;
             $trainingApplication->is_self_funded = $request->input('status.is_self_funded', 0); // default 0
             $trainingApplication->status = 1;
@@ -199,6 +198,7 @@ class TrainingApplicationController extends Controller
             'trainingList.country',
             'trainees.employee',
         ])->findOrFail($id);
+        //dd($trainingApplication);
         $approvalDetail = getApplicationLogs(\App\Models\TrainingApplication::class, $trainingApplication->id);
 
         return view('training-application.training-applications.show', compact('trainingApplication', 'approvalDetail'));

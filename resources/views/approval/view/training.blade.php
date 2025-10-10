@@ -27,10 +27,20 @@
                         <label><strong>Training Type:</strong></label>
                         <p>{{ $trainingApplication->trainingList->trainingType->name ?? '-' }}</p>
                     </div>
+                    @if($trainingApplication->trainingList->type_id == 1)
+                    <!-- In-country: show Dzongkhag -->
+                    <div class="col-md-4">
+                        <label><strong>Dzongkhag:</strong></label>
+                        <p>{{ $trainingApplication->trainingList->dzongkhag->dzongkhag ?? '-' }}</p>
+                    </div>
+                    @elseif($trainingApplication->trainingList->type_id == 2)
+                    <!-- Ex-country: show Country -->
                     <div class="col-md-4">
                         <label><strong>Country:</strong></label>
                         <p>{{ $trainingApplication->trainingList->country->name ?? '-' }}</p>
                     </div>
+                    @endif
+
 
                     <div class="col-md-4 mt-3">
                         <label><strong>Training Nature:</strong></label>
@@ -116,7 +126,11 @@
 
             const itemType = 14;
             var action = $(this).data('value');
-            var selectedItems = [{{$trainingApplication->id}}];
+            var selectedItems = [{
+                {
+                    $trainingApplication - > id
+                }
+            }];
             var routeUrl = $(this).data('route');
             var itemClass = $(this).data('item-class');
 

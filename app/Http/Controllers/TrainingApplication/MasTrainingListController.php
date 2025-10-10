@@ -45,9 +45,12 @@ class MasTrainingListController extends Controller
         $trainingExpenseTypes = MasTrainingExpenseType::get(['id', 'name']);
         return view('training-application.training-lists.create', compact('trainingTypes', 'fundingTypes', 'country', 'dzonkhag', 'department', 'trainingNatures', 'trainingExpenseTypes'));
     }
+
     // public function store(Request $request)
     // {
+    //     // dd($request->all());
     //     $request->validate([
+    //         // Training List validation
     //         'title' => 'required|string|max:255',
     //         'type_id' => 'required|integer|exists:mas_training_types,id',
     //         'training_nature_id' => 'required|integer|exists:mas_training_natures,id',
@@ -59,9 +62,24 @@ class MasTrainingListController extends Controller
     //         'start_date' => 'required|date',
     //         'end_date' => 'required|date|after_or_equal:start_date',
     //         'department_id' => 'required|integer|exists:mas_departments,id',
-    //         'amount_allotted' => 'nullable|numeric|min:0',
-    //     ]);
+    //         'amount_allocated' => 'nullable|numeric|min:0',
 
+    //         // Budget validation (array of expense types)
+    //         'budget.*.training_expense_type_id' => 'required|integer|exists:mas_training_expense_types,id',
+    //         'budget.*.amount_allocated' => 'required|numeric|min:0',
+    //         'budget.*.by_company' => 'required|numeric|min:0',
+    //         'budget.*.by_sponsor' => 'required|numeric|min:0',
+
+    //         // Bond validation
+    //         'bond.start_date' => 'required|date',
+    //         'bond.end_date' => 'required|date|after_or_equal:bond.start_date',
+    //         'bond.attachment.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
+    //     ]);
+    //     if ($request->type_id == 1) {
+    //         $request->merge(['country_id' => 7]);
+    //     }
+
+    //     //  Create Training List
     //     $training = new \App\Models\MasTrainingList();
     //     $training->title = $request->title;
     //     $training->type_id = $request->type_id;
@@ -74,18 +92,54 @@ class MasTrainingListController extends Controller
     //     $training->start_date = $request->start_date;
     //     $training->end_date = $request->end_date;
     //     $training->department_id = $request->department_id;
-    //     $training->amount_allocated = $request->amount_allotted;
+    //     $training->amount_allocated = $request->amount_allocated;
     //     $training->created_by = auth()->user()->id;
     //     $training->save();
 
-    //     return redirect()->route('training-application.training-lists.index')->with('success', 'Training List created successfully.');
+    //     //  Store Budget Allocations
+    //     if ($request->has('budget')) {
+    //         foreach ($request->budget as $b) {
+    //             \App\Models\TrainingBudgetAllocation::create([
+    //                 'training_list_id' => $training->id,
+    //                 'training_expense_type_id' => $b['training_expense_type_id'],
+    //                 'amount_allocated' => $b['amount_allocated'],
+    //                 'by_company' => $b['by_company'],
+    //                 'by_sponsor' => $b['by_sponsor'],
+    //             ]);
+    //         }
+    //     }
+
+    //     //  Store Training Bond
+    //     if ($request->has('bond')) {
+    //         $attachments = [];
+
+    //         if ($request->hasFile('bond.attachment')) {
+    //             foreach ($request->file('bond.attachment') as $file) {
+    //                 $path = uploadImageToDirectory($file, $this->filePath);
+
+    //                 if (!empty($path)) {
+    //                     $attachments[] = $path;
+    //                 }
+    //             }
+    //         }
+
+    //         \App\Models\TrainingBond::create([
+    //             'training_list_id' => $training->id,
+    //             'start_date'       => $request->bond['start_date'],
+    //             'end_date'         => $request->bond['end_date'],
+    //             'attachment'       => !empty($attachments) ? json_encode($attachments) : null,
+    //         ]);
+    //     }
+
+
+    //     return redirect()->route('training-lists.index')
+    //         ->with('success', 'Training List, Budget & Bond created successfully.');
     // }
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        // Base validation (training list only)
         $request->validate([
-            // Training List validation
             'title' => 'required|string|max:255',
             'type_id' => 'required|integer|exists:mas_training_types,id',
             'training_nature_id' => 'required|integer|exists:mas_training_natures,id',
@@ -98,79 +152,102 @@ class MasTrainingListController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'department_id' => 'required|integer|exists:mas_departments,id',
             'amount_allocated' => 'nullable|numeric|min:0',
-
-            // Budget validation (array of expense types)
-            'budget.*.training_expense_type_id' => 'required|integer|exists:mas_training_expense_types,id',
-            'budget.*.amount_allocated' => 'required|numeric|min:0',
-            'budget.*.by_company' => 'required|numeric|min:0',
-            'budget.*.by_sponsor' => 'required|numeric|min:0',
-
-            // Bond validation
-            'bond.start_date' => 'required|date',
-            'bond.end_date' => 'required|date|after_or_equal:bond.start_date',
-            'bond.attachment.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
         ]);
+
         if ($request->type_id == 1) {
             $request->merge(['country_id' => 7]);
         }
 
-        //  Create Training List
+        // Create training list
         $training = new \App\Models\MasTrainingList();
-        $training->title = $request->title;
-        $training->type_id = $request->type_id;
-        $training->training_nature_id = $request->training_nature_id;
-        $training->funding_type_id = $request->funding_type_id;
-        $training->country_id = $request->country_id;
-        $training->dzongkhag_id = $request->dzongkhag_id;
-        $training->location = $request->location;
-        $training->institute = $request->institute;
-        $training->start_date = $request->start_date;
-        $training->end_date = $request->end_date;
-        $training->department_id = $request->department_id;
-        $training->amount_allocated = $request->amount_allocated;
-        $training->created_by = auth()->user()->id;
+        $training->fill([
+            'title' => $request->title,
+            'type_id' => $request->type_id,
+            'training_nature_id' => $request->training_nature_id,
+            'funding_type_id' => $request->funding_type_id,
+            'country_id' => $request->country_id,
+            'dzongkhag_id' => $request->dzongkhag_id,
+            'location' => $request->location,
+            'institute' => $request->institute,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'department_id' => $request->department_id,
+            'amount_allocated' => $request->amount_allocated,
+            'created_by' => auth()->id(),
+        ]);
         $training->save();
 
-        //  Store Budget Allocations
+        // Conditional Budget Validation & Save
         if ($request->has('budget')) {
-            foreach ($request->budget as $b) {
-                \App\Models\TrainingBudgetAllocation::create([
+            // Filter out empty budget rows
+            $filteredBudgets = collect($request->budget)->filter(function ($b) {
+                return !empty($b['training_expense_type_id']) ||
+                    !empty($b['amount_allocated']) ||
+                    !empty($b['by_company']) ||
+                    !empty($b['by_sponsor']);
+            });
+
+            // Only validate & save if non-empty data exists
+            if ($filteredBudgets->isNotEmpty()) {
+                $request->validate([
+                    'budget.*.training_expense_type_id' => 'required|integer|exists:mas_training_expense_types,id',
+                    'budget.*.amount_allocated' => 'required|numeric|min:0',
+                    'budget.*.by_company' => 'required|numeric|min:0',
+                    'budget.*.by_sponsor' => 'required|numeric|min:0',
+                ]);
+
+                foreach ($filteredBudgets as $b) {
+                    \App\Models\TrainingBudgetAllocation::create([
+                        'training_list_id' => $training->id,
+                        'training_expense_type_id' => $b['training_expense_type_id'],
+                        'amount_allocated' => $b['amount_allocated'],
+                        'by_company' => $b['by_company'],
+                        'by_sponsor' => $b['by_sponsor'],
+                    ]);
+                }
+            }
+        }
+
+
+        // Conditional Bond Validation & Save
+        if ($request->has('bond')) {
+            $bond = $request->bond;
+
+            // Check if any meaningful bond data is provided
+            $hasBondData =
+                !empty($bond['start_date']) ||
+                !empty($bond['end_date']) ||
+                ($request->hasFile('bond.attachment') && count($request->file('bond.attachment')) > 0);
+
+            if ($hasBondData) {
+                $request->validate([
+                    'bond.start_date' => 'required|date',
+                    'bond.end_date' => 'required|date|after_or_equal:bond.start_date',
+                    'bond.attachment.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
+                ]);
+
+                $attachments = [];
+                if ($request->hasFile('bond.attachment')) {
+                    foreach ($request->file('bond.attachment') as $file) {
+                        $path = uploadImageToDirectory($file, $this->filePath);
+                        if (!empty($path)) {
+                            $attachments[] = $path;
+                        }
+                    }
+                }
+
+                \App\Models\TrainingBond::create([
                     'training_list_id' => $training->id,
-                    'training_expense_type_id' => $b['training_expense_type_id'],
-                    'amount_allocated' => $b['amount_allocated'],
-                    'by_company' => $b['by_company'],
-                    'by_sponsor' => $b['by_sponsor'],
+                    'start_date'       => $bond['start_date'],
+                    'end_date'         => $bond['end_date'],
+                    'attachment'       => !empty($attachments) ? json_encode($attachments) : null,
                 ]);
             }
         }
 
-        //  Store Training Bond
-        if ($request->has('bond')) {
-            $attachments = [];
-
-            if ($request->hasFile('bond.attachment')) {
-                foreach ($request->file('bond.attachment') as $file) {
-                    $path = uploadImageToDirectory($file, $this->filePath);
-
-                    if (!empty($path)) {
-                        $attachments[] = $path;
-                    }
-                }
-            }
-
-            \App\Models\TrainingBond::create([
-                'training_list_id' => $training->id,
-                'start_date'       => $request->bond['start_date'],
-                'end_date'         => $request->bond['end_date'],
-                'attachment'       => !empty($attachments) ? json_encode($attachments) : null,
-            ]);
-        }
-
-
         return redirect()->route('training-lists.index')
-            ->with('success', 'Training List, Budget & Bond created successfully.');
+            ->with('success', 'Training List created successfully.');
     }
-
 
 
     public function edit($id)

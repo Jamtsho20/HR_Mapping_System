@@ -18,6 +18,7 @@ use App\Models\MasRequisitionType;
 use App\Models\MasRetirementBenefitTypes;
 use App\Models\MasReturnType;
 use App\Models\MasSifaType;
+use App\Models\MasTrainingType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTransferType;
 use App\Models\MasTravelType;
@@ -93,7 +94,7 @@ class ApprovalRuleController extends Controller
             11 => MasTransferType::class,
             12 => MasReturnType::class,
             13 => MasRetirementBenefitTypes::class,
-            14 => TrainingApplicationType::class,
+            14 => MasTrainingType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

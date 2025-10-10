@@ -35,7 +35,7 @@ class TrainingApplication extends Model
 
     public function type()
     {
-        return $this->belongsTo(TrainingApplicationType::class, 'type_id');
+        return $this->belongsTo(MasTrainingType::class, 'type_id');
     }
     public function histories()
     {

@@ -611,10 +611,10 @@ class ApprovalController extends Controller
             'trainingList.trainingNature',
             'trainingList.fundingType',
             'trainingList.department',
+            'trainingList.dzongkhag',
             'trainingList.country',
             'trainees.employee',
         ])->findOrFail($id);
-
         // Pass the reject remarks to the view
         return view('approval.show', compact('data', 'tab', 'trainingApplication','empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
