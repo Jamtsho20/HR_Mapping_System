@@ -10,7 +10,7 @@
                     <th width="20%">Relationship</th>
                     <th width="20%">CID</th>
                     <th width="20%">Percentage of Share</th>
-                    <th width="20%">Attacments</th>
+                    <th width="20%">Attacments(CID/Birth Certificate)</th>
                 </tr>
             </thead>
             <tbody id="sifa_nomination_table">

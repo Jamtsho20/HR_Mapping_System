@@ -247,6 +247,9 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->branch_code = $request->branch_code;
             $loanEMIDeduction->remarks = $request->remarks;
             $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? $loanEMIDeduction->is_paid_off;
+            if ($request->paid_off_early) {
+                $loanEMIDeduction->paid_off_by = auth()->user()->id;
+            }
             $loanEMIDeduction->save();
 
             return redirect()->route('loan-emi-deductions.index')->with('msg_success', 'Loan EMI Deduction updated successfully.');

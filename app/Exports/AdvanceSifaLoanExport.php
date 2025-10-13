@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\AdvanceApplication;
 use App\Models\SifaLoanRepayment;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -29,19 +30,25 @@ class AdvanceSifaLoanExport implements FromCollection, WithHeadings
 
         // Step 2: Get all relevant SifaLoanRepayments
         $repayments = SifaLoanRepayment::whereIn('advance_application_id', $advanceApplications->pluck('id'))
-            ->with(['advanceApplication.employee.empJob', 'advanceApplication.advanceType','advanceApplication.emiDeduction'])
+            ->with(['advanceApplication.employee.empJob', 'advanceApplication.advanceType', 'advanceApplication.emiDeduction'])
             ->get();
-       
+
 
         // Step 3: Map results for export
         return $repayments->map(function ($repayment) use (&$serialNo) {
             $advance = $repayment->advanceApplication;
+            $paidOffBy = '';
 
             // Check if paid_off is 1 to display the paid off date
             $paidOffDate = '';
-            if ($repayment->advanceApplication->emiDeduction && 
-                $repayment->advanceApplication->emiDeduction->is_paid_off == 1) {
-                $paidOffDate = getDisplayDateFormat($repayment->advanceApplication->emiDeduction->updated_at );
+            if (
+                $repayment->advanceApplication->emiDeduction &&
+                $repayment->advanceApplication->emiDeduction->is_paid_off == 1
+            ) {
+                $paidOffDate = getDisplayDateFormat($repayment->advanceApplication->emiDeduction->updated_at);
+                // $paidOffBy = $repayment->advanceApplication->emiDeduction->paid_off_by;
+                $user = User::find($repayment->advanceApplication->emiDeduction->paid_off_by);
+                $paidOffBy = $user->name ?? $user->username ?? '-';
             }
 
             return [
@@ -62,6 +69,7 @@ class AdvanceSifaLoanExport implements FromCollection, WithHeadings
                 $repayment->principal_repaid,
                 $repayment->closing_balance,
                 $paidOffDate,
+                $paidOffBy,
             ];
         });
     }
@@ -86,6 +94,7 @@ class AdvanceSifaLoanExport implements FromCollection, WithHeadings
             'Principal Repaid',
             'Closing Balance',
             'Paid Off Date',
+            'Paid Off By',
         ];
     }
 }

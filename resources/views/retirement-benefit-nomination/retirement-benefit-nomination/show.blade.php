@@ -26,7 +26,7 @@
                                 <th width="20%">Relationship</th>
                                 <th width="20%">CID</th>
                                 <th width="20%">Percentage of Share</th>
-                                <th width="20%">Attachments</th>
+                                <th width="20%">Attachments (CID/Birth Certificate)</th>
                             </tr>
                         </thead>
                         <tbody>
