@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreignId('initial_owner_id')->index()->nullable()->constrained('mas_employees')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->unsignedInteger('prj_line_num')->default(1);
+            $table->unsignedInteger('emp_line_num')->default(1);
             $table->tinyInteger('status')->default(1)->comment('1 = commissioned, 2 = transferred, 3 = returned');
             $table->timestamps();
         });
