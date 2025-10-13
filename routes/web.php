@@ -213,8 +213,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
         
         Route::resource('training-applications', 'TrainingApplicationController');
-        Route::resource('trainee-lists', 'TraineeListController');
-        Route::resource('training-materials', 'TrainingMaterialsController');
+        // Route::resource('trainee-lists', 'TraineeListController');
+        // Route::resource('training-materials', 'TrainingMaterialsController');
     });
     Route::get('training-applications/training-list/{id}/details', [App\Http\Controllers\TrainingApplication\TrainingApplicationController::class, 'getTrainingListDetails'])
     ->name('training-applications.training-list.details');
@@ -225,6 +225,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('my-profile', 'MyProfileController');
         Route::resource('my-payslip', 'MyPaySlipController');
         Route::resource('my-asset', 'MyAssetController');
+        Route::resource('my-training', 'MyTrainingController');
     });
 
     //RETIREMENT BENEFIT NOMINATION

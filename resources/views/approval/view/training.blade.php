@@ -126,11 +126,7 @@
 
             const itemType = 14;
             var action = $(this).data('value');
-            var selectedItems = [{
-                {
-                    $trainingApplication - > id
-                }
-            }];
+            var selectedItems = [{{$trainingApplication->id}}];
             var routeUrl = $(this).data('route');
             var itemClass = $(this).data('item-class');
 
