@@ -18,7 +18,7 @@ class HolidayListController extends Controller
     public function index(Request $request){
         try{
             $holidays = WorkHolidayList::filter($request)
-            ->orderBy('start_date')->get(['id', 'holiday_name', 'start_date', 'end_date']);
+            ->orderBy('start_date')->where('status', 1)->get(['id', 'holiday_name', 'start_date', 'end_date']);
             $dates = DB::table("work_holiday_lists")->distinct()->selectRaw("YEAR(start_date) as year")->pluck('year')->toArray();
 
             return response()->json(['holidays' => $holidays, 'dates' => $dates], 200);
