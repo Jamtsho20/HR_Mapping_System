@@ -7,7 +7,7 @@
      <div class="row">
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file0"><strong>Certified family tree of the member</strong> <span
+                 <label for="input-file0"><strong>Your Certified Family Tree</strong> <span
                          class="text-danger">*</span></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -22,7 +22,7 @@
          </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file4"><strong>Copy of Citizenship Identity Card of the member</strong></label><span
+                 <label for="input-file4"><strong>Your CID Copy</strong></label><span
                          class="text-danger">*</span></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -37,7 +37,7 @@
         
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file2"><strong>Marriage Certificate / Confirmation of Marriage, if
+                 <label for="input-file2"><strong>Marriage Certificate (if married)
                          married</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -52,7 +52,7 @@
             </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file3"><strong>Certified family tree of spouse of the member, if
+                 <label for="input-file3"><strong>Your Spouse's Certified Family Tree (if married)
                          married</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -67,7 +67,7 @@
          </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file5"><strong>Birth Certificate(s) of biological children, if married and have children in the absence of Citizenship Identity Card number</strong></label>
+                 <label for="input-file5"><strong>Birth Certificate(s) of biological children, (if any)</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
                          <input type="file" class="custom-file-input" id="input-file5"
@@ -81,8 +81,8 @@
          </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file6"><strong>Legal documents in case of foster parents and adopted
-                         children of the member</strong></label>
+                 <label for="input-file6"><strong>Legal documents for foster parents and adopted
+                         children (if any)</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
                          <input type="file" class="custom-file-input" id="input-file6"
@@ -96,9 +96,7 @@
          </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file7"><strong>If divorced, court verdict / legal agreement endorsed by
-                         a
-                         Royal Court of Justice</strong></label>
+                 <label for="input-file7"><strong>Court verdict or legal document (if divorced)</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
                          <input type="file" class="custom-file-input" id="input-file7"
