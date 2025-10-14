@@ -217,11 +217,11 @@ class AjaxRequestController extends Controller
     
         // $prevLeaveToDate = Carbon::parse($prevLeave->to_date);
         
-        if($leaveTypeId == EARNED_LEAVE && $prevLeave->type_id == EARNED_LEAVE){
-            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)) {
-                return $this->errorResponse('Earned Leave cannot be separated by holiday(s) or weekly off(s). Please adjust the dates and try again.');
-            }
-        }
+        // if($leaveTypeId == EARNED_LEAVE && $prevLeave->type_id == EARNED_LEAVE){
+        //     if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)) {
+        //         return $this->errorResponse('Earned Leave cannot be separated by holiday(s) or weekly off(s). Please adjust the dates and try again.');
+        //     }
+        // }
 
         if ($leaveTypeId == CASUAL_LEAVE && $prevLeave) {
             if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)) {
@@ -260,50 +260,50 @@ class AjaxRequestController extends Controller
 
         // Check for weekends and holidays between previous leave and new leave
         //old code 
-        // while ($nextDay->format('Y-m-d') < $fromDate->format('Y-m-d')) {
-        //     if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
-        //         $nextDay->modify('+1 day'); // Skip holidays and weekends
-        //         $isLeaveVoilation = true;
-        //         continue;
-        //     }
+        while ($nextDay->format('Y-m-d') < $fromDate->format('Y-m-d')) {
+            if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
+                $nextDay->modify('+1 day'); // Skip holidays and weekends
+                $isLeaveVoilation = true;
+                continue;
+            }
 
-        //     // If we find a working day and weekly off in between, it's **not** a violation
-        //     $isLeaveVoilation = true;
-        //     break;
-        // }
+            // If we find a working day and weekly off in between, it's **not** a violation
+            $isLeaveVoilation = true;
+            break;
+        }
 
         // Loop through all days between previous leave end and new leave start
         // updated leave voilation logic with new code
-        while ($nextDay < $fromDate) {
-            $dayName = $nextDay->format('l');
-            $dayDate = $nextDay->format('Y-m-d');
+        // while ($nextDay < $fromDate) {
+        //     $dayName = $nextDay->format('l');
+        //     $dayDate = $nextDay->format('Y-m-d');
 
-            $isHoliday = in_array($dayDate, $holidayDates);
-            $isWeeklyOff = in_array($dayName, $weeklyOff);
+        //     $isHoliday = in_array($dayDate, $holidayDates);
+        //     $isWeeklyOff = in_array($dayName, $weeklyOff);
 
-            // case 1: Earned Leave Request
-            if ($isEarnedLeaveReq) {
-                if ($isHoliday || $isWeeklyOff) {
-                    // Found a holiday/off day between leaves → mark violation
-                    $isLeaveViolation = true;
-                } else {
-                    // Found a working day → reset violation
-                    $isLeaveViolation = false;
-                    break;
-                }
-            }
-            // case 2: Non-earned leave (optional — keep logic same or skip)
-            else {
-                if ($isHoliday || $isWeeklyOff) {
-                    $isLeaveViolation = true;
-                } else {
-                    $isLeaveViolation = false;
-                    break;
-                }
-            }
+        //     // case 1: Earned Leave Request
+        //     if ($isEarnedLeaveReq) {
+        //         if ($isHoliday || $isWeeklyOff) {
+        //             // Found a holiday/off day between leaves → mark violation
+        //             $isLeaveViolation = true;
+        //         } else {
+        //             // Found a working day → reset violation
+        //             $isLeaveViolation = false;
+        //             break;
+        //         }
+        //     }
+        //     // case 2: Non-earned leave (optional — keep logic same or skip)
+        //     else {
+        //         if ($isHoliday || $isWeeklyOff) {
+        //             $isLeaveViolation = true;
+        //         } else {
+        //             $isLeaveViolation = false;
+        //             break;
+        //         }
+        //     }
 
-            $nextDay->modify('+1 day');
-        }
+        //     $nextDay->modify('+1 day');
+        // }
         // If holidays/weekends exist between previous leave(earned leave) and the new leave(earned leave), it's a violation
         // if request leave type is casual leave and prev leave(other type) to break atleast require working day between or else need to apply earned leave and is a leave voilation.
         return !$isLeaveVoilation;
