@@ -227,7 +227,7 @@ class AjaxRequestController extends Controller
                 return $this->errorResponse('Casual Leave is not allowed, please try applying earned leave.');
             }
         }
-        dd("a");
+        
         return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday);
     }
 
