@@ -171,8 +171,16 @@
                                     </td>
 
                                     <td>
+                                        @php
+                                            $today = \Carbon\Carbon::now();
+                                            if ($today->day <= 10) {
+                                                $minDate = $today->subMonth()->setDay(15)->format('Y-m-d');
+                                            } else {
+                                                $minDate = $today->startOfMonth()->format('Y-m-d');
+                                            }
+                                        @endphp
                                         <input type="date" class="form-control  resetKeyForNew"
-                                            name="details[AAAAA][date_placed_in_service]" min="{{ \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }}"  max="{{ date('Y-m-d') }}" required />
+                                            name="details[AAAAA][date_placed_in_service]" min="{{ $minDate }}"  max="{{ date('Y-m-d') }}" required />
                                     </td>
 
                                     <td>
@@ -240,14 +248,25 @@
             const inputDate = new Date(dateStr);
             if (isNaN(inputDate)) return false;
 
+            // Normalize input and reference dates
             inputDate.setHours(0, 0, 0, 0);
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            let minDate;
 
-            return inputDate >= firstOfMonth && inputDate <= today;
+            if (today.getDate() <= 10) {
+                // 15th of last month
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 15);
+                minDate = lastMonth;
+            } else {
+                // 1st of this month
+                minDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            }
+
+            // Check if inputDate is between minDate and today
+            return inputDate >= minDate && inputDate <= today;
         }
 
         // sync from date input → text input

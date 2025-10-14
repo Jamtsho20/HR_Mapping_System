@@ -259,8 +259,15 @@ class AttendanceService
 
     // employee that will attend office on Satuarday collected based on office location and if required need to check designation as well especially for RM
     public function isEmployeesRequiredOnSaturday($empId) {
+        // Exclude shift employees
+        if ($this->isShiftEmployee($empId)) {
+            return false;
+        }
+        
         return MasEmployeeJob::where('mas_employee_id', $empId)
-                                ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, CC_THIMPHU_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
+                                // ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, CC_THIMPHU_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
+                                ->where('mas_section_id', TPHU_REGION_SECTION)
+                                ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
                                 ->where('mas_designation_id', '!=', REGIONAL_MANAGER)
                                 ->whereNotIn('mas_employee_id', [286, 292]) // at times cases comes where certain employee dont need to come to office despite of their designation and office location
                                 ->exists();

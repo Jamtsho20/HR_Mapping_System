@@ -24,12 +24,16 @@ class WorkHolidayList extends Model
     {
         return MasRegion::whereIn('id', $this->region_id)->pluck('name')->toArray();
     }
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
 
     //filters
     public function scopeFilter($query, $request)
     {
         if ($request->has('year') && $request->query('year') != '') {
-            $query->whereRaw('YEAR(start_date) = ?',$request->query('year'));
+            $query->whereRaw('YEAR(start_date) = ?', $request->query('year'));
         }
     }
 
@@ -39,5 +43,4 @@ class WorkHolidayList extends Model
         $tomorrow = Carbon::tomorrow()->toDateString();  // Get tomorrow's date in Y-m-d format
         return self::whereDate('start_date', $tomorrow)->first(); // Check if a holiday is scheduled for tomorrow
     }
-
 }

@@ -1,11 +1,14 @@
 @extends('layouts.app')
 @section('page-title', 'Holiday List')
+
 @if ($privileges->create)
 @section('buttons')
-<button type="button" data-bs-toggle="modal" data-bs-target="#create-modal" class="btn btn-sm btn-primary"><i
-        class="fa fa-plus"></i> New Holiday List</button>
+<button type="button" data-bs-toggle="modal" data-bs-target="#create-modal" class="btn btn-sm btn-primary">
+    <i class="fa fa-plus"></i> New Holiday List
+</button>
 @endsection
 @endif
+
 @section('content')
 <div class="block">
     <div class="block-header block-header-default">
@@ -14,271 +17,251 @@
             <select class="form-control" name="year">
                 <option value="" disabled selected hidden>Select year</option>
                 @foreach ($dates as $date)
-                <option @if ($date=request()->get('year')) selected @endif value="{{ $date }}">
+                <option @if (request()->get('year') == $date) selected @endif value="{{ $date }}">
                     {{ $date }}
                 </option>
                 @endforeach
             </select>
         </div>
         @endcomponent
-
     </div>
+
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="dataTables_scroll">
-                                    <div class="dataTables_scrollHead"
-                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                        <div class="dataTables_scrollHeadInner"
-                                            style="box-sizing: content-box; padding-right: 0px;">
-                                            <table
-                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                id="basic-datatable table-responsive">
-                                                <thead>
-                                                    <tr role="row" class="thead-light">
-                                                        <th>#</th>
-                                                        <th>HOLIDAY NAME</th>
-                                                        <th>HOLIDAY TYPE</th>
-                                                        <th>REGION</th>
-                                                        <th>START DATE</th>
-                                                        <th>END DATE</th>
-                                                        <th>ACTION</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse($holidays as $holiday)
-                                                    <tr>
-                                                        <td>{{ $holidays->firstItem() + ($loop->iteration - 1) }}
-                                                        </td>
-                                                        <td>{{ $holiday->holiday_name }}</td>
-                                                        <td>{{ $holiday->holiday_type }}</td>
-                                                        <td>{{ implode(', ', $holiday->region_name) }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
-                                                        <td class="text-center">
-                                                            @if ($privileges->edit)
-                                                            <a href="{{ url('work-structure/holiday-lists/' . $holiday->id) }}"
-                                                                data-holiday="{{ $holiday->holiday_name }}"
-                                                                data-type="{{ $holiday->holiday_type }}"
-                                                                data-regions="{{ json_encode($holiday->region_id) }}"
-                                                                data-start="{{ $holiday->start_date }}"
-                                                                data-end="{{ $holiday->end_date }}"
-                                                                class="edit-btn btn btn-sm btn-rounded btn-outline-success">
-                                                                <i class="fa fa-edit"></i> EDIT
-                                                            </a>
-                                                            @endif
-                                                            @if ($privileges->delete)
-                                                            <a href="#"
-                                                                class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                data-url="{{ url('work-structure/holiday-lists/' . $holiday->id) }}">
-                                                                <i class="fa fa-trash"></i> DELETE
-                                                            </a>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    @empty
-                                                    <tr>
-                                                        <td colspan="8" class="text-center text-danger">No
-                                                            Holiday found</td>
-                                                    </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        @if ($holidays->hasPages())
-                                        <div class="card-footer">
-                                            {{ $holidays->links() }}
-                                        </div>
+                        <table
+                            class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                            id="basic-datatable table-responsive">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>HOLIDAY NAME</th>
+                                    <th>HOLIDAY TYPE</th>
+                                    <th>REGION</th>
+                                    <th>START DATE</th>
+                                    <th>END DATE</th>
+                                    <th>STATUS</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($holidays as $holiday)
+                                <tr>
+                                    <td>{{ $holidays->firstItem() + ($loop->iteration - 1) }}</td>
+                                    <td>{{ $holiday->holiday_name }}</td>
+                                    <td>{{ $holiday->holiday_type }}</td>
+                                    <td>{{ implode(', ', $holiday->region_name) }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
+                                    <td>{{ $holiday->status ? 'Active' : 'Inactive' }}</td>
+                                    <td class="text-center">
+                                        @if ($privileges->edit)
+                                        <a href="{{ url('work-structure/holiday-lists/' . $holiday->id) }}"
+                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success"
+                                            data-holiday="{{ $holiday->holiday_name }}"
+                                            data-type="{{ $holiday->holiday_type }}"
+                                            data-regions="{{ json_encode($holiday->region_id) }}"
+                                            data-start="{{ $holiday->start_date }}"
+                                            data-end="{{ $holiday->end_date }}"
+                                            data-status="{{ $holiday->status }}">
+                                            <i class="fa fa-edit"></i> EDIT
+                                        </a>
                                         @endif
-                                    </div>
-                                </div>
-                            </div>
+                                        @if ($privileges->delete)
+                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                            data-url="{{ url('work-structure/holiday-lists/' . $holiday->id) }}">
+                                            <i class="fa fa-trash"></i> DELETE
+                                        </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-danger">No Holiday found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+
+                        @if ($holidays->hasPages())
+                        <div class="card-footer">
+                            {{ $holidays->links() }}
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 
-<div class="modal show" id="create-modal" tabindex="-1">
-    <div class="modal-dialog modal-md" role="document">
+<!-- CREATE MODAL -->
+<div class="modal fade" id="create-modal" tabindex="-1">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
-
             <form action="{{ url('work-structure/holiday-lists') }}" method="POST">
                 @csrf
-                <div class="card card-themed card-transparent mb-0">
-                    <div class="modal-header">
-                        <h3 class="modal-title">New Holiday</h3>
-                        <div class="modal-options">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
-                        </div>
+                <div class="modal-header">
+                    <h5 class="modal-title">New Holiday</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Holiday Name <span class="text-danger">*</span></label>
+                        <input type="text" name="holiday_name" class="form-control" required>
                     </div>
-                    <div class="modal-content">
-                        <div class="container mt-2">
-                            <div class="form-group">
-                                <label for="">Holiday Name <span class="text-danger">*</span></label>
-                                <input type="text" required="required" class="form-control" name="holiday_name"
-                                    value="{{ old('holiday_name') }}">
-                            </div>
 
-                            <div class="form-group">
-                                <label for="">Holiday Type <span class="text-danger">*</span></label>
-                                <select name="holiday_type" class="form-control" required>
-                                    <option value="" disabled selected hidden>Select your option</option>
-                                    @foreach (config('global.holiday_types') as $type)
-                                    <option value="{{ $type }}">{{ $type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="mas_region_id">Region <span class="text-danger">*</span></label>
-                                <select class="js-select2 form-control" style="width: 100%;" name="mas_region_id[]"
-                                    data-placeholder="Choose many.." multiple>
-                                    @foreach ($regions as $region)
-                                    <option value="{{ $region->id }}">{{ $region->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="start_date">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="example-daterange1" name="start_date"
-                                    placeholder="Start Date" data-week-start="1" data-autoclose="true"
-                                    data-today-highlight="true" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="end_date">End Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="example-daterange1" name="end_date"
-                                    placeholder="End Date" data-week-start="1" data-autoclose="true"
-                                    data-today-highlight="true" required>
-                            </div>
-                        </div>
+                    <div class="form-group mt-2">
+                        <label>Holiday Type <span class="text-danger">*</span></label>
+                        <select name="holiday_type" class="form-control" required>
+                            <option value="" disabled selected hidden>Select option</option>
+                            @foreach (config('global.holiday_types') as $type)
+                            <option value="{{ $type }}">{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
+                    <div class="form-group mt-2">
+                        <label>Region <span class="text-danger">*</span></label>
+                        <select class="js-select2 form-control" name="mas_region_id[]" multiple required>
+                            @foreach ($regions as $region)
+                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Start Date <span class="text-danger">*</span></label>
+                        <input type="date" name="start_date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>End Date <span class="text-danger">*</span></label>
+                        <input type="date" name="end_date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Status <span class="text-danger">*</span></label>
+                        <select name="status" class="form-control" required>
+                            <option value="" disabled selected hidden>Select option</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i> Save
                     </button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- EDIT MODAL -->
 <div class="modal fade" id="edit-modal" tabindex="-1">
-    <div class="modal-dialog modal-md" role="document">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <form action="" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="card card-themed card-transparent mb-0">
-                    <div class="modal-header">
-                        <h3 class="card-title">Edit Holiday</h3>
-                        <div class="card-options">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="container">
-                            <div class="form-group">
-                                <label for="holiday_name">Holiday Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="holiday_name">
-                            </div>
-                            <div class="form-group">
-                                <label for="holiday_type">Holiday Type <span class="text-danger">*</span></label>
-                                <select name="holiday_type" class="form-control" required>
-                                    <option value="" disabled selected hidden>Select your option</option>
-                                    @foreach (config('global.holiday_types') as $type)
-                                    <option value="{{ $type }}">{{ $type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="region">Region <span class="text-danger">*</span></label>
-                                <select class="js-select2 form-control region-dropdown" style="width: 100%;"
-                                    name="mas_region_id[]" data-placeholder="Choose many.." multiple required>
-                                    @foreach ($regions as $region)
-                                    <option value="{{ $region->id }}">{{ $region->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="start_date">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="example-daterange1" name="start_date"
-                                    placeholder="Start Date" data-week-start="1" data-autoclose="true"
-                                    data-today-highlight="true" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="end_date">End Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="example-daterange1" name="end_date"
-                                    placeholder="End Date" data-week-start="1" data-autoclose="true"
-                                    data-today-highlight="true" required>
-                            </div>
-                        </div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Holiday</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Holiday Name <span class="text-danger">*</span></label>
+                        <input type="text" name="holiday_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Holiday Type <span class="text-danger">*</span></label>
+                        <select name="holiday_type" class="form-control" required>
+                            <option value="" disabled hidden>Select option</option>
+                            @foreach (config('global.holiday_types') as $type)
+                            <option value="{{ $type }}">{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Region <span class="text-danger">*</span></label>
+                        <select class="js-select2 form-control region-dropdown" name="mas_region_id[]" multiple required>
+                            @foreach ($regions as $region)
+                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Start Date <span class="text-danger">*</span></label>
+                        <input type="date" name="start_date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>End Date <span class="text-danger">*</span></label>
+                        <input type="date" name="end_date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>Status <span class="text-danger">*</span></label>
+                        <select name="status" class="form-control" required>
+                            <option value="" disabled hidden>Select option</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i> Update
                     </button>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 @include('layouts.includes.delete-modal')
 @endsection
+
 @push('page_scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    
-$(document).ready(function() {
-    $('.edit-btn').click(function(e) {
+$(function() {
+    $('.js-select2').select2();
+
+    // Handle edit button click
+    $('.edit-btn').on('click', function(e) {
         e.preventDefault();
-
-        var url = $(this).attr('href');
-        var holidayname = $(this).data('holiday');
-        var holidaytype = $(this).data('type');
-        var selectedRegions = $(this).data('regions');
-        var start_date = $(this).data('start');
-        var end_date = $(this).data('end');
-
-        // Reference to the modal
         var modal = $('#edit-modal');
-        
-        // Set the action URL for the form
+        var url = $(this).attr('href');
+
         modal.find('form').attr('action', url);
-        
-        // Populate the fields inside the modal
-        modal.find('input[name=holiday_name]').val(holidayname);
-        modal.find('select[name=holiday_type]').val(holidaytype);
-        modal.find('.region-dropdown').val(selectedRegions).trigger('change');
-        modal.find('input[name=start_date]').val(start_date);
-        modal.find('input[name=end_date]').val(end_date);
-        
-        // Initialize the modal and show it
+        modal.find('input[name=holiday_name]').val($(this).data('holiday'));
+        modal.find('select[name=holiday_type]').val($(this).data('type')).trigger('change');
+        modal.find('input[name=start_date]').val($(this).data('start'));
+        modal.find('input[name=end_date]').val($(this).data('end'));
+        modal.find('select[name=status]').val($(this).data('status'));
+
+        var regions = $(this).data('regions');
+        if (regions) {
+            modal.find('.region-dropdown').val(regions).trigger('change');
+        }
+
         var myModal = new bootstrap.Modal(modal[0]);
         myModal.show();
     });
 });
-
-
-    $(function() {
-        $('.js-select2').select2();
-    });
 </script>
 @endpush

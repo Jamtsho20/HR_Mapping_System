@@ -1155,7 +1155,7 @@ class ApiController extends BaseController
 
                 // Create if not found
                 $masAsset = MasAssets::create([
-                    'serial_number' => $item['serial_no'],
+                    'serial_number' => $item['serial_no'] ?? $item['asset_no'],
                     'current_employee_id' => $employee?->id,
                     'current_site_id' => $site?->id,
                     'initial_owner_id' => $employee?->id,
