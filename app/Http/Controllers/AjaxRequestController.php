@@ -214,10 +214,9 @@ class AjaxRequestController extends Controller
             ->latest('to_date')
             ->when($leaveTypeId == CASUAL_LEAVE && isset($prevLeaveEndDate), fn($q) => $q->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d')))
             ->first();
-    
         // $prevLeaveToDate = Carbon::parse($prevLeave->to_date);
         //earned leave voilation check
-        if($leaveTypeId == EARNED_LEAVE && $prevLeave->type_id == EARNED_LEAVE){
+        if($leaveTypeId == EARNED_LEAVE && ($prevLeave && $prevLeave->type_id == EARNED_LEAVE)){
             if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)) {
                 return $this->errorResponse('Earned Leave cannot be separated by holiday(s) or weekly off(s). Please adjust the dates and try again.');
             }
@@ -228,7 +227,7 @@ class AjaxRequestController extends Controller
                 return $this->errorResponse('Casual Leave is not allowed, please try applying earned leave.');
             }
         }
-
+        dd("a");
         return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday);
     }
 
