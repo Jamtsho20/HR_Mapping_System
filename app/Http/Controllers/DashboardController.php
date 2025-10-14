@@ -30,10 +30,12 @@ class DashboardController extends Controller
         $employmentTypeId = $user->empJob->mas_employment_type_id ?? null;
 
         // Fetch holiday list with filtering
-        $holidays = WorkHolidayList::filter($request)
-            ->orderBy('start_date')
-            ->paginate(30)
-            ->withQueryString();
+      $holidays = WorkHolidayList::filter($request)
+    ->status(1)
+    ->orderBy('start_date')
+    ->paginate(30)
+    ->withQueryString();
+
 
         //alert for approver
         $applicationsConfig = config('global.applications');

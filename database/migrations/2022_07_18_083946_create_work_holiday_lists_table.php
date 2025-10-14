@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
