@@ -113,7 +113,7 @@ class RetirementBenefitNominationController extends Controller
             'employee.empJob.department',
             'details'
         ])->findOrFail($id);
-        $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $nomination->id);
+        $approvalDetail = getApplicationLogs(\App\Models\RetirementBenefit::class, $nomination->id);
 
         return view('retirement-benefit-nomination.retirement-benefit-nomination.show', compact('nomination', 'user', 'approvalDetail'));
     }
