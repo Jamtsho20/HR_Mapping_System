@@ -41,6 +41,16 @@ class SifaRegisteredUserController extends Controller
         if ($request->filled('employee')) {
             $query->where('mas_employee_id', $request->employee);
         }
+        // Filter by Updated At (date)
+        if ($request->filled('updated_at')) {
+            $query->whereDate('updated_at', $request->updated_at);
+        }
+
+        // Filter by Has Been Edited
+        if ($request->filled('has_been_edited')) {
+            $query->where('has_been_edited', $request->has_been_edited);
+        }
+
 
 
         $sifaRegistrations = $query->paginate(50); // Adjust pagination as needed
