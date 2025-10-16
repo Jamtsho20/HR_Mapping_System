@@ -52,8 +52,7 @@ class SifaRegisteredUserController extends Controller
         }
 
 
-
-        $sifaRegistrations = $query->paginate(50); // Adjust pagination as needed
+        $sifaRegistrations = $query->paginate(50)->appends($request->all());
         return view('sifa.sifa-registered-user.index', compact('privileges', 'sifaRegistrations', 'employees'));
     }
 
