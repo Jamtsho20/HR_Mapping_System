@@ -286,6 +286,7 @@ if ($hour >= 5 && $hour < 12) {
 
 
 
+
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
@@ -307,31 +308,24 @@ if ($hour >= 5 && $hour < 12) {
                                 <tbody>
                                     @php $index = 1; @endphp
 
-                                    @forelse ($notifications as $notification)
-                                    @if ($notification['title'] !== 'Holiday Alert')
+                                    @foreach ($notifications as $notification)
+                                    @if ($notification['title'] !== 'Holiday Alert') {{-- Exclude Holiday Alert --}}
                                     <tr class="notification-row" data-id="{{ $notification['id'] ?? 'N/A' }}">
                                         <td>{{ $index++ }}</td>
                                         <td>{{ $notification['title'] }}</td>
                                         <td>{{ $notification['message'] }}</td>
                                     </tr>
                                     @endif
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-danger">No notifications found</td>
-                                    </tr>
-                                    @endforelse
+                                    @endforeach
 
                                     @if ($alerts->isNotEmpty())
                                     @foreach ($alerts as $alert)
                                     <tr>
-                                        <td>{{ $index++ }}</td>
+                                        <td>{{ $index++ }}</td> <!-- Increment index here -->
                                         <td>{{ $alert->lastPart }}</td>
-                                        <td>
-                                            You have {{ $alert->count }} new alerts.
-                                            <a class="text-primary" href="{{ url('approval/applications?tab=' . $alert->application_type_id) }}">
-                                                Please review them.
-                                            </a>
-                                        </td>
+                                        <td>You have {{ $alert->count }} new alerts. <a class="text-primary"
+                                                href="{{ url('approval/applications?tab='.$alert->application_type_id) }}">Please review
+                                                them.</a></td>
                                     </tr>
                                     @endforeach
                                     @endif
