@@ -23,7 +23,10 @@ class SifaRegisteredUserController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $query = SifaRegistration::with(['employee.empJob.designation', 'employee.empJob.section', 'employee.empJob.department']);
+        $query = SifaRegistration::with(['employee.empJob.designation', 'employee.empJob.section', 'employee.empJob.department'])
+            ->whereHas('employee', function ($q) {
+                $q->where('status', 1);
+            });
 
         // if ($request->has('search') && $request->search) {
         //     $search = $request->search;
@@ -31,6 +34,7 @@ class SifaRegisteredUserController extends Controller
         //         $q->where('username', 'like', '%' . $search . '%');
         //     });
         // }
+
         $employees = User::select('id', 'name', 'employee_id', 'username', 'title')
             ->orderBy('name')
             ->get()
