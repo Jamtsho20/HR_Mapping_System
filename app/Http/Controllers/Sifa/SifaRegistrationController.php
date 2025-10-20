@@ -210,8 +210,8 @@ class SifaRegistrationController extends Controller
         $sifaRegistration = SifaRegistration::where('mas_employee_id', $user->id)->with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
         $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
         //dd($sifaRegistration->sifaDocument);
-
-        return view('sifa.sifa-registration.show', compact('user', 'sifaRegistration', 'sifaDocuments'));
+        $approvalDetail = getApplicationLogs(\App\Models\SifaRegistration::class, $sifaRegistration->id);
+        return view('sifa.sifa-registration.show', compact('user', 'sifaRegistration', 'sifaDocuments', 'approvalDetail'));
     }
 
     /**

@@ -55,8 +55,11 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <strong>Approved By</strong>
-                    <span class="pull-right">{{ $sifaRegistration->status == 3 ? $sifaRegistration->sifa_approved_by?->name : config('global.null_value') }}</span>
+                    @include('layouts.includes.approval-details', [
+                    'approvalDetail' => $approvalDetail,
+                    'applicationStatus' => $sifaRegistration->status,
+                    ])
+
                 </div>
             </div>
         </div>

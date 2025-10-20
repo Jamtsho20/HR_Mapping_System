@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
+use App\Models\EmployeeDevices;
 // use App\Models\EmployeeDevices;
 use App\Models\FieldEmployee;
 use App\Models\MasAttendanceFeature;
@@ -109,7 +110,6 @@ class AttendanceApiController extends Controller
             return $this->validationErrorResponse($validator->errors());
         }
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
-        // $device = EmployeeDevices::where('employee_id', $user->id)->first();
         //uncomment it later when fixed
         // $deviceExists = EmployeeDevices::where('employee_id', $user->id)
         //     ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
