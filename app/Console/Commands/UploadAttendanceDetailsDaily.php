@@ -62,9 +62,11 @@ class UploadAttendanceDetailsDaily extends Command
                     if (!$dailyAttendance) {
                         continue; // skip if no matching daily attendance
                     }
-                    
-                    $attendanceStatus = $attendanceService->getAttendanceStatus($employee->id, $regionId);
 
+                    $attendanceData = $attendanceService->getAttendanceStatus($employee->id, $regionId);
+                    $attendanceStatus = $attendanceData['attendance_status'];
+                    $shiftId = $attendanceData['shift_id'];
+                    
                     $exists = AttendanceDetail::where('daily_attendance_id', $dailyAttendance->id)
                             ->where('employee_id', $employee->id)
                             ->exists();
@@ -75,6 +77,7 @@ class UploadAttendanceDetailsDaily extends Command
                             'employee_id' => $employee->id,
                             'department_id' => $departmentId ?? null,
                             'section_id' => $sectionId ?? null,
+                            'shift_id' => $shiftId,
                             // 'check_in_at' => null,
                             // 'check_out_at' => null,
                             // 'check_in_ip' => null,
