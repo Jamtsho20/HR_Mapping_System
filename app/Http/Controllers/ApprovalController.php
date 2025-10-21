@@ -385,7 +385,9 @@ class ApprovalController extends Controller
                             $detail = $data['detail'];
                             $timestamp = $data['timestamp'];
                             $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
-
+                            $assetNo = "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}";
+                            $detail->receivedSerial->asset_no = $assetNo;
+                            $detail->receivedSerial->save();
                             return [
                                 "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
                                 "ItemName" => $item->item_description,

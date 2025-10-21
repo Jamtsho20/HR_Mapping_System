@@ -158,6 +158,7 @@ class AssetCommissionApplication extends Model
                             // Create asset
                             \App\Models\MasAssets::create([
                                 'serial_number'        => $detail->receivedSerial->asset_serial_no,
+                                'asset_no'             => $detail->receivedSerial->asset_no,
                                 'current_employee_id'  => $commissionApplication->created_by,
                                 'item_id'              => $detail->receivedSerial->requisitionDetail->item_id
                                     ?? optional($detail->receivedSerial->requisitionDetail->grnItemDetail->item)->id,
@@ -165,6 +166,7 @@ class AssetCommissionApplication extends Model
                                 'received_serial_id'   => $serialId,
                                 'commission_detail_id' => $detail->id,
                                 'initial_owner_id'     => $commissionApplication->created_by,
+                                'asset_type' => 1,
                             ]);
 
                             // Update received_serials.is_commissioned
