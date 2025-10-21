@@ -9,7 +9,6 @@ use App\Models\AssetCommissionDetail;
 use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
-use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
@@ -186,32 +185,47 @@ class AjaxRequestController extends Controller
         $isShiftEmp = $attendanceService->isShiftEmployee(auth()->user()->id);
         $isEmployeesRequiredOnSaturday = $attendanceService->isEmployeesRequiredOnSaturday(auth()->user()->id);
         $weeklyOff = [];
+        $isEarnedLeaveReq = $leaveTypeId && $leaveTypeId == EARNED_LEAVE ? true : false;
 
-        if($isShiftEmp){
+        if ($isShiftEmp) {
             $weeklyOff = json_decode($isShiftEmp->off_days, true);
-        }else if($isEmployeesRequiredOnSaturday){
+        } else if ($isEmployeesRequiredOnSaturday) {
             $weeklyOff = ['Sunday'];
-        }else{
+        } else {
             $weeklyOff = ['Saturday', 'Sunday']; //default as regular employee will have satuarday and sunday off
         }
 
         // Get holidays for the logged-in user's region
         $holidayDates = [];
-        if(!$isShiftEmp){
+        if (!$isShiftEmp) {
             $holidayDates = $this->getHolidayDates($loggedInUserRegion);
         }
         // Find the last working day before the new leave (skip holidays & weekends)
         $prevLeaveEndDate = $this->getLastValidLeaveDate($fromDate, $holidayDates, $weeklyOff);
-
+        // dd($prevLeaveEndDate);
         // Fetch previous leave ending exactly one day before the new leave
-        $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)
-            ->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d'))
-            ->where('created_by', auth()->id())
+        // $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)
+        //     ->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d'))
+        //     ->where('created_by', auth()->id())
+        //     ->latest('to_date')
+        //     ->first();
+        $prevLeave = LeaveApplication::where('created_by', auth()->id())
+            ->where('type_id', '<>', CASUAL_LEAVE)
             ->latest('to_date')
+            ->when($leaveTypeId == CASUAL_LEAVE && isset($prevLeaveEndDate), fn($q) => $q->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d')))
             ->first();
+        // dd($prevLeave);
+        // $prevLeaveToDate = Carbon::parse($prevLeave->to_date);
+        //earned leave voilation check
+        if ($leaveTypeId == EARNED_LEAVE && ($prevLeave && $prevLeave->type_id == EARNED_LEAVE)) {
+            // dd($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq));
+            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $prevLeave->type_id, $isEarnedLeaveReq)) {
+                return $this->errorResponse('Earned Leave cannot be separated by holiday(s) or weekly off(s). Please adjust the dates and try again.');
+            }
+        }
 
         if ($leaveTypeId == CASUAL_LEAVE && $prevLeave) {
-            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff)) {
+            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate, $weeklyOff, $prevLeave->type_id, $isEarnedLeaveReq)) {
                 return $this->errorResponse('Casual Leave is not allowed, please try applying earned leave.');
             }
         }
@@ -219,14 +233,14 @@ class AjaxRequestController extends Controller
         return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday);
     }
 
-        /**
+    /**
      * Finds the last working day before the new leave start date by skipping holidays and weekends.
      */
     private function getLastValidLeaveDate($fromDate, $holidayDates, $weeklyOff)
     {
         $prevDate = clone $fromDate;
         $prevDate->modify('-1 day');
-
+        // dd($holidayDates, $weeklyOff);
         // Keep moving back if the date is a holiday or a weekly off
         while (
             in_array($prevDate->format('Y-m-d'), $holidayDates) ||
@@ -238,28 +252,128 @@ class AjaxRequestController extends Controller
         return $prevDate;
     }
 
-    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
-    {
-        $prevLeaveEnd = new \DateTime($prevLeaveEndDate); 
-        $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
-        // Flag to track if there's a working day in between
-        $hasWorkingDayBetween = false;
+    // private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $prevLeaveTypeId, $isEarnedLeaveReq)
+    // {
 
-        // Check for weekends and holidays between previous leave and new leave
-        while ($nextDay->format('Y-m-d') < $fromDate->format('Y-m-d')) {
-            if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
-                $nextDay->modify('+1 day'); // Skip holidays and weekends
-                $hasWorkingDayBetween = true;
-                continue;
+    //     $prevLeaveEnd = new \DateTime($prevLeaveEndDate); 
+    //     $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
+    //     // Flag to track if it is a leave voilation or not
+    //     $isLeaveVoilation = false;
+    //     // Check for weekends and holidays between previous leave and new leave
+    //     //old code 
+    //     while ($nextDay->format('Y-m-d') <= $fromDate->format('Y-m-d')) {
+    //         $dayName = $nextDay->format('l');
+    //         $dayDate = $nextDay->format('Y-m-d');
+
+    //         $isHoliday = in_array($dayDate, $holidayDates);
+    //         $isWeeklyOff = in_array($dayName, $weeklyOff);
+
+    //         $hasWorkingDay = false;
+
+    //         if($isEarnedLeaveReq && $prevLeaveTypeId == EARNED_LEAVE){
+    //             //only if leave applied is earned leave and there is no working days to seperate between prev & current earned leave
+    //             //And incase if those weekly off or holiday is included while applying leave then it is not voilation
+    //             $diffDays = (new \DateTime($prevLeaveEndDate))->diff($fromDate)->days;
+    //             if ($diffDays <= 1) {
+    //                 return false; // no violation
+    //             }
+    //             // If no working day between and only holidays/off before the new leave it is violation
+    //             $isLeaveVoilation = true;
+    //             return $isLeaveVoilation;
+
+    //         }else{
+    //             if ($isHoliday || $isWeeklyOff) {
+    //                 $nextDay->modify('+1 day'); // Skip holidays and weekends
+    //                 $isLeaveVoilation = true;
+    //                 continue;
+    //             }
+
+    //             // If we find a working day and weekly off in between, it's not a violation
+    //             $isLeaveVoilation = false;
+    //             break;
+    //         }
+    //     }
+
+    //     return !$isLeaveVoilation;
+    // }
+
+    // private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)
+    // {
+    //     $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
+    //     $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
+    //     // Flag to track if there's a working day in between
+    //     $hasWorkingDayBetween = false;
+
+    //     // Check for weekends and holidays between previous leave and new leave
+    //     while ($nextDay < $fromDate) {
+    //         if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
+    //             $nextDay->modify('+1 day'); // Skip holidays and weekends
+    //             continue;
+    //         }
+
+    //         // If we find a working day in between, it's **not** a violation
+    //         $hasWorkingDayBetween = true;
+    //         break;
+    //     }
+
+    //     // If **only holidays/weekends** exist between previous leave and the new leave, it's a violation
+    //     return !$hasWorkingDayBetween;
+    // }
+
+    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $prevLeaveTypeId, $isEarnedLeaveReq)
+    {
+        $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
+        $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
+
+        $hasWorkingDay = false;
+        $isLeaveViolation = false;
+
+        // Loop between previous leave end and new leave start
+        while ($nextDay < $fromDate) {
+            $dayName = $nextDay->format('l');
+            $dayDate = $nextDay->format('Y-m-d');
+
+            $isHoliday = in_array($dayDate, $holidayDates);
+            $isWeeklyOff = in_array($dayName, $weeklyOff);
+
+            if (!$isHoliday && !$isWeeklyOff) {
+                // Found a working day → no violation
+                $hasWorkingDay = true;
+                break;
             }
 
-            // If we find a working day and weekly off in between, it's **not** a violation
-            $hasWorkingDayBetween = true;
-            break;
+            $nextDay->modify('+1 day');
         }
-        // If **only holidays/weekends** exist between previous leave and the new leave, it's a violation
-        return !$hasWorkingDayBetween;
+
+        //CASE 1: Earned Leave
+        if ($isEarnedLeaveReq && $prevLeaveTypeId == EARNED_LEAVE) {
+            $diffDays = (new \DateTime($prevLeaveEndDate))->diff($fromDate)->days;
+            if ($diffDays <= 1) {
+                return false; // Back-to-back EL is fine
+            }
+
+            if (!$hasWorkingDay) {
+                $isLeaveViolation = true; // Only holidays/off between two ELs
+            }
+        }
+
+        //CASE 2: Casual Leave
+        elseif ($prevLeaveTypeId && !$isEarnedLeaveReq) {
+            // If there is no working day between last leave and CL
+            if (!$hasWorkingDay) {
+                $isLeaveViolation = true;
+            }
+        }
+
+        //CASE 3: Other Leave Types (optional rule)
+        // If you want to treat all other types the same way as CL, you can keep the same logic:
+        // elseif (!$hasWorkingDay) {
+        //     $isLeaveViolation = true;
+        // }
+
+        return $isLeaveViolation;
     }
+
 
     private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday)
     {
@@ -609,70 +723,69 @@ class AjaxRequestController extends Controller
     public function getAssetNumberByRequisitionId($id)
     {
         try {
-        $reqApplicaiton = RequisitionApplication::whereId($id)->first();
+            $reqApplicaiton = RequisitionApplication::whereId($id)->first();
 
 
-         $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+            $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
                 $query->where('status', '!=', -1);
             })->pluck('received_serial_id')->toArray();
 
-       $flatSerials = $reqApplicaiton->details()
-        ->whereHas('serials', function ($query) use ($existingSerials) {
-            $query->where('is_commissioned', 0)
-                ->where('is_received', 1);
+            $flatSerials = $reqApplicaiton->details()
+                ->whereHas('serials', function ($query) use ($existingSerials) {
+                    $query->where('is_commissioned', 0)
+                        ->where('is_received', 1);
 
-            if (!empty($existingSerials)) {
-                $query->whereNotIn('id', $existingSerials);
-            }
-        })
-        ->with(['serials' => function ($query) use ($existingSerials) {
-            $query->where('is_commissioned', 0)
-                ->where('is_received', 1);
+                    if (!empty($existingSerials)) {
+                        $query->whereNotIn('id', $existingSerials);
+                    }
+                })
+                ->with(['serials' => function ($query) use ($existingSerials) {
+                    $query->where('is_commissioned', 0)
+                        ->where('is_received', 1);
 
-            if (!empty($existingSerials)) {
-                $query->whereNotIn('id', $existingSerials);
-            }
+                    if (!empty($existingSerials)) {
+                        $query->whereNotIn('id', $existingSerials);
+                    }
 
-            // Include all required foreign keys in select
-            $query->select('id', 'requisition_detail_id', 'asset_serial_no');
+                    // Include all required foreign keys in select
+                    $query->select('id', 'requisition_detail_id', 'asset_serial_no');
 
-            $query->with([
-                'requisitionDetail' => function ($q) {
-                    $q->select('id', 'grn_item_detail_id')->with([
-                        'grnItemDetail' => function ($g) {
-                            $g->select('id', 'item_id')->with([
-                                'item' => function ($i) {
-                                    $i->select('id', 'item_no');
+                    $query->with([
+                        'requisitionDetail' => function ($q) {
+                            $q->select('id', 'grn_item_detail_id')->with([
+                                'grnItemDetail' => function ($g) {
+                                    $g->select('id', 'item_id')->with([
+                                        'item' => function ($i) {
+                                            $i->select('id', 'item_no');
+                                        }
+                                    ]);
                                 }
                             ]);
                         }
                     ]);
-                }
-            ]);
-        }])
-        ->get()
-        ->pluck('serials')
-        ->flatten(1)
-        ->values();
+                }])
+                ->get()
+                ->pluck('serials')
+                ->flatten(1)
+                ->values();
 
-        // Wrap into a single object for JS compatibility
-        $assetNos = [
-            [
-                'serials' => $flatSerials
-            ]
-        ];
+            // Wrap into a single object for JS compatibility
+            $assetNos = [
+                [
+                    'serials' => $flatSerials
+                ]
+            ];
 
-        if (empty($assetNos[0]['serials'])) {
-            return $this->errorResponse('No asset numbers found for the provided GRN number.');
-        } else {
-            $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
+            if (empty($assetNos[0]['serials'])) {
+                return $this->errorResponse('No asset numbers found for the provided GRN number.');
+            } else {
+                $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
+            }
+
+            return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong while trying to fetch details, please try again.' . $e->getMessage());
         }
-
-        return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
-
-    } catch (\Exception $e) {
-        return $this->errorResponse('Something went wrong while trying to fetch details, please try again.' . $e->getMessage());
-    }
     }
     public function getAssetNoByGrnId($grnId)
     {
@@ -687,16 +800,17 @@ class AjaxRequestController extends Controller
                     $query->where('is_commissioned', 0);
                     $query->where('is_received', 1);
                 })
-                ->with(['serials' => function ($query) use ($existingSerials) {
+                ->with([
+                    'serials' => function ($query) use ($existingSerials) {
                         $query->where('is_commissioned', 0);
                         $query->where('is_received', 1);
-                        if(!empty($existingSerials)){
+                        if (!empty($existingSerials)) {
                             $query->whereNotIn('id', $existingSerials);
                         }
                         $query->selectRaw("id, requisition_detail_id, asset_serial_no");
                     },
                 ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
-                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+            // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
             $assetNos = $assetNosQuery->get();
             if ($assetNos->isEmpty()) {
                 return $this->errorResponse('No asset numbers found for the provided GRN number.');
@@ -705,7 +819,7 @@ class AjaxRequestController extends Controller
             }
 
             return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             \Log::info("asset commission: " . $e->getMessage());
             return $this->internalServerErrorResponse('Something went wrong while fetching asset numbers. Please try again.');
         }
@@ -716,7 +830,7 @@ class AjaxRequestController extends Controller
         try {
             $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item', 'requisitionDetail.dzongkhag', 'requisitionDetail.site'])->get();
             return $this->successResponse(['serial' => $serial]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching description and quantity. Please try again.');
         }
     }
@@ -726,7 +840,7 @@ class AjaxRequestController extends Controller
         try {
             $sites = MasSite::where('status', '1')->where('dzongkhag_id', $dzongkhagId)->get(['id', 'name']);
             return $this->successResponse(['sites' => $sites]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching sites. Please try again.');
         }
     }
@@ -737,12 +851,13 @@ class AjaxRequestController extends Controller
         try {
             $items = MasGrnItemDetail::where('grn_id', $grnId)->with('item:id,item_no,item_description,uom', 'store:id,name,code')->get();
             return $this->successResponse(['items' => $items]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching items. Please try again.' . $e->getMessage());
         }
     }
 
-    public function getAssetNoBySiteEmployee($empID, $siteID = null){
+    public function getAssetNoBySiteEmployee($empID, $siteID = null)
+    {
         try {
 
             // $transferedSerials = AssetTransferApplication::with('details.receivedSerial')
@@ -806,31 +921,32 @@ class AjaxRequestController extends Controller
             // ->get();
 
 
-            if($siteID == null){
+            if ($siteID == null) {
                 $assetNos = MasAssets::where('current_employee_id', $empID)->where('current_site_id', null)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
-            }else{
+            } else {
                 $assetNos = MasAssets::where('current_site_id', $siteID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
 
 
 
             return $this->successResponse($assetNos);
-        }catch(\Exception $e) {
-            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.'. $e->getMessage());
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.' . $e->getMessage());
         }
     }
 
-    public function getItemByAssetId($assetNo){
+    public function getItemByAssetId($assetNo)
+    {
         try {
             $id = MasAssets::where('id', $assetNo)->value('received_serial_id') ?? null;
-            if($id == null){
+            if ($id == null) {
                 $item = MasAssets::where('id', $assetNo)->first();
-            }else{
+            } else {
                 $item = ReceivedSerial::where('id', $id)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             }
             return $this->successResponse($item);
-        }catch(\Exception $e) {
-            return $this->errorResponse('Something went wrong while fetching items. Please try again.'. $e->getMessage());
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching items. Please try again.' . $e->getMessage());
         }
     }
 
@@ -854,31 +970,32 @@ class AjaxRequestController extends Controller
     }
 
     public function receiveConsumable(Request $request)
-        {
-            try{
-                $detail = RequisitionDetail::findOrFail($request->req_detail_id);
-                $detail->received_quantity = $request->quantity;
-                $detail->is_received = true;
-                $detail->save();
+    {
+        try {
+            $detail = RequisitionDetail::findOrFail($request->req_detail_id);
+            $detail->received_quantity = $request->quantity;
+            $detail->is_received = true;
+            $detail->save();
 
-                $requisitionId = $detail->requisition_id;
+            $requisitionId = $detail->requisition_id;
 
-                $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
+            $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
                 ->where('is_received', '!=', 1)
                 ->doesntExist();
 
-                if ($allReceived) {
-                    $requisition = RequisitionApplication::find($requisitionId);
-                    $requisition->is_received = true;
-                    $requisition->save();
-                }
-                return $this->successResponse($detail);
-            }catch(\Exception $e){
-                return $this->errorResponse($e->getMessage());
+            if ($allReceived) {
+                $requisition = RequisitionApplication::find($requisitionId);
+                $requisition->is_received = true;
+                $requisition->save();
             }
+            return $this->successResponse($detail);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
+    }
 
-    public function receive(Request $request){
+    public function receive(Request $request)
+    {
         try {
 
             DB::beginTransaction();
@@ -895,10 +1012,10 @@ class AjaxRequestController extends Controller
                 }
             }
 
-        $reqDetail = RequisitionDetail::find($request->grnId);
-        if (!$reqDetail) {
-            return $this->errorResponse('Requisition detail not found.');
-        }
+            $reqDetail = RequisitionDetail::find($request->grnId);
+            if (!$reqDetail) {
+                return $this->errorResponse('Requisition detail not found.');
+            }
 
             $reqDetail->is_received = 1;
             $reqDetail->received_quantity = (int)$request->quantity;
@@ -918,36 +1035,34 @@ class AjaxRequestController extends Controller
 
             DB::commit();
             return $this->successResponse('Asset received successfully.');
-
-        }catch(\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.'. $e->getMessage());
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.' . $e->getMessage());
         }
     }
 
     public function getGrnDetailByGrnNo($grnNo)
-        {
-            try {
-                // Fetch all active GRNs
-                $grns = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])
-                    ->whereStatus(1)
-                    ->get();
+    {
+        try {
+            // Fetch all active GRNs
+            $grns = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])
+                ->whereStatus(1)
+                ->get();
 
-                // Filter GRNs by extracting the last segment and comparing
-                $matchedGrn = $grns->first(function ($grn) use ($grnNo) {
-                    $parts = explode('-', $grn->grn_no);
-                    $lastSegment = ltrim(end($parts), '0'); // Remove leading zeros
-                    return $lastSegment == $grnNo;
-                });
+            // Filter GRNs by extracting the last segment and comparing
+            $matchedGrn = $grns->first(function ($grn) use ($grnNo) {
+                $parts = explode('-', $grn->grn_no);
+                $lastSegment = ltrim(end($parts), '0'); // Remove leading zeros
+                return $lastSegment == $grnNo;
+            });
 
-                if (!$matchedGrn) {
-                    return $this->errorResponse('GRN Number not found in HRMS.');
-                }
-
-                return $this->successResponse($matchedGrn);
-            } catch (\Exception $e) {
-                return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again. ' . $e->getMessage());
+            if (!$matchedGrn) {
+                return $this->errorResponse('GRN Number not found in HRMS.');
             }
-        }
 
+            return $this->successResponse($matchedGrn);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again. ' . $e->getMessage());
+        }
+    }
 }

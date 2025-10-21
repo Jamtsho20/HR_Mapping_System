@@ -21,6 +21,11 @@ class MasShiftType extends Model
         return $this->hasMany(DepartmentWiseShift::class, 'type_id');
     }
 
+    public function dailyAttendanceShift()
+    {
+        return $this->hasMany(AttendanceDetail::class, 'shift_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {

@@ -9,7 +9,9 @@ use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\MasEmployeeJob;
 use App\Models\MasOfficeTiming;
+use App\Models\MasShiftType;
 use App\Models\TravelAuthorizationApplication;
+use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 
@@ -25,15 +27,24 @@ class AttendanceService
         $isShiftEmp = $this->isShiftEmployee($empId);
         $isEmployeesRequiredOnSaturday = $this->isEmployeesRequiredOnSaturday($empId);
         $weeklyOff = [];
+        //to get shiftData
+        $userData = User::where('id', $empId)->first();
+        
+        $todayShiftTypeId = null;
 
         if($isShiftEmp){
+            $shiftData = null;
+            if(!empty($userData['employeeInShifts'][0])){
+                $shiftData = $userData['employeeInShifts'][0];
+            }
+            $todayShiftTypeId = $this->getCurrentDayShift($shiftData, $today);
             $weeklyOff = json_decode($isShiftEmp->off_days, true);
         }else if($isEmployeesRequiredOnSaturday){
             $weeklyOff = ['Sunday'];
         }else{
             $weeklyOff = ['Saturday', 'Sunday']; //default as regular employee will have satuarday and sunday off
         }
-
+        
         $isOnTour = TravelAuthorizationApplication::where('status', '<>', -1)
             ->where('created_by', $empId)
             ->whereHas('details', function ($query) use ($currentDate) {
@@ -47,7 +58,7 @@ class AttendanceService
             ->first();
 
         if ($isOnTour && $isOnTour->details->isNotEmpty()) {
-            return ON_TOUR_STATUS;
+            return ['attendance_status' => ON_TOUR_STATUS, 'shift_id' => $todayShiftTypeId];
         }
 
         // 2. check if employee is on leave priority over other
@@ -58,7 +69,11 @@ class AttendanceService
             ->first();
 
         if ($isOnLeave) {
-            return $this->prepareLeaveStatus($isOnLeave);
+            // return $this->prepareLeaveStatus($isOnLeave);
+            return [
+                'attendance_status' => $this->prepareLeaveStatus($isOnLeave),
+                'shift_id' => $todayShiftTypeId,
+            ];
         }
 
         // 3. Check if it's a holiday first (priority over weekends)
@@ -68,19 +83,20 @@ class AttendanceService
             ->first();
 
         if ($matchingHoliday && !$isShiftEmp) {
-            return HOLIDAY_STATUS;
+            return ['attendance_status' => HOLIDAY_STATUS, 'shift_id' => $todayShiftTypeId];
         }
 
         if (is_array($weeklyOff) && in_array($today, $weeklyOff)) {
-            return WEEKLY_OFF_STATUS;
+            return ['attendance_status' => WEEKLY_OFF_STATUS, 'shift_id' => $todayShiftTypeId];
         }
 
         // 5. Check for Saturday  commented as HALF_DAY_WEEKEND_STATUS is applied to those who attend office on Satuarday 
         if ($currentDate->isSaturday() && !$isShiftEmp && $isEmployeesRequiredOnSaturday) {
-            return HALF_DAY_WEEKEND_STATUS;
+            return ['attendance_status' => HALF_DAY_WEEKEND_STATUS, 'shift_id' => $todayShiftTypeId];
         }
 
-        return $attendanceStatus;
+        // return $attendanceStatus;
+        return ['attendance_status' => $attendanceStatus, 'shift_id' => $todayShiftTypeId];
     }
 
     public function getEffectiveOfficeTiming($userData)
@@ -104,17 +120,19 @@ class AttendanceService
             $shiftData = $userData['employeeInShifts'][0];
 
             // Decode JSON values into arrays
-            $shifts = [
-                MORNING_SHIFT => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [], // morning
-                EVENING_SHIFT => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [], // evening
-                NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
-                FULL_DAY_SHIFT => json_decode($shiftData['full_shift_days'] ?? '[]', true) ?: [], // full day shift
-            ];
+            // $shifts = [
+            //     MORNING_SHIFT => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [], // morning
+            //     EVENING_SHIFT => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [], // evening
+            //     NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
+            //     FULL_DAY_SHIFT => json_decode($shiftData['full_shift_days'] ?? '[]', true) ?: [], // full day shift
+            // ];
         
-            // Detect today’s shift type id
-            $todayShiftTypeId = collect($shifts)->search(function ($days) use ($today) {
-                return in_array($today, $days);
-            });
+            // // Detect today’s shift type id
+            // $todayShiftTypeId = collect($shifts)->search(function ($days) use ($today) {
+            //     return in_array($today, $days);
+            // });
+
+            $todayShiftTypeId = $this->getCurrentDayShift($shiftData, $today);
             
             if ($todayShiftTypeId) {
                 $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)
@@ -191,6 +209,7 @@ class AttendanceService
                         'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                         'attendance_date' => $attendance->date ?? config('global.null_value'),
                         'remarks' => config('global.null_value'),
+                        'shift_name' => config('global.null_value')
                     ];
                     continue; // Skip to the next attendance
                 }
@@ -201,6 +220,8 @@ class AttendanceService
                     ->format('%Hh:%Im:%Ss')
                     : config('global.null_value');
 
+                $shiftName = $detail->shift_id ? MasShiftType::where('id', $detail->shift_id)->value('name') : null;
+                
                 $attendances[] = [
                     'check_in_at' => $detail->formatted_check_in_at ?? config('global.null_value'),
                     'check_out_at' => $detail->formatted_check_out_at ?? config('global.null_value'),
@@ -212,7 +233,8 @@ class AttendanceService
                     'worked_hours' => $workedHours,
                     'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                     'attendance_date' => $detail->created_at->format('d-m-y'),
-                    'remarks' => $detail->remarks ?? config('global.null_value')
+                    'remarks' => $detail->remarks ?? config('global.null_value'),
+                    'shift_name' => $shiftName
                 ];
             }
 
@@ -259,11 +281,34 @@ class AttendanceService
 
     // employee that will attend office on Satuarday collected based on office location and if required need to check designation as well especially for RM
     public function isEmployeesRequiredOnSaturday($empId) {
+        // Exclude shift employees
+        if ($this->isShiftEmployee($empId)) {
+            return false;
+        }
+        
         return MasEmployeeJob::where('mas_employee_id', $empId)
-                                ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, CC_THIMPHU_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
+                                // ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, CC_THIMPHU_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
+                                // ->where('mas_section_id', TPHU_REGION_SECTION)
+                                ->whereNotIn('mas_office_id', [CC_PLING_OFFICE, NETOPS_THIMPHU_OFFICE, SAAS_OFFICE, HEAD_OFFICE])
                                 ->where('mas_designation_id', '!=', REGIONAL_MANAGER)
                                 ->whereNotIn('mas_employee_id', [286, 292]) // at times cases comes where certain employee dont need to come to office despite of their designation and office location
                                 ->exists();
+    }
+
+    private function getCurrentDayShift($shiftData, $today){
+        $shifts = [
+                MORNING_SHIFT => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [], // morning
+                EVENING_SHIFT => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [], // evening
+                NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
+                FULL_DAY_SHIFT => json_decode($shiftData['full_shift_days'] ?? '[]', true) ?: [], // full day shift
+            ];
+        
+            // Detect today’s shift type id
+        $todayShiftTypeId = collect($shifts)->search(function ($days) use ($today) {
+            return in_array($today, $days);
+        });
+
+        return $todayShiftTypeId ?: null;
     }
 
 }

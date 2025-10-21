@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
+use App\Models\EmployeeDevices;
 // use App\Models\EmployeeDevices;
 use App\Models\FieldEmployee;
 use App\Models\MasAttendanceFeature;
 use App\Models\MasOffice;
+use App\Models\User;
 use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -80,6 +82,7 @@ class AttendanceApiController extends Controller
     public function attendanceEntry(Request $request){
         $attendanceService = new AttendanceService();
         $user = auth()->user();
+        
         $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
         
         $type = $request->check_type;
@@ -109,7 +112,6 @@ class AttendanceApiController extends Controller
             return $this->validationErrorResponse($validator->errors());
         }
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
-        // $device = EmployeeDevices::where('employee_id', $user->id)->first();
         //uncomment it later when fixed
         // $deviceExists = EmployeeDevices::where('employee_id', $user->id)
         //     ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
@@ -142,7 +144,6 @@ class AttendanceApiController extends Controller
             // Calculate attendance status and remarks only if no check-in yet and status is CREATED
             if (!$attendance->check_in_at && ($attendance->attendance_status_id === CREATED_STATUS || $attendance->attendance_status_id === INFORMED_LATE_STATUS)) {
                 $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
-                // dd($officeTiming);
                 $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
                 $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
                 $maxEligibleTime = $startTime->copy()->addMinutes(120);

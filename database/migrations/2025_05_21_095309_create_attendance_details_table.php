@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained('mas_employees')->references('id');
             $table->foreignId('department_id')->index()->nullable()->constrained('mas_departments')->references('id'); // newly added
             $table->foreignId('section_id')->index()->nullable()->constrained('mas_sections')->references('id'); // newly added
+            $table->foreignId('shift_id')->index()->nullable()->constrained('mas_shift_types')->references('id'); // newly added
             $table->time('check_in_at')->nullable();
             $table->foreignId('attendance_status_id')->index()->constrained('attendance_statuses')->cascadeOnDelete()->cascadeOnUpdate();
             $table->time('check_out_at')->nullable();

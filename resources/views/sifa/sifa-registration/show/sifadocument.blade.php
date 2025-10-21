@@ -5,7 +5,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Certified family tree of the member</strong>
+                            <strong>Your certified family tree</strong>
                             <span class="text-danger">*</span>
                         </label>
                         @if (optional($sifaDocuments)->family_tree)
@@ -44,7 +44,7 @@
                  <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Copy of Citizenship Identity Card of the member</strong>
+                            <strong>Your Citizenship ID copy</strong>
                             
                         </label>
                         @if (optional($sifaDocuments)->spouse_cid)
@@ -63,7 +63,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Marriage Certificate / Confirmation of Marriage, if married</strong>
+                            <strong>Marriage certificate (if married)</strong>
     
                         </label>
                         @if (optional($sifaDocuments)->marriage_certificate)
@@ -80,7 +80,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Certified family tree of spouse of the member, if married</strong>
+                            <strong>Your spouse’s certified family tree (if married)</strong>
 
                         </label>
                         @if (optional($sifaDocuments)->family_tree_spouse)
@@ -100,7 +100,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Birth Certificate(s) of biological children, if married and have children</strong>
+                            <strong>Birth certificates of your biological children (if any)</strong>
     
                         </label>
                         @if (optional($sifaDocuments)->birth_certificate)
@@ -134,7 +134,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>Legal documents in case of foster parents and adopted children of the member</strong>
+                            <strong>Legal documents for foster parents or adopted children (if any)</strong>
 
                         </label>
                         @if (optional($sifaDocuments)->adopted_children)
@@ -151,7 +151,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
-                            <strong>If divorced, court verdict / legal agreement endorsed by a Royal Court of Justice</strong>
+                            <strong>Court verdict or legal document (if divorced)</strong>
 
                         </label>
                         @if (optional($sifaDocuments)->if_divorced)
