@@ -21,6 +21,8 @@ use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
+
 class ApiController extends BaseController
 {
 
@@ -707,7 +709,7 @@ class ApiController extends BaseController
             return ['status' => 201, 'data' => $responseArray];
         }
 
-    public function postAssetTransferReturn($postFields){
+    public function postAssetTransferReturn($postFields, $application, $typeFlag){
         $response = $this->startSession();
 
         if (json_last_error() === JSON_ERROR_NONE) {
@@ -723,7 +725,8 @@ class ApiController extends BaseController
         }
 
         $data = json_decode($postFields, true);
-        if($data['asset_post_type'] == 'transfer') {
+        dd($data, $application);
+        if($typeFlag == 1) {
             $items = explode(',', $data['items']);
             $project = $data['project_code'];
             $dateToday = date('Y-m-d');
@@ -828,11 +831,19 @@ class ApiController extends BaseController
 
                 // 1. POST each Item to /Items
                 foreach ($items as $item) {
+
+                    $receivedSerial = ReceivedSerial::find($item['serial_id']);
+
+                    // Skip if already created
+                    if ($receivedSerial && $receivedSerial->is_created) {
+                        \Log::info('Serial ' . $item['serial_id'] . ' already created');
+                        continue;
+                    }
                     $formattedItem = [
                         "ItemCode" => $item['ItemCode'] ?? null,
                         "ItemName" => $item['ItemName'] ?? null,
                         "ForeignName" => $item['ForeignName'] ?? null,
-                        "ItemsGroupCode" => 102,
+                        "ItemsGroupCode" => 116,
                         "ItemType" => "F",
                         "AssetClass" => $item['AssetClass'] ?? "Furnitures",
                         "AssetGroup" => $item['AssetGroup'] ?? null,
@@ -863,35 +874,63 @@ class ApiController extends BaseController
                     $response = $this->sendPostRequest($url1, $jsonFormattedItem, $sessionId);
 
                     if ($response['status'] !== 201) {
+                         \Log::warning("Item creation failed for serial {$item['serial_id']}: ".json_encode($response));
                         return response()->json([
                             'msg_error' => $response['error'] ?? 'Item creation failed in SAP'
                         ], $response['status']);
                     }
+
+                    if ($receivedSerial) {
+                        $receivedSerial->is_created = 1;
+                        $receivedSerial->save();
+                    }
                 }
 
                 // 2. POST once to /AssetCapitalization per group
-                $formattedAssetCapitalization = [
-                    "AssetDocumentLineCollection" => $assetDocLines,
-                    "AssetValueDate" => $data['AssetValueDate'],
-                    "DocumentDate" => $data['DocumentDate'],
-                    "PostingDate" => $data['PostingDate']
-                ];
+                $serialIds = collect($assetDocLines)->pluck('serial_id')->filter()->toArray();
+                $serialStatuses = ReceivedSerial::whereIn('id', $serialIds)
+                    ->pluck('sap_posted', 'id')
+                    ->toArray();
 
-                $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
-                $url2 = '/b1s/v1/AssetCapitalization';
-                $response = $this->sendPostRequest($url2, $jsonFormattedAssetCapitalization, $sessionId);
+                $assetDocLinesToPost = collect($assetDocLines)
+                    ->filter(fn($line) => empty($serialStatuses[$line['serial_id']]) || $serialStatuses[$line['serial_id']] == 0)
+                    ->values()
+                    ->toArray();
+                 $postedIds = collect($assetDocLinesToPost)->pluck('serial_id')->filter()->toArray();
 
-                if ($response['status'] !== 201) {
-                    return response()->json([
-                        'msg_error' => $response['error'] ?? 'Asset capitalization failed in SAP'
-                    ], $response['status']);
+                // Prepare payload for SAP (remove serial_id)
+                $sapPayloadLines = collect($assetDocLinesToPost)
+                    ->map(fn($line) => Arr::except($line, ['serial_id']))
+                    ->toArray();
+
+                    if (!empty($assetDocLinesToPost)) {
+                        $formattedAssetCapitalization = [
+                            "AssetDocumentLineCollection" => $sapPayloadLines,
+                            "AssetValueDate" => $data['AssetValueDate'],
+                            "DocumentDate" => $data['DocumentDate'],
+                            "PostingDate" => $data['PostingDate']
+                        ];
+
+                        $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
+                        $url2 = '/b1s/v1/AssetCapitalization';
+                        $response = $this->sendPostRequest($url2, $jsonFormattedAssetCapitalization, $sessionId);
+
+                        if ($response['status'] !== 201) {
+                            \Log::info('Asset capitalization failed in SAP:'. json_encode($response));
+                            return response()->json([
+                                'msg_error' => $response['error'] ?? 'Asset capitalization failed in SAP'
+                            ], $response['status']);
+                        }
+
+                        ReceivedSerial::whereIn('id', $postedIds)->update(['sap_posted' => 1]);
+
                 }
-            }
 
 
         $responseArray = $response;
          return response()->json(['success' => true, 'data' => $responseArray], 201);
      }
+    }
 
 
 
@@ -1073,6 +1112,7 @@ class ApiController extends BaseController
     public function getAssetData(Request $request)
     {
         $assets = $request->input('assets') ?? [];
+            \Log::info('getAssetData called with '.count($assets).' assets');
         if (!is_array($assets)) {
             $assets = [$assets];
         }
@@ -1082,26 +1122,34 @@ class ApiController extends BaseController
         }
 
 
-        $rules = [
-            'assets.*.employee_id' => 'required_without:assets.*.site_code',
-            'assets.*.site_code'   => 'required_without:assets.*.employee_id|exists:mas_sites,code',
-            'assets.*.serial_no'   => 'required_without:assets.*.asset_no',
-            'assets.*.asset_no'    => 'required_without:assets.*.serial_no',
-            'assets.*.item_code'   => 'nullable',
-            'assets.*.description' => 'required',
-            'assets.*.quantity'    => 'required|numeric',
-            'assets.*.amount'      => 'required|numeric',
-            'assets.*.uom' => 'required',
-            'assets.*.capitalization_date' => 'required|date',
-            'assets.*.end_date' => 'required|date',
-            'assets.*.category' => 'required',
-        ];
+       $errors = [];
+       foreach ($assets as $index => $item) {
+    \Log::info('getAssetData called', ['item' => $item]);
 
-        $validator = \Validator::make(['assets' => $assets], $rules);
+    $validator = \Validator::make($item, [
+        'employee_id' => 'required_without:site_code',
+        'site_code'   => 'required_without:employee_id',
+        'serial_no'   => 'required_without:asset_no',
+        'asset_no'    => 'required_without:serial_no',
+        'item_code'   => 'nullable',
+        'description' => 'required',
+        'quantity'    => 'required|numeric',
+        'amount'      => 'required|numeric',
 
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
-        }
+        'capitalization_date' => 'required|date',
+        'end_date'    => 'required|date',
+        'category'    => 'required',
+    ]);
+
+    if ($validator->fails()) {
+        $errors[$index] = $validator->errors()->toArray();
+    }
+}
+
+if (!empty($errors)) {
+    // Use your existing validationErrorResponse method
+    return $this->validationErrorResponse($errors);
+}
 
         try{
         DB::transaction(function () use ($assets) {
@@ -1115,7 +1163,7 @@ class ApiController extends BaseController
                         [
                             'item_no' => $item['item_code'],
                             'item_description' => $item['description'],
-                            'uom' => $item['uom'],
+                            'uom' => $item['uom'] ?? 'Nos',
                             'item_group' => $item['category'],
                             'is_fixed_asset' => $item['is_fixed_asset'] ?? 1,
                             'status' => 1,
@@ -1123,12 +1171,12 @@ class ApiController extends BaseController
                     );
                 }
 
-              $pushedAsset = SapAsset::where('serial_number', $item['serial_no'])->first();
+            //   $pushedAsset = SapAsset::where('serial_number', $item['serial_no'])->first();
 
-                if ($pushedAsset) {
-                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+            //     if ($pushedAsset) {
+            //           throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
 
-                }
+            //     }
 
                 // Create if not found
                 $pushedAsset = SapAsset::create([
@@ -1145,13 +1193,17 @@ class ApiController extends BaseController
                     'end_date' => $item['end_date'],
                     'category' => $item['category'],
                 ]);
-
-                // --- Push to MasAssets ---
-                $masAsset = MasAssets::where('serial_number', $item['serial_no'])->first();
-
-                 if ($masAsset) {
-                      throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                $assetType=1;
+                if ($site && !$employee) {
+                    $assetType=2;
                 }
+                // --- Push to MasAssets ---
+                // $masAsset = MasAssets::where('serial_number', $item['serial_no'])->first();
+                // \Log::info('masAsset done '.$item['serial_no']);
+
+                //  if ($masAsset) {
+                //       throw new \Exception('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                // }
 
                 // Create if not found
                 $masAsset = MasAssets::create([
@@ -1160,7 +1212,10 @@ class ApiController extends BaseController
                     'current_site_id' => $site?->id,
                     'initial_owner_id' => $employee?->id,
                     'created_by' => auth()->id() ?? 2,
+                    'prj_line_num' => $item['prj_line_num'] ?? 0,
+                    'emp_line_num' => $item['emp_line_num'] ?? 0,
                     'sap_asset_id' => $pushedAsset->id,
+                    'assset_type' => $assetType ,
                 ]);
 
             }
@@ -1172,6 +1227,4 @@ class ApiController extends BaseController
         }
 
     }
-
-
 }

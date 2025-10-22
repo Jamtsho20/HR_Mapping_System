@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code')->unique();
             $table->integer('sap_id')->unique()->nullable();
+            $table->string('sap_asset_code')->unique()->nullable();
             $table->foreignId('mas_employee_id')->index()->nullable()->constrained('mas_employees')->cascadeOnUpdate()->restrictOnDelete()->comment('HOD');
             $table->boolean('status')->default(1)->comment('0->inactive, 1->active');
             $table->foreignId('created_by')->index()->constrained('mas_employees');

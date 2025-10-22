@@ -158,11 +158,17 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>
-                                            {{ $asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial?->asset_serial_no ?? config('global.null_value') }}
+                                            {{
+                                                ($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? '')
+                                                .
+                                                (($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? null) && ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number) ? '-' : '')
+                                                .
+                                                ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number ?? config('global.null_value'))
+                                            }}
                                         </td>
-                                        <td>{{ $asset->item->item_description }}</td>
-                                        <td>{{ $asset->receivedSerial?->amount ?? $aset->sapAssets->amount ?? config('global.null_value') }}</td>
-                                        <td>{{ $asset->receivedSerial?->quantity ?? $aset->sapAssets->quantity ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->item->item_description ?? $asset->sapAssets->item_description ?? config('global.null_value')}}</td>
+                                        <td>{{ $asset->receivedSerial?->amount ?? $asset->sapAssets->amount ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->receivedSerial?->quantity ?? $asset->sapAssets->quantity ?? config('global.null_value') }}</td>
                                     </tr>
                                     @empty
                                     <tr>

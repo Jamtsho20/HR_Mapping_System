@@ -200,6 +200,7 @@ class ApprovalController extends Controller
                             Log::info($postFields);
                             if ($commission) {
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
+
                             } else {
                                 $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             }
@@ -385,14 +386,22 @@ class ApprovalController extends Controller
                             $detail = $data['detail'];
                             $timestamp = $data['timestamp'];
                             $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
-                            $assetNo = "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}";
-                            $detail->receivedSerial->asset_no = $assetNo;
-                            $detail->receivedSerial->save();
+                            $receivedSerial = $detail->receivedSerial;
+
+                            $receivedSerial->refresh();
+
+                             if (empty($receivedSerial->asset_no)) {
+                                $assetNo = "{$item->item_no}-{$receivedSerial->asset_serial_no}-{$timestamp}";
+                                $receivedSerial->asset_no = $assetNo;
+                                $receivedSerial->save();
+                            } else {
+                                $assetNo = $receivedSerial->asset_no;
+                            }
                             return [
-                                "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
+                                "ItemCode" => $assetNo,
                                 "ItemName" => $item->item_description,
                                 "ForeignName" => $item->item_no,
-                                "ItemsGroupCode" => 102,
+                                "ItemsGroupCode" => 116,
                                 "ItemType" => "F",
                                 "AssetClass" => $item->item_group_id,
                                 "AssetGroup" => null,
@@ -415,19 +424,24 @@ class ApprovalController extends Controller
                                         "ValidTo" => null,
                                         "DistributionRule4" => 'DUMMY'
                                     ]
-                                ]
+                                    ],
+                                "is_created" => $receivedSerial->is_created ?? 0,
+                                "sap_posted"  => $receivedSerial->sap_posted ?? 0,
+                                "serial_id"  => $receivedSerial->id,
                             ];
                         })->toArray(),
 
                         "AssetDocumentLineCollection" => $itemsWithTimestamp->map(function ($data) {
                             $detail = $data['detail'];
                             $timestamp = $data['timestamp'];
-                            $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
-
+                            $receivedSerial = $detail->receivedSerial;
+                            $item = $receivedSerial->requisitionDetail->grnItemDetail->item;
+                            $assetNo = $receivedSerial->asset_no;
                             return [
-                                "AssetNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
+                                "AssetNumber" => $assetNo,
                                 "Quantity" => $detail->receivedSerial->quantity ?? 1,
-                                "TotalLC" => $detail->receivedSerial->amount
+                                "TotalLC" => $detail->receivedSerial->amount,
+                                "serial_id" => $receivedSerial->id
                             ];
                         })->toArray(),
 

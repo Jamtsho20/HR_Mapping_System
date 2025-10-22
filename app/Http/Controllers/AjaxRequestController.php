@@ -252,75 +252,7 @@ class AjaxRequestController extends Controller
         return $prevDate;
     }
 
-    // private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $prevLeaveTypeId, $isEarnedLeaveReq)
-    // {
-
-    //     $prevLeaveEnd = new \DateTime($prevLeaveEndDate); 
-    //     $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
-    //     // Flag to track if it is a leave voilation or not
-    //     $isLeaveVoilation = false;
-    //     // Check for weekends and holidays between previous leave and new leave
-    //     //old code 
-    //     while ($nextDay->format('Y-m-d') <= $fromDate->format('Y-m-d')) {
-    //         $dayName = $nextDay->format('l');
-    //         $dayDate = $nextDay->format('Y-m-d');
-
-    //         $isHoliday = in_array($dayDate, $holidayDates);
-    //         $isWeeklyOff = in_array($dayName, $weeklyOff);
-
-    //         $hasWorkingDay = false;
-
-    //         if($isEarnedLeaveReq && $prevLeaveTypeId == EARNED_LEAVE){
-    //             //only if leave applied is earned leave and there is no working days to seperate between prev & current earned leave
-    //             //And incase if those weekly off or holiday is included while applying leave then it is not voilation
-    //             $diffDays = (new \DateTime($prevLeaveEndDate))->diff($fromDate)->days;
-    //             if ($diffDays <= 1) {
-    //                 return false; // no violation
-    //             }
-    //             // If no working day between and only holidays/off before the new leave it is violation
-    //             $isLeaveVoilation = true;
-    //             return $isLeaveVoilation;
-
-    //         }else{
-    //             if ($isHoliday || $isWeeklyOff) {
-    //                 $nextDay->modify('+1 day'); // Skip holidays and weekends
-    //                 $isLeaveVoilation = true;
-    //                 continue;
-    //             }
-
-    //             // If we find a working day and weekly off in between, it's not a violation
-    //             $isLeaveVoilation = false;
-    //             break;
-    //         }
-    //     }
-
-    //     return !$isLeaveVoilation;
-    // }
-
-    // private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $isEarnedLeaveReq)
-    // {
-    //     $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
-    //     $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
-    //     // Flag to track if there's a working day in between
-    //     $hasWorkingDayBetween = false;
-
-    //     // Check for weekends and holidays between previous leave and new leave
-    //     while ($nextDay < $fromDate) {
-    //         if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), $weeklyOff)) {
-    //             $nextDay->modify('+1 day'); // Skip holidays and weekends
-    //             continue;
-    //         }
-
-    //         // If we find a working day in between, it's **not** a violation
-    //         $hasWorkingDayBetween = true;
-    //         break;
-    //     }
-
-    //     // If **only holidays/weekends** exist between previous leave and the new leave, it's a violation
-    //     return !$hasWorkingDayBetween;
-    // }
-
-    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $prevLeaveTypeId, $isEarnedLeaveReq)
+    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
     {
         $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
         $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
@@ -856,75 +788,13 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getAssetNoBySiteEmployee($empID, $siteID = null)
-    {
+    public function getAssetNoBySiteEmployee($empID, $siteID = null){
         try {
 
-            // $transferedSerials = AssetTransferApplication::with('details.receivedSerial')
-            // ->where('created_by', Auth::user()->id)
-            // ->whereNot('status', -1)
-            // ->get()
-            // ->flatMap(function ($application) {
-            //     return $application->details->pluck('receivedSerial.id');
-            // })
-            // ->filter() // in case some are null
-            // ->unique() // optional: to remove duplicates
-            // ->values() // reindex the array
-            // ->toArray();
-
-            // $returnedSerials = AssetReturnApplication::with('details.receivedSerial')
-            // ->where('created_by', Auth::user()->id)
-            // ->whereNot('status', -1)
-            // ->get()
-            // ->flatMap(function ($application) {
-            //     return $application->details->pluck('receivedSerial.id');
-            // })
-            // ->filter() // in case some are null
-            // ->unique() // optional: to remove duplicates
-            // ->values() // reindex the array
-            // ->toArray();
-
-            // $loggedInUserId = Auth::id();
-
-            // $assetNos = ReceivedSerial::with('requisitionDetail.grnItemDetail.item')->whereNotIn('id', $transferedSerials)
-            // ->whereNotIn('id', $returnedSerials)
-            // ->where('is_commissioned', 1)
-            // ->where('is_returned', 0)
-            // ->where(function ($query) use ($loggedInUserId, $empID, $siteID) {
-            //     // Case 1: Transferred to user & commissionDetail.site_id matches (no created_by check)
-            //     $query->where(function ($q1) use ($loggedInUserId, $siteID) {
-            //         $q1->where('is_transfered_to', $loggedInUserId)
-            //            ->whereHas('commissionDetail', function ($subQuery) use ($siteID) {
-            //                if (!is_null($siteID)) {
-            //                    $subQuery->where('commission_details.site_id', $siteID);
-            //                }
-            //            });
-            //     })
-
-            //     // Case 2: Not transferred to anyone, apply full commissionDetail filters
-            //     ->orWhere(function ($q) use ($empID, $siteID) {
-            //         $q->where(function ($inner) {
-            //                 $inner->whereNull('is_transfered_to')
-            //                       ->orWhere('is_transfered_to', 0);
-            //             })
-            //             ->where('is_transfered', 0)
-            //             ->whereHas('commissionDetail', function ($subQuery) use ($empID, $siteID) {
-            //                 $subQuery->join('asset_commission_applications', 'commission_details.commission_id', '=', 'asset_commission_applications.id')
-            //                          ->where('asset_commission_applications.created_by', $empID);
-
-            //                 if (!is_null($siteID)) {
-            //                     $subQuery->where('commission_details.site_id', $siteID);
-            //                 }
-            //             });
-            //     });
-            // })
-            // ->get();
-
-
-            if ($siteID == null) {
-                $assetNos = MasAssets::where('current_employee_id', $empID)->where('current_site_id', null)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
-            } else {
-                $assetNos = MasAssets::where('current_site_id', $siteID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+            if($siteID == null){
+                $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+            }else{
+                $assetNos = MasAssets::where('current_site_id', $siteID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
 
 
@@ -939,11 +809,12 @@ class AjaxRequestController extends Controller
     {
         try {
             $id = MasAssets::where('id', $assetNo)->value('received_serial_id') ?? null;
-            if ($id == null) {
-                $item = MasAssets::where('id', $assetNo)->first();
-            } else {
+            if($id == null){
+                $item = MasAssets::where('id', $assetNo)->with('sapAssets')->first();
+            }else{
                 $item = ReceivedSerial::where('id', $id)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             }
+
             return $this->successResponse($item);
         } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching items. Please try again.' . $e->getMessage());

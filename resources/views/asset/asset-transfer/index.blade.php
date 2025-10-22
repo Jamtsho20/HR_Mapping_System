@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Asset Transfer')
 @section('content')
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
     @if ($privileges->create)
         @section('buttons')
             <a href="{{ route('asset-transfer.create') }}" class="btn btn-sm btn-primary">
