@@ -252,7 +252,7 @@ class AjaxRequestController extends Controller
         return $prevDate;
     }
 
-    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff)
+    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate, $weeklyOff, $prevLeaveTypeId, $isEarnedLeaveReq)
     {
         $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
         $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
