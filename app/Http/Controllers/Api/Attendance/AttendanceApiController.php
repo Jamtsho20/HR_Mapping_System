@@ -153,10 +153,10 @@ class AttendanceApiController extends Controller
                     $attendanceStatus = ABSENT_STATUS;
                     $diff = $checkInTime->diff($startTime);
                     $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
-                } elseif ($request->check_type == 'check-in' && $request->check_in_at && $bufferedTime->lessThan($checkInTime)) {
-                    $attendanceStatus = LATE_STATUS;
+                } elseif ($request->check_type == 'check-in' && $request->check_in_at  && $bufferedTime->lessThan($checkInTime)) {
+                    $attendanceStatus = $attendance->attendance_status_id != INFORMED_LATE_STATUS ? LATE_STATUS : INFORMED_LATE_STATUS;
                     $diff = $checkInTime->diff($bufferedTime);
-                    $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
+                    $remarks = $attendance->attendance_status_id != INFORMED_LATE_STATUS ? "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated)." : ($attendance->remarks ?? 'Marked as Informed late by supervisor (System generated).');
                 } else {
                     $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
                 }
