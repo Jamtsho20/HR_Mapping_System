@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('asset_serial_no')->index()->comment('Unique serial number for each item.');
+            $table->string('asset_no')->nullable()->comment('Only filled during commission time');
             $table->string('asset_description')->nullable();
             $table->decimal('amount', 12, 2)->nullable();
             $table->decimal('quantity', 12, 2)->nullable();

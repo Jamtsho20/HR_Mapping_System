@@ -31,11 +31,17 @@ class MasAssets extends Model
     'created_by',
     'updated_by',
     'status',
+    'asset_type',
     'asset_transfer_id',
     'sap_asset_id',
     'prj_line_num',
     'emp_line_num',
+    'is_transfered',
+    'is_returned',
+    'asset_no'
 ];
+
+
 
     public function sapAssets()
     {

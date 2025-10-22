@@ -27,7 +27,10 @@ return new class extends Migration
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->unsignedInteger('prj_line_num')->default(1);
             $table->unsignedInteger('emp_line_num')->default(1);
+            $table->unsignedInteger('assset_type')->comment('1 = Employee asset, 2 = Site asset');
             $table->tinyInteger('status')->default(1)->comment('1 = commissioned, 2 = transferred, 3 = returned');
+            $table->tinyInteger('is_transfered')->default(0)->comment('1 = transferred, 0 = not transferred');
+            $table->tinyInteger('is_returned')->default(0)->comment('1 = returned, 0 = not returned');
             $table->timestamps();
         });
     }

@@ -19,6 +19,7 @@ class ReceivedSerial extends Model
         'is_transfered',
         'amount',
         'remark',
+        'asset_no',
         'is_received',
     ];
 
