@@ -18,6 +18,9 @@ return new class extends Migration
             $table->json('attachment');
             $table->json('owner_ship')->nullable();
             $table->text('description')->nullable();
+            $table->foreignId("created_by")->index()->constrained('mas_employees');
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
+        
             $table->timestamps();
         });
     }

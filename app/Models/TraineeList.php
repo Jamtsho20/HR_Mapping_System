@@ -9,8 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 class TraineeList extends Model
 {
     use HasFactory, CreatedByTrait;
-
+    protected $casts = [
+        'certificate' => 'array',
+    ];
     protected $table = 'trainee_lists';
+
     public function trainingApplication()
     {
         return $this->belongsTo(TrainingApplication::class, 'training_application_id');
@@ -19,5 +22,9 @@ class TraineeList extends Model
     public function employee()
     {
         return $this->belongsTo(User::class, 'employee_id');
+    }
+    public function trainingMaterials()
+    {
+        return $this->hasMany(TraineesTrainingMaterial::class, 'trainee_list_id');
     }
 }
