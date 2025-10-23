@@ -883,6 +883,8 @@ class ApiController extends BaseController
                     if ($receivedSerial) {
                         $receivedSerial->is_created = 1;
                         $receivedSerial->save();
+                    }else{
+                        \Log::warning("ReceivedSerial " . $receivedSerial->id . " failed to be updated");
                     }
                 }
 
