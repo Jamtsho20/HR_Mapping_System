@@ -930,8 +930,8 @@ class ApiController extends BaseController
 
 
         $responseArray = $response;
-         return response()->json(['success' => true, 'data' => $responseArray], 201);
-     }
+    }
+    return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
 
 
