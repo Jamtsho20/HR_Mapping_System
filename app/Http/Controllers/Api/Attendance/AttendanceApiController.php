@@ -87,7 +87,8 @@ class AttendanceApiController extends Controller
         $type = $request->check_type;
         $isCheckIn  = $type === 'check-in';
         $isCheckOut = $type === 'check-out';
-        $serverTime = now()->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
+        // $serverTime = now()->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
+        $serverTime = now('Asia/Dhaka')->format('H:i:s');; //Default Server time set in app config file follows Asia/Dhaka 
 
         if ($isCheckIn) {
             // $this->rules['check_in_at'] = 'required';
