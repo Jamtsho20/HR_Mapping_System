@@ -725,57 +725,82 @@ class ApiController extends BaseController
         }
 
         $data = json_decode($postFields, true);
-        dd($data, $application);
         if($typeFlag == 1) {
             $items = explode(',', $data['items']);
-            $project = $data['project_code'];
+            dd($data, $application);
+            $project = $data['project_code'] ?? null;
             $dateToday = date('Y-m-d');
             $oneDayEarly = date('Y-m-d', strtotime('-1 day'));
 
             foreach ($items as $itemCode) {
-                $itemCode = trim($itemCode); // Clean up the item code
-                $url = "/b1s/v1/Items('" . $itemCode . "')"; // API URL for each item
-                $postField = []; // Reset per item
+                $itemCode = trim($itemCode);
+                $url = "/b1s/v1/Items('{$itemCode}')";
 
-                if ($project) {
-                    // Build ItemProjects for this item
-                    $postField['ItemProjects'] = [
-                        [
-                            'LineNumber' => 0,
-                            'ValidTo' => $oneDayEarly,
+                $postField = [];
+
+                // 🟢 TYPE 1: Has both ItemProjects + ItemDistributionRules
+                if ($typeFlag == 1) {
+
+                    $postField = [
+                        'ItemProjects' => [
+                            [
+                                'LineNumber' => 1,
+                                'ValidTo' => $dateToday,
+                            ],
+                            [
+                                'LineNumber' => 2,
+                                'ValidFrom' => $dateToday,
+                                'ValidTo' => null,
+                                'Project' => $project ?? 'MIS', // fallback if not given
+                            ]
                         ],
-                        [
-                            'LineNumber' => 1,
-                            'ValidFrom' => $dateToday,
-                            'ValidTo' => null,
-                            'Project' => $project
-                        ]
-                    ];
-                } else {
-                    // Build ItemDistributionRules for this item
-                    $postField['ItemDistributionRules'] = [
-                        [
-                            'LineNumber' => 0,
-                            'ValidTo' => $oneDayEarly,
-                        ],
-                        [
-                            'LineNumber' => 1,
-                            'ValidFrom' => $dateToday,
-                            'ValidTo' => null,
-                            'DistributionRule2' => '106'
+                        'ItemDistributionRules' => [
+                            [
+                                'LineNumber' => 1,
+                                'ValidFrom' => $dateToday,
+                                'ValidTo' => $dateToday,
+                                'DistributionRule4' => 'E01068',
+                            ],
+                            [
+                                'LineNumber' => 2,
+                                'ValidFrom' => $dateToday,
+                                'ValidTo' => '2099-12-31',
+                                'DistributionRule4' => 'E01068',
+                            ]
                         ]
                     ];
                 }
 
+                // 🟡 TYPE 2: Only ItemProjects
+                elseif ($typeFlag == 2) {
+                    $postField = [
+                        'ItemProjects' => [
+                            [
+                                'LineNumber' => 1,
+                                'ValidTo' => $dateToday,
+                            ],
+                            [
+                                'LineNumber' => 2,
+                                'ValidFrom' => $dateToday,
+                                'ValidTo' => null,
+                                'Project' => $project ?? 'Lamai Goenpa',
+                            ]
+                        ]
+                    ];
+                }
+
+                // 🔵 Post to SAP
                 $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+
                 if ($response['status'] !== 201) {
-                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                    return response()->json([
+                        'msg_error' => $response['error'] ?? 'Something went wrong from SAP API',
+                        'payload' => $postField
+                    ], $response['status']);
                 }
-
-                $responseArray = $response;
-                return response()->json(['success' => true, 'data' => $responseArray], 201);
-
             }
+
+            return response()->json(['success' => true, 'message' => 'Items successfully updated to SAP'], 201);
         }elseif($data['asset_post_type'] == 'return') {
             $items = explode(',', $data['items']);
             foreach ($items as $itemCode) {

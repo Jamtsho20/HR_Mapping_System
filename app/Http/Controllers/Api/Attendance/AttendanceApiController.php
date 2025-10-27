@@ -66,7 +66,7 @@ class AttendanceApiController extends Controller
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
             'offices' => $offices,
-            'office_timings' => $officeTiming,  
+            'office_timings' => $officeTiming
             // 'is_field_emp' => $isFieldEmp
         ]);
     }
@@ -84,13 +84,14 @@ class AttendanceApiController extends Controller
         $user = auth()->user();
         
         $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
-        
         $type = $request->check_type;
         $isCheckIn  = $type === 'check-in';
         $isCheckOut = $type === 'check-out';
+        // $serverTime = now()->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
+        $serverTime = now()->subMinutes(5)->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
 
         if ($isCheckIn) {
-            $this->rules['check_in_at'] = 'required';
+            // $this->rules['check_in_at'] = 'required';
             if ($isFieldEmp) {
                 $this->rules['check_in_from_location'] = 'required';
             } else {
@@ -99,7 +100,7 @@ class AttendanceApiController extends Controller
         }
 
         if ($isCheckOut) {
-            $this->rules['check_out_at'] = 'required';
+            // $this->rules['check_out_at'] = 'required';
             if ($isFieldEmp) {
                 $this->rules['check_out_from_location'] = 'required';
             } else {
@@ -134,7 +135,7 @@ class AttendanceApiController extends Controller
 
         //new code here
         // Use transaction with row locking to prevent race conditions
-        DB::transaction(function () use ($loggedInUserDailyAttendanceEntry, $request, $user, $attendanceService, $isFieldEmp) {
+        DB::transaction(function () use ($loggedInUserDailyAttendanceEntry, $request, $user, $attendanceService, $isFieldEmp, $serverTime) {
             // Lock the attendance row for update
             $attendance = AttendanceDetail::lockForUpdate()->find($loggedInUserDailyAttendanceEntry->id);
 
@@ -147,18 +148,22 @@ class AttendanceApiController extends Controller
                 $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
                 $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
                 $maxEligibleTime = $startTime->copy()->addMinutes(120);
-                $checkInTime = Carbon::parse($request->check_in_at);
+                // $checkInTime = Carbon::parse($request->check_in_at);
+                $checkInTime = Carbon::parse($serverTime);
 
-                if ($request->check_type == 'check-in' && $request->check_in_at && $maxEligibleTime->lessThan($checkInTime)) {
+                // if ($request->check_type == 'check-in' && $request->check_in_at && $maxEligibleTime->lessThan($checkInTime)) {
+                if ($request->check_type == 'check-in' && $checkInTime && $maxEligibleTime->lessThan($checkInTime)) {
                     $attendanceStatus = ABSENT_STATUS;
                     $diff = $checkInTime->diff($startTime);
                     $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
-                } elseif ($request->check_type == 'check-in' && $request->check_in_at  && $bufferedTime->lessThan($checkInTime)) {
+                // } elseif ($request->check_type == 'check-in' && $request->check_in_at  && $bufferedTime->lessThan($checkInTime)) {
+                } elseif ($request->check_type == 'check-in' && $checkInTime && $bufferedTime->lessThan($checkInTime)) {
                     $attendanceStatus = $attendance->attendance_status_id != INFORMED_LATE_STATUS ? LATE_STATUS : INFORMED_LATE_STATUS;
                     $diff = $checkInTime->diff($bufferedTime);
                     $remarks = $attendance->attendance_status_id != INFORMED_LATE_STATUS ? "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated)." : ($attendance->remarks ?? 'Marked as Informed late by supervisor (System generated as remarks not provided).');
                 } else {
-                    $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
+                    // $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
+                    $attendanceStatus = ($request->check_type == 'check-in' || $request->check_type == 'check-out') ? PRESENT_STATUS : $attendanceStatus;
                 }
             }
 
@@ -179,13 +184,15 @@ class AttendanceApiController extends Controller
 
             // Update check-in/out data conditionally
             if ($request->check_type === 'check-in') {
-                $attendance->check_in_at = $request->check_in_at;
+                // $attendance->check_in_at = $request->check_in_at;
+                $attendance->check_in_at = $serverTime;
                 $attendance->check_in_office_id = !$isFieldEmp ? $request->check_in_from : null;
                 $attendance->check_in_from = $isFieldEmp ? $request->check_in_from_location : null;
                 $attendance->check_in_coordinates = $isFieldEmp ? $request->check_in_coordinates: null;
                 $attendance->check_in_ip = $request->ip();
             } elseif ($request->check_type === 'check-out') {
-                $attendance->check_out_at = $request->check_out_at;
+                // $attendance->check_out_at = $request->check_out_at;
+                $attendance->check_out_at = $serverTime;
                 $attendance->check_out_office_id = !$isFieldEmp ? $request->check_out_from : null;
                 $attendance->check_out_from = $isFieldEmp ? $request->check_out_from_location : null;
                 $attendance->check_out_coordinates = $isFieldEmp ? $request->check_out_coordinates: null;
