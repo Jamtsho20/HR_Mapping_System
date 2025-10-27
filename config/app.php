@@ -69,7 +69,8 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Thimphu',
+    // 'timezone' => 'Asia/Thimphu',
+    'timezone' => 'Asia/Dhaka',
 
     /*
     |--------------------------------------------------------------------------
