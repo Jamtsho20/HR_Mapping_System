@@ -285,7 +285,7 @@ class AjaxRequestController extends Controller
             }
 
             if (!$hasWorkingDay) {
-                $isLeaveViolation = true; // Only holidays/off between two ELs
+                $isLeaveViolation = true; // Only holidays/off between two CL
             }
         }
 
