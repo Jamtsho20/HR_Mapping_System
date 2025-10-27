@@ -81,7 +81,9 @@ Route::redirect('/', '/login', 301);
 //     }
 // }
 
-
+Route::get('/getservertime', function(){
+    return now()->format('H:i:s');
+});
 Route::get('/updateemppas', function () {
     ini_set('max_execution_time', 600);
     \DB::table('mas_employees')
@@ -545,8 +547,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('user-profile', 'ProfileController');
         Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
     });
-
-    
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
