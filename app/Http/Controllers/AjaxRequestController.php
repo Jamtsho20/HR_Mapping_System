@@ -211,6 +211,7 @@ class AjaxRequestController extends Controller
         //     ->first();
         $prevLeave = LeaveApplication::where('created_by', auth()->id())
             ->where('type_id', '<>', CASUAL_LEAVE)
+            ->where('status', '<>', -1)
             ->latest('to_date')
             ->when($leaveTypeId == CASUAL_LEAVE && isset($prevLeaveEndDate), fn($q) => $q->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d')))
             ->first();
