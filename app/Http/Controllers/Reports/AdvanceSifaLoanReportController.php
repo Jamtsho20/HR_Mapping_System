@@ -27,9 +27,14 @@ class AdvanceSifaLoanReportController extends Controller
         $employee = employeeList();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-        $advancesifaReports = AdvanceApplication::filter($request, false)->whereStatus(4)->paginate(config('global.pagination'))->withQueryString();
+        // $advancesifaReports = AdvanceApplication::filter($request, false)->whereStatus(4)->paginate(config('global.pagination'))->withQueryString();
 
-
+        $advancesifaReports = AdvanceApplication::filter($request, false)
+            ->whereStatus(4)
+            ->orderBy('deduction_from_period', 'asc')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+            
         return view('report.advance-sifa-loan-report.index', compact('privileges', 'employee', 'departments', 'sections', 'advancesifaReports'));
     }
     public function show(string $id)
@@ -83,7 +88,7 @@ class AdvanceSifaLoanReportController extends Controller
         $advancesifaReports = AdvanceApplication::with('employee','emiDeduction')->filter($request, false)
             ->whereStatus(4)
             ->get();
-           
+
         foreach ($advancesifaReports as $report) {
             $employee=$report->employee; // or dd($report->employee->emp_name), etc.
         }

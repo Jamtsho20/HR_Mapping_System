@@ -6,6 +6,8 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\AssetTransferDetail;
+use App\Models\MasTransferType;
 
 class AssetTransferApplication extends Model
 {
@@ -108,12 +110,11 @@ class AssetTransferApplication extends Model
 
             // Reset transferred flags if status is -1
             if ($transfer->isDirty('status') && $transfer->status == -1) {
-                $transfer->load('details.receivedSerial');
+                $transfer->load('details.asset');
                 foreach ($transfer->details as $detail) {
-                    if ($detail->receivedSerial) {
-                        $detail->receivedSerial->update([
+                    if ($detail->asset) {
+                        $detail->asset->update([
                             'is_transfered' => 0,
-                            'is_transfered_to' => null
                         ]);
                     }
                 }

@@ -1,0 +1,34 @@
+stash@{0}: On live: Temporary local work
+stash@{1}: WIP on uat: e15c43cd Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{2}: WIP on uat: 8f870037 Changes
+stash@{3}: WIP on live: 46f0a723 Changes to requisition
+stash@{4}: WIP on asset: ee204ea8 DD removal in Commission
+stash@{5}: WIP on asset: ee204ea8 DD removal in Commission
+stash@{6}: WIP on uat: 77605d20 Merge branch 'asset' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{7}: WIP on asset: 0b56df80 Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into asset
+stash@{8}: WIP on live: 1b8ca274 Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into live
+stash@{9}: WIP on uat: 3f8150f3 Merge branch 'asset' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{10}: WIP on uat: 23339cce Merge branch 'asset' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{11}: WIP on asset: 707f12d0 Merge branch 'asset' of https://github.com/Phuntsho-1998/tipl-hrms into asset
+stash@{12}: WIP on live: 5d3fe38 DSA mutliple
+stash@{13}: WIP on live: 608ed53 payroll changes
+stash@{14}: WIP on uat: 7dc0e2c Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{15}: WIP on uat: e193701 Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{16}: WIP on live: 1b6b945 Changes in api
+stash@{17}: WIP on live: cc8ae9e Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{18}: WIP on uat: cc8ae9e Merge branch 'live' of github.com:Phuntsho-1998/tipl-hrms into uat
+stash@{19}: WIP on uat: fc2b499 Changes made for approved/reject ui
+stash@{20}: WIP on uat: 41a1301 Changes made to advance api
+stash@{21}: WIP on uat: a5b41c8 added bootstrap/cache to gitignore
+stash@{22}: WIP on uat: 68840e9 Chagnes made for correct report number
+stash@{23}: WIP on develop: 39e7b54 Changes made to api
+stash@{24}: WIP on develop: da2ab1a Merge branch 'develop' of github.com:Phuntsho-1998/tipl-hrms into develop
+stash@{25}: WIP on develop: bf53a6b For pull
+stash@{26}: WIP on develop: 85b4db6 Changes made for merge
+stash@{27}: WIP on develop: 6222efc Merge branch 'develop' of github.com:Phuntsho-1998/tipl-hrms into develop
+stash@{28}: WIP on develop: 720bcc6 Merge branch 'develop' of https://github.com/Phuntsho-1998/tipl-hrms into develop
+stash@{29}: WIP on develop: fb93ea4 Application history and approval changes made
+stash@{30}: WIP on develop: fb93ea4 Application history and approval changes made
+stash@{31}: WIP on develop: 7a6cbe0 update after resolving merge conflict
+stash@{32}: WIP on develop: 02e58a9 API date formating
+stash@{33}: WIP on main: 2e8422d update

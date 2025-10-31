@@ -836,12 +836,12 @@ $(document).ready(function () {
         // }
 
         // Validate the file size
-        if (file.size > maxSizeInBytes) {
-            // If the file size exceeds the maximum limit, display an alert and return false
-            alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
-            fileInput.value = "";
-            return false;
-        }
+        // if (file.size > maxSizeInBytes) {
+        //     // If the file size exceeds the maximum limit, display an alert and return false
+        //     alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+        //     fileInput.value = "";
+        //     return false;
+        // }
 
         // // If the file size is valid, display a confirmation and return true
         // alert("File is valid!");

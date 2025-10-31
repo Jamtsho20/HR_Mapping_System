@@ -46,6 +46,7 @@ class LoanReportController extends Controller
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
+            ->whereDate('loan_e_m_i_deductions.start_date', '<=', Carbon::now()->startOfMonth()) // ✅ added condition
             ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
             ->where('mas_employees.is_active', 1)
             ->filter($request)
@@ -122,6 +123,7 @@ class LoanReportController extends Controller
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
+            ->whereDate('loan_e_m_i_deductions.start_date', '<=', Carbon::now()->startOfMonth()) // ✅ added condition
             ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
             ->where('mas_employees.is_active', 1)
             ->filter($request)
@@ -172,6 +174,7 @@ class LoanReportController extends Controller
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
+            ->whereDate('loan_e_m_i_deductions.start_date', '<=', Carbon::now()->startOfMonth()) // ✅ added condition
             ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
             ->where('mas_employees.is_active', 1)
             ->filter($request)

@@ -20,6 +20,8 @@ class ReceivedSerial extends Model
         'amount',
         'remark',
         'asset_no',
+        'is_created',
+        'sap_posted',
         'is_received',
     ];
 

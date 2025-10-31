@@ -47,7 +47,7 @@ use App\Mail\SendCredentialsMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AssetUploadController;
+use App\Http\Controllers\Asset\AssetUploadController;
 
 
 
@@ -81,7 +81,9 @@ Route::redirect('/', '/login', 301);
 //     }
 // }
 
-
+Route::get('/getservertime', function(){
+    return now()->format('H:i:s');
+});
 Route::get('/updateemppas', function () {
     ini_set('max_execution_time', 600);
     \DB::table('mas_employees')
@@ -496,6 +498,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
         Route::get('inventory', 'RequisitionApplicationController@inventory')->name('asset.inventory');
         Route::get('sites', 'RequisitionApplicationController@sites')->name('asset.sites');
+
+        Route::get('/upload-assets', [AssetUploadController::class, 'create'])->name('assets.upload.view');
+        Route::get('/upload-asset-no', 'AssetUploadController@createAssetNo')->name('assets.create-asset-no');
+        Route::post('/upload-assets', 'AssetUploadController@uploadExcel')->name('assets.upload');
+        Route::post('/upload-asset-no', 'AssetUploadController@uploadAssetFile')->name('assets.upload-asset-no');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
 
 
@@ -540,7 +547,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('user-profile', 'ProfileController');
         Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
     });
-
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
@@ -593,8 +599,7 @@ Route::middleware('auth')->group(function () {
 
 
 
-    Route::get('/upload-assets', [AssetUploadController::class, 'create'])->name('assets.upload.view');
-    Route::post('/upload-assets', [AssetUploadController::class, 'uploadAssets'])->name('assets.upload');
+
 });
 
 

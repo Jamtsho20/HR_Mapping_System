@@ -14,16 +14,30 @@
                             <th>#</th>
                             <th>Serial Number</th>
                             <th>Item Description</th>
+                            <th>Amount</th>
+                            <th>Quantity</th>
+                            <th>Capitalization Date</th>
+                            <th>End Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($assetData as $index => $asset)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>
-                                {{ $asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial?->asset_serial_no ?? config('global.null_value') }}
-                            </td>
-                            <td>{{ $asset->item?->item_description }}</td>
+                                        <td>
+                                            {{
+                                                ($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? '')
+                                                .
+                                                (($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? null) && ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number) ? '-' : '')
+                                                .
+                                                ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number ?? config('global.null_value'))
+                                            }}
+                                        </td>
+                                        <td>{{ $asset->item->item_description ?? $asset->sapAssets->item_description ?? config('global.null_value')}}</td>
+                                        <td>{{ $asset->receivedSerial?->amount ?? $asset->sapAssets->amount ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->receivedSerial?->quantity ?? $asset->sapAssets->quantity ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->receivedSerial?->capitalization_date ?? $asset->sapAssets->capitalization_date ?? config('global.null_value') }}</td>
+                                        <td>{{ $asset->receivedSerial?->end_date ?? $asset->sapAssets->end_date ?? config('global.null_value') }}</td>
                         </tr>
                         @empty
                         <tr>
