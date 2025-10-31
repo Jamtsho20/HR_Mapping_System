@@ -236,7 +236,7 @@ class MasTrainingListController extends Controller
                     }
                 }
 
-                \App\Models\TrainingBond::create([
+                \App\Models\TrainingBond::create ([
                     'training_list_id' => $training->id,
                     'start_date'       => $bond['start_date'],
                     'end_date'         => $bond['end_date'],
@@ -245,7 +245,7 @@ class MasTrainingListController extends Controller
             }
         }
 
-        return redirect()->route('training-lists.index')
+        return redirect()->route('training-application.training-lists.index')
             ->with('success', 'Training List created successfully.');
     }
 

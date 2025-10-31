@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('trainees_training_materials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trainee_list_id')->constrained('trainee_lists')->restrictOnDelete()->cascadeOnUpdate();
-            // $table->string('title');
+            $table->foreignId('trainee_list_id')->nullable()->constrained('trainee_lists')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('my_training_id')->nullable()->constrained('my_trainings')->restrictOnDelete()->cascadeOnUpdate();
+            $table->string('document_title');
             $table->json('attachment');
             $table->json('owner_ship')->nullable();
             $table->text('description')->nullable();

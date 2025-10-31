@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TraineesTrainingMaterial extends Model
 {
-    use HasFactory;
+    use HasFactory,CreatedByTrait;
 
     protected $table = 'trainees_training_materials';
     protected $casts = [
@@ -20,5 +21,7 @@ class TraineesTrainingMaterial extends Model
         'attachment',
         'owner_ship',
         'description',
+        'created_by',
+        'updated_by',
     ];
 }

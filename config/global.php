@@ -298,6 +298,13 @@ return [
             'email_subject' => 'Retirement Benefit Nomination',
             'approver_mail_content' => 'has applied retirement benefit nomination for your endorsement.',
             'initiator_mail_content' => 'Your retirement benefit nomination has been'
+        ],
+        14 => [
+            'name' => App\Models\TrainingApplication::class,
+            'post_to_sap' => false,
+            'email_subject' => 'Training Application',
+            'approver_mail_content' => 'has applied Training Application for your endorsement.',
+            'initiator_mail_content' => 'Your Training Application has been'
         ]
 
     ],

@@ -39,9 +39,28 @@
                                 @forelse($trainings as $key => $training)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $training->trainingList->title ?? '-' }}</td>
-                                    <td>{{ $training->is_self_funded ? 'Yes' : 'No' }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($training->created_at)->format('d-M-Y') }}</td>
+
+                                    {{-- Check if it’s from TraineeList or MyTraining --}}
+                                    <td>
+                                        @if (isset($training->trainingList) || isset($training->trainingApplication))
+                                        {{ $training->trainingList->title ?? $training->trainingApplication->trainingList->title ?? '-' }}
+                                        @else
+                                        {{ $training->title ?? '-' }}
+                                        @endif
+                                    </td>
+
+                                    {{-- Self-funded check (if exists) --}}
+                                    <td>
+                                        @if (isset($training->trainingList) || isset($training->trainingApplication))
+                                        No
+                                        @else
+                                        Yes
+                                        @endif
+                                    </td>
+
+
+                                    {{-- Training date --}}
+                                    <td>{{ \Carbon\Carbon::parse($training->created_at ?? now())->format('d-M-Y') }}</td>
 
                                     <td class="text-center">
                                         @if ($privileges->view)
@@ -73,6 +92,7 @@
                                 </tr>
                                 @endforelse
                             </tbody>
+
 
                         </table>
                     </div>
