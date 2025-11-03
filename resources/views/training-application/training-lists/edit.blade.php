@@ -2,7 +2,7 @@
 @section('page-title', 'Edit Training List')
 @section('content')
 
-<form action="{{ route('training-lists.update', $trainingList->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('training-application.training-lists.update', $trainingList->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 

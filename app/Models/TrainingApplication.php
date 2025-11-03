@@ -17,6 +17,8 @@ class TrainingApplication extends Model
         'type_id',
         'is_self_funded',
         'status',
+        'updated_by',
+        'created_by',
     ];
 
     public function trainingList()

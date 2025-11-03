@@ -152,6 +152,9 @@ class TrainingApplicationController extends Controller
                         'certificate' => null, // nullable
                         'created_at' => now(),
                         'updated_at' => now(),
+                        'created_by' => auth()->user()->id,
+                        'updated_by' => auth()->user()->id
+
                     ]);
                 }
             }

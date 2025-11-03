@@ -17,6 +17,9 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->boolean('is_availaible_for_training')->default(1)->comment('sometimes during the time of training may be emp cannot join the training.');
             $table->json('certificate')->comment('multiple certificate to be accepted.');//user will update not admin so keep nullable 
+            $table->foreignId("created_by")->index()->constrained('mas_employees');
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
+        
             $table->timestamps();
         });
     }

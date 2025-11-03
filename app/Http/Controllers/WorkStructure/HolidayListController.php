@@ -15,6 +15,7 @@ class HolidayListController extends Controller
         'holiday_type' => 'required',
         'start_date' => 'required|date|before_or_equal:end_date',
         'end_date' => 'required|date|after_or_equal:start_date',
+        'status' => 'required',
     ];
 
     public function __construct()
@@ -62,6 +63,7 @@ class HolidayListController extends Controller
         $holiday->region_id = $request->mas_region_id;
         $holiday->start_date = $request->start_date;
         $holiday->end_date = $request->end_date;
+        $holiday->status = $request->status;
         $holiday->save();
 
         return back()->with('msg_success', 'Holiday created successfully');
@@ -84,6 +86,7 @@ class HolidayListController extends Controller
         $holiday->region_id = $request->mas_region_id;
         $holiday->start_date = $request->start_date;
         $holiday->end_date = $request->end_date;
+        $holiday->status = $request->status;
         $holiday->save();
 
         return back()->with('msg_success', 'Holiday has been updated successfully');

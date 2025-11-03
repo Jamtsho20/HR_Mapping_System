@@ -33,6 +33,8 @@ class MasAssets extends Model
     'status',
     'asset_transfer_id',
     'sap_asset_id',
+    'prj_line_num',
+    'emp_line_num',
 ];
 
     public function sapAssets()

@@ -71,7 +71,12 @@
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @endif
-    
+                                        <!-- @if ($privileges->edit)
+                                        <a href="{{ route('training-application.training-applications.edit', $application->id) }}"
+                                            class="btn btn-sm btn-rounded btn-outline-success">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        @endif -->
 
                                         @if ($privileges->delete)
                                         <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
