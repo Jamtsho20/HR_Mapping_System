@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\TrainingEvaluation;
 use App\Models\TrainingEvaluationAnswer;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\EvaluationAnswersExport;
 
 class TrainingEvaluationAnswerController extends Controller
 {
@@ -37,19 +35,31 @@ class TrainingEvaluationAnswerController extends Controller
             compact('privileges', 'evaluations')
         );
     }
-
-
     /**
      * Show the form for creating a new answer.
      */
     public function create()
     {
-        $evaluations = TrainingEvaluation::with('children')
+        $evaluations = TrainingEvaluation::with([
+            'children.options' // this loads sub-question options too
+        ])
             ->whereNull('parent_id')
             ->get();
 
+        // Decode options JSON if needed
+        $evaluations->each(function ($evaluation) {
+            if ($evaluation->children) {
+                $evaluation->children->each(function ($child) {
+                    if (!empty($child->options) && is_string($child->options)) {
+                        $child->options = json_decode($child->options, true);
+                    }
+                });
+            }
+        });
+
         return view('training-application.training-evaluations-answers.create', compact('evaluations'));
     }
+
 
     /**
      * Store a newly created answer in storage.
@@ -120,10 +130,5 @@ class TrainingEvaluationAnswerController extends Controller
         } catch (\Exception $e) {
             return back()->with('msg_error', 'Answer cannot be deleted as it is used in other modules. Contact system admin.');
         }
-    }
-
-    public function export()
-    {
-        return Excel::download(new EvaluationAnswersExport, 'evaluation_answers.xlsx');
     }
 }

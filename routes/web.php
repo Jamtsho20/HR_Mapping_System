@@ -49,7 +49,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssetUploadController;
-
+use App\Http\Controllers\TrainingApplication\TrainingEvaluationController;
+use App\Http\Controllers\TrainingApplication\MyEvaluationAnswerController;
 
 
 
@@ -194,7 +195,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('shift-types', 'MasShiftTypesController');
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
-    
+
     //Training Master Module
     Route::namespace('TrainingMaster')->prefix('training')->group(function () {
         Route::resource('training-types', 'MasTrainingTypesController');
@@ -210,14 +211,26 @@ Route::middleware('auth')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
         // Route::resource('training-budget', 'TrainingBudgetAllocationController');
         Route::resource('training-evaluations', 'TrainingEvaluationController');
+        Route::post('training-evaluations/assign', [TrainingEvaluationController::class, 'assign'])
+            ->name('training-evaluations.assign');
+        Route::post('training-evaluations.unassign', [TrainingEvaluationController::class, 'unassign'])
+            ->name('training-evaluations.unassign');
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
-        
         Route::resource('training-applications', 'TrainingApplicationController');
         Route::resource('trainee-lists', 'TraineeListController');
         Route::resource('training-materials', 'TrainingMaterialsController');
+
+        //MY EVALUATION ANSWER
+
+        Route::resource('my-evaluations', 'MyEvaluationAnswerController')->except(['create']);
     });
+    Route::get('training-application/my-evaluations/{evaluation}/create', [MyEvaluationAnswerController::class, 'create'])
+        ->name('training-application.my-evaluations.create');
+    Route::delete('training-application/my-evaluations/{evaluationId}', [MyEvaluationAnswerController::class, 'destroy'])
+        ->name('training-application.my-evaluations.destroy');
+
     Route::get('training-applications/training-list/{id}/details', [App\Http\Controllers\TrainingApplication\TrainingApplicationController::class, 'getTrainingListDetails'])
-    ->name('training-applications.training-list.details');
+        ->name('training-applications.training-list.details');
 
 
     //MY PROFILE
@@ -509,9 +522,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-good-return-report', [AssetReturnReportController::class, 'print'])->name('good-return-report-print');
     Route::get('/print-cwip-report', [CwipReportController::class, 'printCwip'])->name('cwip-report-print');
 
-
-    Route::get('training-evaluations-answers/export', [TrainingEvaluationAnswer::class, 'export'])
-     ->name('training-application.training-evaluations-answers.export');
 
     //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {

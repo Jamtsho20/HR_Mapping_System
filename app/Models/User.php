@@ -301,6 +301,15 @@ class User extends Authenticatable
             $title = "Ms.";
         }
     }
+    public function assignedEvaluations()
+    {
+        return $this->belongsToMany(
+            TrainingEvaluation::class,
+            'training_evaluation_employee',
+            'employee_id',
+            'evaluation_id'
+        );
+    }
 
     protected static function boot()
     {

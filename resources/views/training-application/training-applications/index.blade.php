@@ -5,7 +5,7 @@
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('training-applications.create') }}" class="btn btn-sm btn-primary">
+<a href="{{ route('training-application.training-applications.create') }}" class="btn btn-sm btn-primary">
     <i class="fa fa-plus"></i> New Training Application
 </a>
 @endsection
@@ -66,21 +66,16 @@
 
                                     <td class="text-center">
                                         @if ($privileges->view)
-                                        <a href="{{ route('training-applications.show', $application->id) }}"
+                                        <a href="{{ route('training-application.training-applications.show', $application->id) }}"
                                             class="btn btn-sm btn-outline-secondary">
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @endif
-                                        <!-- @if ($privileges->edit)
-                                        <a href="{{ route('training-applications.edit', $application->id) }}"
-                                            class="btn btn-sm btn-rounded btn-outline-success">
-                                            <i class="fa fa-edit"></i> Edit
-                                        </a>
-                                        @endif -->
+    
 
                                         @if ($privileges->delete)
                                         <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                            data-url="{{ route('training-applications.destroy', $application->id) }}">
+                                            data-url="{{ route('training-application.training-applications.destroy', $application->id) }}">
                                             <i class="fa fa-trash"></i> Delete
                                         </a>
                                         @endif

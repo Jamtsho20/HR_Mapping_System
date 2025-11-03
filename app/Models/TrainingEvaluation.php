@@ -18,6 +18,8 @@ class TrainingEvaluation extends Model
         'training_list_id',
         'evaluation_type_id',
         'parent_id',
+        'title',
+        'question_type',
         'is_floated_to_trainees',
         'question',
         'sequence',
@@ -33,7 +35,16 @@ class TrainingEvaluation extends Model
 
     public function children()
     {
-        return $this->hasMany(TrainingEvaluation::class, 'parent_id');
+        return $this->hasMany(TrainingEvaluation::class, 'parent_id')->orderBy('sequence');
+    }
+
+    public function options()
+    {
+        return $this->hasMany(TrainingEvaluationOption::class, 'evaluation_id')->orderBy('sequence');
+    }
+    public function assignedEmployees()
+    {
+        return $this->belongsToMany(User::class, 'training_evaluation_employee', 'evaluation_id', 'employee_id')->withTimestamps();
     }
 
     /**
@@ -56,8 +67,10 @@ class TrainingEvaluation extends Model
 
     public function answers()
     {
-        return $this->hasMany(TrainingEvaluationAnswer::class, 'evaluation_id');
+        return $this->hasMany(TrainingEvaluationAnswer::class, 'evaluation_id')
+            ->with('createdBy');
     }
+
     /**
      * Relationship: Created by employee
      */

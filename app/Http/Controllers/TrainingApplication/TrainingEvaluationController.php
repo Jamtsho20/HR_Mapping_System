@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\MasTrainingList;
 use App\Models\MasTrainingEvaluationType;
 use App\Models\TrainingEvaluation;
+use App\Models\User;
+
+use App\Models\TrainingEvaluationOption;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TrainingEvaluationController extends Controller
 {
@@ -25,11 +29,12 @@ class TrainingEvaluationController extends Controller
     {
         $privileges = $request->instance();
 
-        $evaluations = TrainingEvaluation::with(['trainingList', 'evaluationType', 'creator','children'])
+        $evaluations = TrainingEvaluation::with(['trainingList', 'evaluationType', 'creator', 'children.options'])
+            ->whereNull('parent_id')
             ->orderBy('sequence', 'asc')
             ->paginate(config('global.pagination'));
 
-        // Add these two
+        $employees = User::select('id', 'name', 'username')->orderBy('name')->get();
         $trainingLists = MasTrainingList::select('id', 'title')->get();
         $evaluationTypes = MasTrainingEvaluationType::select('id', 'name')->get();
 
@@ -37,7 +42,8 @@ class TrainingEvaluationController extends Controller
             'privileges',
             'evaluations',
             'trainingLists',
-            'evaluationTypes'
+            'evaluationTypes',
+            'employees'
         ));
     }
 
@@ -62,43 +68,90 @@ class TrainingEvaluationController extends Controller
             'evaluation_type_id' => 'required|exists:mas_training_evaluation_types,id',
             'title' => 'required|string|max:255',
             'questions' => 'required|array|min:1',
-            'questions.*' => 'required|string',
-            'sequences' => 'required|array|min:1',
-            'sequences.*' => 'required|integer',
+            'questions.*.text' => 'required|string',
+            'questions.*.type' => 'required|string|in:short_answer,scale,option',
+            'questions.*.sequence' => 'required|integer',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.options.*' => 'nullable|string|max:255',
         ]);
 
-        // Create the main title (parent question)
-        $parent = TrainingEvaluation::create([
-            'training_list_id' => $request->training_list_id,
-            'evaluation_type_id' => $request->evaluation_type_id,
-            'question' => $request->title,
-            'sequence' => 1,
-            'is_floated_to_trainees' => false,
-            'created_by' => auth()->id(),
-        ]);
-
-        // Add sub-questions
-        foreach ($request->questions as $index => $question) {
-            TrainingEvaluation::create([
+        DB::transaction(function () use ($request) {
+            // Create the main title (parent evaluation)
+            $parent = TrainingEvaluation::create([
                 'training_list_id' => $request->training_list_id,
                 'evaluation_type_id' => $request->evaluation_type_id,
-                'parent_id' => $parent->id,
-                'question' => $question,
-                'sequence' => $request->sequences[$index],
+                'title' => $request->title,
+                'sequence' => 1,
+                'is_floated_to_trainees' => false,
                 'created_by' => auth()->id(),
             ]);
-        }
+
+            // Add sub-questions
+            foreach ($request->questions as $q) {
+                $question = TrainingEvaluation::create([
+                    'training_list_id' => $request->training_list_id,
+                    'evaluation_type_id' => $request->evaluation_type_id,
+                    'parent_id' => $parent->id,
+                    'question' => $q['text'],
+                    'question_type' => $q['type'],
+                    'sequence' => $q['sequence'],
+                    'created_by' => auth()->id(),
+                ]);
+
+                // Add options if question type = "option"
+                if ($q['type'] === 'option' && !empty($q['options'])) {
+                    foreach ($q['options'] as $index => $optionText) {
+                        TrainingEvaluationOption::create([
+                            'evaluation_id' => $question->id,
+                            'option_text' => $optionText,
+                            'sequence' => $index + 1,
+                        ]);
+                    }
+                }
+            }
+        });
 
         return redirect()->route('training-application.training-evaluations.index')
             ->with('success', 'Training evaluation questions created successfully!');
     }
 
+    public function assign(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'evaluation_id' => 'required|exists:training_evaluations,id',
+            'employee_ids'  => 'nullable|array',
+            'employee_ids.*' => 'exists:mas_employees,id',
+        ]);
+
+        $evaluation = TrainingEvaluation::findOrFail($request->evaluation_id);
+
+        // Sync employees (many-to-many relation assumed)
+        // Assumes you have a relationship like: $evaluation->assignedEmployees()
+        $evaluation->assignedEmployees()->sync($request->employee_ids ?? []);
+
+        return redirect()->back()->with('success', 'Employees assigned successfully.');
+    }
+    public function unassign(Request $request)
+    {
+        $request->validate([
+            'evaluation_id' => 'required|exists:training_evaluations,id',
+            'employee_id' => 'required|exists:mas_employees,id',
+        ]);
+
+        $evaluation = TrainingEvaluation::findOrFail($request->evaluation_id);
+        $evaluation->assignedEmployees()->detach($request->employee_id);
+
+        return response()->json(['success' => true]);
+    }
+
+
     /**
-     * Show the form for editing the specified evaluation.
+     * Show the form for editing an existing evaluation.
      */
     public function edit($id)
     {
-        $evaluation = TrainingEvaluation::findOrFail($id);
+        $evaluation = TrainingEvaluation::with('children.options')->findOrFail($id);
         $trainingLists = MasTrainingList::get(['id', 'title']);
         $evaluationTypes = MasTrainingEvaluationType::get(['id', 'name']);
 
@@ -110,68 +163,82 @@ class TrainingEvaluationController extends Controller
     }
 
     /**
-     * Update the specified evaluation in storage.
+     * Update an existing evaluation.
      */
-public function update(Request $request, $id)
-{
-    $parent = TrainingEvaluation::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $parent = TrainingEvaluation::findOrFail($id);
 
-    $request->validate([
-        'training_list_id' => 'required|exists:mas_training_lists,id',
-        'evaluation_type_id' => 'required|exists:mas_training_evaluation_types,id',
-        'title' => 'required|string|max:255',
-        'questions' => 'required|array|min:1',
-        'questions.*' => 'required|string',
-        'sequences' => 'required|array|min:1',
-        'sequences.*' => 'required|integer',
-    ]);
+        $request->validate([
+            'training_list_id' => 'required|exists:mas_training_lists,id',
+            'evaluation_type_id' => 'required|exists:mas_training_evaluation_types,id',
+            'title' => 'required|string|max:255',
+            'questions' => 'required|array|min:1',
+            'questions.*.text' => 'required|string',
+            'questions.*.type' => 'required|string|in:short_answer,scale,option',
+            'questions.*.sequence' => 'required|integer',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.options.*' => 'nullable|string|max:255',
+        ]);
 
-    // Update parent question
-    $parent->update([
-        'training_list_id' => $request->training_list_id,
-        'evaluation_type_id' => $request->evaluation_type_id,
-        'question' => $request->title,
-        'sequence' => 1,
-        'updated_by' => auth()->id(),
-    ]);
-
-    $children = $parent->children()->orderBy('sequence')->get();
-
-    foreach ($request->questions as $index => $questionText) {
-        $sequence = $request->sequences[$index];
-
-        if (isset($children[$index])) {
-            // Update existing child
-            $children[$index]->update([
-                'question' => $questionText,
-                'sequence' => $sequence,
-                'updated_by' => auth()->id(),
-            ]);
-        } else {
-            // Add new sub-question
-            TrainingEvaluation::create([
+        DB::transaction(function () use ($request, $parent) {
+            // Update parent
+            $parent->update([
                 'training_list_id' => $request->training_list_id,
                 'evaluation_type_id' => $request->evaluation_type_id,
-                'parent_id' => $parent->id,
-                'question' => $questionText,
-                'sequence' => $sequence,
-                'created_by' => auth()->id(),
+                'title' => $request->title,
+                'updated_by' => auth()->id(),
             ]);
-        }
+
+            // Delete existing children to simplify logic
+            $parent->children()->each(function ($child) {
+                $child->options()->delete();
+                $child->delete();
+            });
+
+            // Recreate children
+            foreach ($request->questions as $q) {
+                $question = TrainingEvaluation::create([
+                    'training_list_id' => $request->training_list_id,
+                    'evaluation_type_id' => $request->evaluation_type_id,
+                    'parent_id' => $parent->id,
+                    'question' => $q['text'],
+                    'question_type' => $q['type'],
+                    'sequence' => $q['sequence'],
+                    'created_by' => auth()->id(),
+                ]);
+
+                if ($q['type'] === 'option' && !empty($q['options'])) {
+                    foreach ($q['options'] as $index => $optionText) {
+                        TrainingEvaluationOption::create([
+                            'evaluation_id' => $question->id,
+                            'option_text' => $optionText,
+                            'sequence' => $index + 1,
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('training-application.training-evaluations.index')
+            ->with('success', 'Training evaluation updated successfully!');
     }
 
-    return redirect()->route('training-application.training-evaluations.index')
-        ->with('success', 'Training evaluation updated successfully!');
-}
-
-
     /**
-     * Remove the specified evaluation from storage.
+     * Delete an evaluation (and children + options).
      */
     public function destroy($id)
     {
         try {
-            TrainingEvaluation::findOrFail($id)->delete();
+            $evaluation = TrainingEvaluation::with('children.options')->findOrFail($id);
+
+            DB::transaction(function () use ($evaluation) {
+                foreach ($evaluation->children as $child) {
+                    $child->options()->delete();
+                    $child->delete();
+                }
+                $evaluation->delete();
+            });
 
             return back()->with('msg_success', 'Training Evaluation has been deleted.');
         } catch (\Exception $e) {
