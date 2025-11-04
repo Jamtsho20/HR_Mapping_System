@@ -16,6 +16,8 @@ class AssetUploadController extends Controller{
     }
   public function uploadExcel(Request $request)
 {
+    ini_set('upload_max_filesize', '50M');
+    ini_set('post_max_size', '50M');
     ini_set('memory_limit', '1G');  // Increase if needed
     ini_set('max_execution_time', 10000); // 10 minutes for reading large files
 
