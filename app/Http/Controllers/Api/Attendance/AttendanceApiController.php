@@ -87,9 +87,9 @@ class AttendanceApiController extends Controller
         $type = $request->check_type;
         $isCheckIn  = $type === 'check-in';
         $isCheckOut = $type === 'check-out';
-        // $serverTime = now()->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
-        $serverTime = now()->subMinutes(5)->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
-
+        // $serverTimeReal = now()->subMinutes(5)->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
+        $serverTime = now()->format('H:i:s'); //Default Server time set in app config file follows Asia/Dhaka 
+        
         if ($isCheckIn) {
             // $this->rules['check_in_at'] = 'required';
             if ($isFieldEmp) {
@@ -145,6 +145,7 @@ class AttendanceApiController extends Controller
             // Calculate attendance status and remarks only if no check-in yet and status is CREATED
             if (!$attendance->check_in_at && ($attendance->attendance_status_id === CREATED_STATUS || $attendance->attendance_status_id === INFORMED_LATE_STATUS)) {
                 $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+                // dd($officeTiming);
                 $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
                 $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
                 $maxEligibleTime = $startTime->copy()->addMinutes(120);
