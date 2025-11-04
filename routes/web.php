@@ -219,6 +219,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('training-applications', 'TrainingApplicationController');
         // Route::resource('trainee-lists', 'TraineeListController');
         // Route::resource('training-materials', 'TrainingMaterialsController');
+
+
+        Route::resource('my-evaluations', MyEvaluationAnswerController::class)
+            ->except('create');
     });
     Route::get('training-application/my-evaluations/{evaluation}/create', [MyEvaluationAnswerController::class, 'create'])
         ->name('training-application.my-evaluations.create');
