@@ -822,16 +822,27 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
+   public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
     {
         try {
             $type = $request->input('type');
-            $ackService->acknowledge($id, $type);
+            $result = $ackService->acknowledge($id, $type);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Receipt acknowledged successfully.'
-            ]);
+            if (!empty($result['success']) && $result['success'] === true) {
+                // SAP and DB succeeded
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Receipt acknowledged successfully.'
+                ]);
+            } else {
+                // SAP returned error or failure
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Failed to acknowledge receipt.',
+                    'payload' => $result['payload'] ?? null
+                ], 400); // 400 for bad request from SAP
+            }
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

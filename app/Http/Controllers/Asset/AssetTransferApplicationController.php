@@ -88,9 +88,11 @@ class AssetTransferApplicationController extends Controller
         $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
         $transferTypes = MasTransferType::get(['id', 'name']);
 
-        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
-            $query->where('current_employee_id', auth()->user()->id);
-        })->get();
+        // $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
+        //     $query->where('current_employee_id', auth()->user()->id);
+        // })->get();
+
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->where('to_employee_id', auth()->user()->id)->get();
         return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes', 'toBeTransferedToUserAsset'));
     }
 
@@ -98,9 +100,9 @@ class AssetTransferApplicationController extends Controller
     public function myAssetIndex(Request $request){
         $privileges = $request->instance();
         $transferTypes = MasTransferType::get(['id', 'name']);
-        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 2)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
-            $query->where('current_employee_id', auth()->user()->id);
-        })->get();
+
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 2)->where('status', 3)->where('received_acknowledged', 0)->where('to_employee_id', auth()->user()->id)->get();
+
         $transferedToUser = AssetTransferApplication::where('received_acknowledged', 1)->whereHas('details.asset', function ($query) {
             $query->where('current_employee_id', auth()->user()->id);
         })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();

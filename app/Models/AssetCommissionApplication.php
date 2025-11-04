@@ -166,7 +166,7 @@ class AssetCommissionApplication extends Model
                                 'received_serial_id'   => $serialId,
                                 'commission_detail_id' => $detail->id,
                                 'initial_owner_id'     => $commissionApplication->created_by,
-                                'asset_type' => 1,
+                                'asset_type' => 2,
                             ]);
 
                             // Update received_serials.is_commissioned

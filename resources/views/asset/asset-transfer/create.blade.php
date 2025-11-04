@@ -287,13 +287,17 @@
                                 assetSelect.append('<option value="" disabled selected hidden>Select</option>');
 
                                 // Loop through the received asset numbers and populate the dropdown
-                                response.data.forEach(function(assetNo) {
-                                  assetSelect.append(
-                                        '<option value="' + assetNo.id + '">' +
-                                        ((assetNo.received_serial?.requisition_detail.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.serial_number) +
-                                        '</option>'
-                                    );
-                                        });
+                                response.data.forEach(asset => {
+                                    const itemNo = asset.receivedSerial?.requisitionDetail?.grnItemDetail?.item?.item_no ?? '';
+                                    const serialNo = asset.receivedSerial?.asset_serial_no ?? asset.serial_number ?? 'N/A';
+                                    const separator = (itemNo && serialNo) ? '-' : '';
+
+                                    assetSelect.append(`
+                                        <option value="${asset.id}">
+                                            ${itemNo}${separator}${serialNo}
+                                        </option>
+                                    `);
+                                });
 
                                 $('#loader').hide();
                         },

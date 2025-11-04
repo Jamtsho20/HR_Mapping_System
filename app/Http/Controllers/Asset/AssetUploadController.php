@@ -17,7 +17,7 @@ class AssetUploadController extends Controller{
   public function uploadExcel(Request $request)
 {
     ini_set('memory_limit', '1G');  // Increase if needed
-    ini_set('max_execution_time', 600); // 10 minutes for reading large files
+    ini_set('max_execution_time', 10000); // 10 minutes for reading large files
 
      try {
         $file = $request->file('file');
@@ -104,7 +104,7 @@ public function uploadAssetFile(Request $request)
                 ->where('item_id', $itemId)
                 ->where('current_site_id', $siteId)
                 ->first();
-                
+
             \Log::info($asset );
             if ($asset) {
                 $asset->update(['asset_no' => trim($data['asset_no'])]);

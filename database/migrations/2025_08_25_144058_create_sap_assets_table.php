@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('sap_assets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('item_id')->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('serial_number')->unique();
+            $table->string('serial_number')->unique()->nullable();
             $table->string('asset_number')->unique();
-            $table->string('uom', 20);
-            $table->string('grn_number');
+            $table->string('uom', 20)->nullable();
+            $table->string('grn_number')->nullable();
             $table->string('item_description');
             $table->string('category');
             $table->integer('quantity');
-            $table->decimal('amount', 12, 6);
+            $table->decimal('amount', 16, 2);
             $table->date('capitalization_date');
             $table->date('end_date');
             $table->foreignId('created_by')->index()->constrained('mas_employees');

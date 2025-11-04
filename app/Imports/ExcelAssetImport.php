@@ -8,13 +8,13 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use App\Jobs\ProcessAssetBatch;
 
+
 class ExcelAssetImport implements ToCollection, WithChunkReading
 {
+
     public function collection(Collection $rows)
     {
-       $rows->shift(); // remove header row
-
-        $rows->chunk(1000)->each(function ($chunk) {
+        $rows->chunk(5000)->each(function ($chunk) {
             $assetsBatch = [];
 
             foreach ($chunk as $row) {
@@ -45,7 +45,7 @@ class ExcelAssetImport implements ToCollection, WithChunkReading
             $controller = app(\App\Http\Controllers\Api\SAP\ApiController::class);
             $request = new \Illuminate\Http\Request(['assets' => $assetsBatch]);
             $response = $controller->getAssetData($request);
-\Log::info('getAssetData response: '.json_encode($response));
+            \Log::info('getAssetData response: '.json_encode($response));
             if ($response instanceof \Illuminate\Http\JsonResponse) {
                 $data = $response->getData(true);
                 if (isset($data['status']) && $data['status'] === 'error') {
@@ -63,6 +63,6 @@ class ExcelAssetImport implements ToCollection, WithChunkReading
 
     public function chunkSize(): int
     {
-        return 1000; // Laravel Excel reads 2000 rows at a time from the file
+        return 5000; // Laravel Excel reads 2000 rows at a time from the file
     }
 }
