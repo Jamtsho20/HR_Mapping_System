@@ -157,4 +157,5 @@ const REGIONAL_MANAGER = 62;
 
 //Section
 const TPHU_REGION_SECTION = 4;
+const POWER_SECTION = 3;
 

@@ -836,12 +836,12 @@ $(document).ready(function () {
         // }
 
         // Validate the file size
-        if (file.size > maxSizeInBytes) {
-            // If the file size exceeds the maximum limit, display an alert and return false
-            alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
-            fileInput.value = "";
-            return false;
-        }
+        // if (file.size > maxSizeInBytes) {
+        //     // If the file size exceeds the maximum limit, display an alert and return false
+        //     alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+        //     fileInput.value = "";
+        //     return false;
+        // }
 
         // // If the file size is valid, display a confirmation and return true
         // alert("File is valid!");
@@ -1259,62 +1259,59 @@ function reloadActiveTab(itemType) {
 
 }
 
-function handleAcknowledgment(checkbox, transferId) {
-    // Only proceed if data type is 'assettransfer'
-    const dataType = checkbox.dataset.type;
+        function handleAcknowledgment(checkbox, transferId) {
+            // Only proceed if data type is 'assettransfer'
+            const dataType = checkbox.dataset.type;
 
-    // if (dataType !== 'assettransfer') return;
+            // if (dataType !== 'assettransfer') return;
 
-    // Show the confirmation message
-    showConfirmationMessage(
-        'Are you sure you want to acknowledge receipt?', // Message to show
-        () => {
-            $('#loader').show();
-            // Send the acknowledgment status to the server
-            fetch('/assets/acknowledge/' + transferId, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // CSRF token
+            // Show the confirmation message
+            showConfirmationMessage(
+                'Are you sure you want to acknowledge receipt?', // Message to show
+                () => {
+                    $('#loader').show();
+                    // Send the acknowledgment status to the server
+                    fetch('/assets/acknowledge/' + transferId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // CSRF token
+                        },
+                        body: JSON.stringify({ type: dataType })
+
+                    })
+                        .then(response => {
+                            // Ensure the response is JSON
+                            $('#loader').hide();
+                            return response.json(); // Parse the JSON response
+                        })
+                        .then(data => {
+                            // Check the success field in the response
+                            if (data.success) {
+                                checkbox.checked = true;
+                                $('#loader').hide();
+                                showSuccessMessage(data.message); // Show success message from the response
+                            } else {
+                                showErrorMessage("SAP Error: " + data.message ); // Show error message from the response
+                            }
+                        })
+                        .catch(error => {
+                            let errorMessage = 'Failed to acknowledge receipt.';
+                            console.error(errorMessage, error);
+                            if (error && error.message) {
+                                errorMessage += ' ' + error.message;
+                            }
+                            $('#loader').hide();
+                            showErrorMessage(errorMessage);
+                        });
                 },
-                body: JSON.stringify({ type: dataType })
-
-            })
-                .then(response => {
-                    // Ensure the response is JSON
+                () => {
+                    // If canceled, uncheck the checkbox
+                    checkbox.checked = false;
                     $('#loader').hide();
-                    if (!response.ok) {
-                        throw new Error('Server responded with status: ' + response.status);
-                    }
-
-                    return response.json(); // Parse the JSON response
-                })
-                .then(data => {
-                    // Check the success field in the response
-                    if (data.success) {
-                        checkbox.checked = true;
-                        $('#loader').hide();
-                        showSuccessMessage(data.message); // Show success message from the response
-                    } else {
-                        showErrorMessage(data.message); // Show error message from the response
-                    }
-                })
-                .catch(error => {
-                    let errorMessage = 'Failed to acknowledge receipt.';
-                    if (error && error.message) {
-                        errorMessage += ' ' + error.message;
-                    }
-                    $('#loader').hide();
-                    showErrorMessage(errorMessage);
-                });
-        },
-        () => {
-            // If canceled, uncheck the checkbox
-            checkbox.checked = false;
-            $('#loader').hide();
+                }
+            );
         }
-    );
-}
 
 
 

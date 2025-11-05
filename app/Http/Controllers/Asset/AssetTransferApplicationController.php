@@ -88,9 +88,11 @@ class AssetTransferApplicationController extends Controller
         $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
         $transferTypes = MasTransferType::get(['id', 'name']);
 
-        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
-            $query->where('current_employee_id', auth()->user()->id);
-        })->get();
+        // $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
+        //     $query->where('current_employee_id', auth()->user()->id);
+        // })->get();
+
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 1)->where('status', 3)->where('received_acknowledged', 0)->where('to_employee_id', auth()->user()->id)->get();
         return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes', 'toBeTransferedToUserAsset'));
     }
 
@@ -98,9 +100,9 @@ class AssetTransferApplicationController extends Controller
     public function myAssetIndex(Request $request){
         $privileges = $request->instance();
         $transferTypes = MasTransferType::get(['id', 'name']);
-        $toBeTransferedToUserAsset = AssetTransferApplication::where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
-            $query->where('current_employee_id', auth()->user()->id);
-        })->get();
+
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('type_id', 2)->where('status', 3)->where('received_acknowledged', 0)->where('to_employee_id', auth()->user()->id)->get();
+
         $transferedToUser = AssetTransferApplication::where('received_acknowledged', 1)->whereHas('details.asset', function ($query) {
             $query->where('current_employee_id', auth()->user()->id);
         })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
@@ -124,17 +126,25 @@ class AssetTransferApplicationController extends Controller
 
         $types = MasTransferType::whereStatus(1)->get(['id', 'name']);
         $employees = User::whereIsActive(1)->whereNotIn('employee_id', [0, 99999])->get();
-        $fromSites = MasSite::where('site_supervisor',  auth()->user()->id)->get(['id', 'name']);
+        //$fromSites = MasSite::where('site_supervisor',  auth()->user()->id)->get(['id', 'name']);
 
-        if ($fromSites->isEmpty()) {
+        // if ($fromSites->isEmpty()) {
             $dzongkhagIds = MasSiteSupervisor::where('employee_id',  auth()->user()->id)
                 ->pluck('dzongkhag_id');
-            $fromSites = MasSite::whereIn('dzongkhag_id', $dzongkhagIds)
-                ->get(['id', 'name']);
-        }
+           $fromSites = MasSite::where(function ($query) use ($dzongkhagIds, $employees) {
+                $query->where(function ($q) use ($dzongkhagIds) {
+                    $q->whereNull('site_supervisor')
+                    ->whereIn('dzongkhag_id', $dzongkhagIds);
+                })
+                ->orWhereIn('site_supervisor', $employees->pluck('id'));
+            })
+            ->get(['id', 'name']);
+
+        // }
         $sites = MasSite::get(['id', 'name']);
-        $assetNos = ReceivedSerial::with('commissionDetail')->where('is_commissioned', 1)->get();
-        return view('asset.asset-transfer.create', compact('employees', 'types', 'sites', 'assetNos', 'fromSites'));
+
+        // $assetNos = ReceivedSerial::with('commissionDetail')->where('is_commissioned', 1)->get();
+        return view('asset.asset-transfer.create', compact('employees', 'types', 'sites', 'fromSites'));
     }
 
     /**
@@ -200,10 +210,9 @@ class AssetTransferApplicationController extends Controller
 
                 $mas_assets = MasAssets::where('id', $detail['asset_no'])->first();
 
-                if($mas_assets->receivedSerial){
-                    $mas_assets->receivedSerial->is_transfered = 1;
-                    $mas_assets->receivedSerial->is_transfered_to = $to_employee ?? $request->to_employee ?? null;
-                    $mas_assets->receivedSerial->save();
+                if($mas_assets){
+                    $mas_assets->is_transfered = 1;
+                    $mas_assets->save();
                 }
 
                 $application->details()->create([

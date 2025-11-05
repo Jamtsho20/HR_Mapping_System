@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Api\SAP\ApiController;
 use Illuminate\Support\Facades\DB;
 use App\Traits\JsonResponseTrait;
+use App\Models\MasAssets;
 
 class AssetAcknowledgementService
 {
@@ -19,82 +20,128 @@ class AssetAcknowledgementService
         $this->sap = $sap;
     }
 
-    public function acknowledge($id, $type)
+   public function acknowledge($id, $type)
     {
-        try{
-        if ($type === 'assettransfer') {
-           $this->acknowledgeAssetTransfer($id);
-        } elseif ($type === 'return') {
-            $this->acknowledgeAssetReturn($id);
-        } else {
-            throw new \Exception("Unknown acknowledgement type: $type");
-        }
-        }catch(\Exception $e){
+        try {
+            if ($type === 'assettransfer') {
+                return $this->acknowledgeAssetTransfer($id);
+            } elseif ($type === 'return') {
+                return $this->acknowledgeAssetReturn($id);
+            } else {
+                throw new \Exception("Unknown acknowledgement type: $type");
+            }
+        } catch (\Exception $e) {
             throw new \Exception("Acknowledgement failed: " . $e->getMessage(), 500);
         }
     }
 
+
     protected function acknowledgeAssetTransfer($id)
     {
-        try{
+        try {
             DB::beginTransaction();
+
             $assetTransfer = AssetTransferApplication::find($id);
             $assetTransfer->received_acknowledged = 1;
             $assetTransfer->save();
 
-
             $masAssetIds = $assetTransfer->details->pluck('mas_asset_id');
-            $items = [];
+            $assets = MasAssets::whereIn('id', $masAssetIds)->get();
 
-            foreach ($assetTransfer->details as $detail) {
-                $lineNum = AssetTransferApplication::whereHas('details', function ($query) use ($detail) {
-                    $query->where('mas_asset_id', $detail->mas_asset_id);
-                })->count();
-                $itemCode = $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? $detail->asset->item_code ?? 'NA';
-                $serialNumber = $detail->receivedSerial?->asset_serial_no ?? $detail->asset->serial_number ?? null;
-                $formattedItemCode = $itemCode . '-' . $serialNumber;
-                if ($formattedItemCode) {
-                    $items[$lineNum] = $formattedItemCode;
-                };
+            $toDepartmentCode = $assetTransfer->toEmployee?->empJob->department->sap_asset_code ?? null;
+            $toSiteCode = $assetTransfer->toSite?->code ?? null;
 
-            }
             $postData = [];
 
-            foreach ($items as $lineNum => $formattedItemCode) {
-                $postData[] = [
-                    'ItemDistributionRules' => [
+            foreach ($assetTransfer->details as $detail) {
+                $empLine = $detail->asset->emp_line_num ?? null;
+                $prjLine = $detail->asset->prj_line_num ?? null;
+
+                $formattedItemCode = $detail->asset?->asset_no ?? null;
+                if (!$formattedItemCode) {
+                    DB::rollBack();
+                    return [
+                        'success' => false,
+                        'message' => "Asset serial number is required for transfer detail {$detail->id}"
+                    ];
+                }
+
+                $postDataItem = [
+                    "AssetNo" => $formattedItemCode,
+                    "ItemProjects" => [
                         [
-                            'LineNumber' => $lineNum,
-                            'ValidFrom' => date('Y-m-d'), // or any logic
-                            'ValidTo' => date('Y-m-d'),   // or any logic
-                            'DistributionRule4' => $assetTransfer->fromEmployee?->username,
+                            "LineNumber" => $prjLine,
+                            "ValidTo" => date('Y-m-d', strtotime('-1 day')),
                         ],
                         [
-                            'LineNumber' => $lineNum + 1,
-                            'ValidFrom' => $assetTransfer->transaction_date ?? date('Y-m-d'),
-                            'ValidTo' => '2099-12-31', // default end date
-                            'DistributionRule4' => $assetTransfer->toEmployee?->username,
+                            "LineNumber" => $prjLine + 1,
+                            "ValidFrom" => date('Y-m-d'),
+                            "Project" => $toSiteCode ?? $toDepartmentCode ?? null,
                         ]
                     ]
                 ];
+
+                if ($assetTransfer->type->id == 1) {
+                    $postDataItem['ItemDistributionRules'] = [
+                        [
+                            'LineNumber' => $empLine,
+                            'ValidTo' => date('Y-m-d', strtotime('-1 day')),
+                        ],
+                        [
+                            'LineNumber' => $empLine + 1,
+                            'ValidFrom' => $assetTransfer->transaction_date ?? date('Y-m-d'),
+                            'DistributionRule4' => $assetTransfer->toEmployee?->username,
+                        ]
+                    ];
+                }
+
+                $postData[] = $postDataItem;
             }
 
-            $postData = [
-                'asset_post_type' => 'transfer',
-                'items' => '',
-                'transfer_id' => $assetTransfer->id,
-                'project_code' => $assetTransfer->toSite?->code,
-                'status' => 'acknowledged'
-            ];
+            // Call SAP
+           $sapResponse = $this->sap->postAssetTransferReturn(json_encode($postData), $assetTransfer, 1);
 
-            $postJournalEntriesResponse = $this->sap->postAssetTransferReturn(json_encode($postData));
+            if (!empty($sapResponse['msg_error'])) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => $sapResponse['msg_error'],
+                    'payload' => $sapResponse['payload'] ?? null
+                ];
+            }
+
+            // Update assets after SAP success
+            foreach ($assets as $asset) {
+                $asset->is_transfered = 0;
+                $asset->status = 2;
+
+                if ($toSiteCode) {
+                    $asset->current_site_id = $assetTransfer->to_site_id;
+                } else {
+                    $asset->current_employee_id = $assetTransfer->to_employee_id;
+                }
+
+                $asset->save();
+            }
 
             DB::commit();
-            }catch(\Exception $e){
-                DB::rollBack();
-                throw new \Exception("Acknowledge asset transfer failed: " . $e->getMessage());
-            }
+
+            return [
+                'success' => true,
+                'message' => 'Receipt acknowledged successfully.'
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Acknowledge asset transfer failed: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Failed to acknowledge receipt.',
+                'error' => $e->getMessage()
+            ];
+        }
     }
+
 
     protected function acknowledgeAssetReturn($id)
     {

@@ -107,7 +107,7 @@
                     <td style="text-align: right;">{{ $loan->recurring_months }}</td>
                     <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
                     <td style="text-align: right;">
-                        {{ formatAmount($paySlip->details['deductions']['Samsung Ded'], false) }}</td>
+                        {{ formatAmount($loan->details['deductions']['Samsung Ded'], false) }}</td>
                 </tr>
             @empty
                 <tr>

@@ -357,31 +357,34 @@ if ($hour >= 5 && $hour < 12) {
                                             <th>Serial Number</th>
                                             <th>Item Description</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($assetData as $index => $asset)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>
-                                                {{ $asset->receivedSerial
-                                            ? ($asset->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial->asset_serial_no)
-                                            : ($asset->serial_number ?? config('global.null_value')) }}
-
-                                            </td>
-                                            <td>{{ $asset->item?->item_description ?? $asset->description }}</td>
-                                        </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-danger">No assets found</td>
-                                        </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($assetData as $index => $asset)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                     <td>
+                                            {{
+                                                ($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? '')
+                                                .
+                                                (($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? null) && ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number) ? '-' : '')
+                                                .
+                                                ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number ?? config('global.null_value'))
+                                            }}
+                                        </td>
+                                        <td>{{ $asset->item->item_description ?? $asset->sapAssets->item_description ?? config('global.null_value')}}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-danger">No assets found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
+        </div>
 
 
 
@@ -491,4 +494,4 @@ if ($hour >= 5 && $hour < 12) {
                 });
             });
         </script> -->
-                @endpush
+    @endpush

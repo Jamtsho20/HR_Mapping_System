@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('asset_serial_no')->index()->comment('Unique serial number for each item.');
+            $table->string('asset_no')->nullable()->comment('Only filled during commission time');
             $table->string('asset_description')->nullable();
             $table->decimal('amount', 12, 2)->nullable();
             $table->decimal('quantity', 12, 2)->nullable();
@@ -22,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_transfered')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             $table->boolean('is_received')->default(0)->comment('1 => received, 0 => not received');
             $table->string('remark')->nullable();
+            $table->boolean('is_created')->default(0)->comment('1 => created, 0 => not created in sap');
+            $table->boolean('sap_posted')->default(0)->comment('1 => posted, 0 => not posted');
             $table->foreignId('is_transfered_to')->nullable()->constrained('mas_employees')->comment('Employee id of person who transfered the item');
             $table->boolean('is_returned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             $table->timestamps();

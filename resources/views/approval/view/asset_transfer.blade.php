@@ -113,21 +113,43 @@
                                                         <td class="text-center">
                                                             {{ $loop->iteration }}
                                                         </td>
+
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial?->asset_serial_no }}
+                                                        {{
+                                                                $detail->asset->receivedSerial
+                                                                    ? (
+                                                                        ($detail->asset->receivedSerial->requisitionDetail?->grnItemDetail->item->item_no
+                                                                            ? $detail->asset->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-'
+                                                                            : ''
+                                                                        ) . $detail->asset->receivedSerial->asset_serial_no
+                                                                    )
+                                                                    : (
+                                                                        ($detail->asset->item_code
+                                                                            ? $detail->asset->item_code . '-'
+                                                                            : ''
+                                                                        ) . $detail->asset->serial_number
+                                                                    )
+                                                            }}
+
                                                         </td>
                                                         <td class="text-center">
-                                                            {{  $detail->receivedSerial?->asset_description ?? $detail->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description  }}
+                                                            {{  $detail->asset->receivedSerial?->asset_description ?? $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description ?? $detail->asset->sapAssets?->item_description }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial?->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial?->requisitionDetail->grnItemDetail->item->uom }}
+                                                            {{ $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->uom ?? $detail->asset->sapAssets?->uom }}
                                                         </td>
-                                                        <td class="text-right">{{ $detail->receivedSerial?->quantity ?? 1 }}</td>
+                                                        <td class="text-right">{{ $detail->asset->receivedSerial?->quantity ?? $detail->sapAssets?->quantity ?? 1 }}</td>
                                                         <td class="text-right">
-                                                            {{ $detail->receivedSerial?->amount }}
+                                                            {{ $detail->asset->receivedSerial?->amount ?? $detail->asset->amount ?? $detail->asset->SapAssets?->amount }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
+                                                        @php
+                                                                $datePlaced = $detail->asset->receivedSerial?->commissionDetail->date_placed_in_service
+                                                                    ?? $detail->asset->SapAssets?->capitalization_date;
+                                                            @endphp
+
+                                                            {{ $datePlaced ? \Carbon\Carbon::parse($datePlaced)->format('d-M-Y') : '' }}
+
                                                         </td>
 
                                                         <td class="text-center">

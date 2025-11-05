@@ -287,13 +287,17 @@
                                 assetSelect.append('<option value="" disabled selected hidden>Select</option>');
 
                                 // Loop through the received asset numbers and populate the dropdown
-                                response.data.forEach(function(assetNo) {
-                                  assetSelect.append(
-                                        '<option value="' + assetNo.id + '">' +
-                                        ((assetNo.received_serial?.requisition_detail.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.serial_number) +
-                                        '</option>'
-                                    );
-                                        });
+                                response.data.forEach(asset => {
+                                    const itemNo = asset.receivedSerial?.requisitionDetail?.grnItemDetail?.item?.item_no ?? '';
+                                    const serialNo = asset.receivedSerial?.asset_serial_no ?? asset.serial_number ?? 'N/A';
+                                    const separator = (itemNo && serialNo) ? '-' : '';
+
+                                    assetSelect.append(`
+                                        <option value="${asset.id}">
+                                            ${itemNo}${separator}${serialNo}
+                                        </option>
+                                    `);
+                                });
 
                                 $('#loader').hide();
                         },
@@ -391,12 +395,12 @@
                                 const grnDetail = data?.requisition_detail?.grn_item_detail;
                                 const item = grnDetail?.item;
                                 const $row = $currentSelect.closest('tr');
-                                $row.find('input[id="category"]').val(data.requisition_detail?.grn_item_detail.item.item_group || 'Data pushed from SAP');
-                                $row.find('input[id="description"]').val(grnDetail?.description || data.description || '');
-                                $row.find('input[id="asset_type"]').val(''); // You can assign logic if available
-                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || data.uom || '');
-                                $row.find('input[id="quantity"]').val(data.quantity || '');
-                                $row.find('input[id="date_placed_in_service"]').val(data.commission_detail?.date_placed_in_service || '');
+                                $row.find('input[id="category"]').val(data.sap_assets?.category ||  data.requisition_detail?.grn_item_detail.item.item_group || '');
+                                $row.find('input[id="description"]').val(grnDetail?.description || data.description || data.sap_assets?.item_description || '');
+                                $row.find('input[id="asset_type"]').val('');
+                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || data.uom ||data.sap_assets?.uom || '');
+                                $row.find('input[id="quantity"]').val(data.quantity || data.sap_assets?.quantity || '');
+                                $row.find('input[id="date_placed_in_service"]').val(data.commission_detail?.date_placed_in_service || data.sap_assets?.capitalization_date || '');
                                 updateTotalQuantity();
                                 $('#loader').hide();
                             },

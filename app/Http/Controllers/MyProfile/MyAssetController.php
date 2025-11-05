@@ -23,7 +23,9 @@ class MyAssetController extends Controller
     }
     private function getAssetData()
     {
-        $assets = MasAssets::where('current_employee_id', auth()->user()->id)->with('receivedSerial')->get();
+        $empID = auth()->user()->id;
+         $assets = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+
         return $assets;
     }
 }
