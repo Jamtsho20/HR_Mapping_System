@@ -35,26 +35,26 @@
                                 </td>
                             </tr>
                             <tr>
-    <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span></th>
-    <td style="padding-left:25px;">
-        @if ($return->attachment)
-            @php
-                $files = json_decode($return->attachment, true); // Fixed field name from 'file' to 'attachment'
-                $file = $files[0] ?? null;
-            @endphp
+                            <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span></th>
+                            <td style="padding-left:25px;">
+                                @if ($return->attachment)
+                                    @php
+                                        $files = json_decode($return->attachment, true); // Fixed field name from 'file' to 'attachment'
+                                        $file = $files[0] ?? null;
+                                    @endphp
 
-            @if ($file)
-                <a href="{{ asset($file) }}" class="btn btn-sm btn-primary" target="_blank">
-                    <i class="fas fa-file-alt"></i> View Attachment
-                </a>
-            @else
-                <p>No attachment available.</p>
-            @endif
-        @else
-            <span class="text-danger">No attachment available.</span>
-        @endif
-    </td>
-</tr>
+                                    @if ($file)
+                                        <a href="{{ asset($file) }}" class="btn btn-sm btn-primary" target="_blank">
+                                            <i class="fas fa-file-alt"></i> View Attachment
+                                        </a>
+                                    @else
+                                        <p>No attachment available.</p>
+                                    @endif
+                                @else
+                                    <span class="text-danger">No attachment available.</span>
+                                @endif
+                            </td>
+                        </tr>
 
                         </tbody>
                     </table>
@@ -85,14 +85,16 @@
                                 @forelse ($return->details as $detail)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="text-center">{{ $detail->receivedSerial->asset_serial_no }}</td>
+                                    <td class="text-center">{{ $detail->asset->asset_no }}</td>
                                     <td class="text-center">
-                                        {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                        {{ $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->uom ?? $detail->asset->sapAssets?->uom }}
                                     </td>
-                                    <td class="text-center">{{ $detail->receivedSerial->asset_description }}</td>
-                                    <td class="text-right">1</td>
                                     <td class="text-center">
-                                        {{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
+                                            {{  $detail->asset->receivedSerial?->asset_description ?? $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description ?? $detail->asset->sapAssets?->item_description }}
+                                        </td>
+                                     <td class="text-right">{{ $detail->asset->receivedSerial?->quantity ?? $detail->sapAssets?->quantity ?? 1 }}</td>
+                                    <td class="text-center">
+                                        {{ $detail->store->dzongkhag ?? config('global.null_value') }}
                                     </td>
                                     <td class="text-center">
                                         {{ $detail->store->name ?? config('global.null_value') }}

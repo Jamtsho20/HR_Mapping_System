@@ -145,37 +145,94 @@ class AssetAcknowledgementService
 
     protected function acknowledgeAssetReturn($id)
     {
-        try{
+        try {
             DB::beginTransaction();
-        $assetReturn = AssetReturnApplication::findOrFail($id);
-        $assetReturn->received_acknowledged = 1;
-        $assetReturn->save();
 
-        $items = [];
+            $assetReturn = AssetReturnApplication::find($id);
+            $assetReturn->received_acknowledged = 1;
+            $assetReturn->save();
 
-        foreach ($assetReturn->details as $detail) {
-            $itemCode = $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no ?? null;
-            $serialNumber = $detail->receivedSerial->asset_serial_no ?? null;
-            $formattedItemCode = $itemCode . '-' . $serialNumber;
-            if ($formattedItemCode) {
-                $items[] = $formattedItemCode;
-            };
+            $masAssetIds = $assetReturn->details->pluck('mas_asset_id');
+            $assets = MasAssets::whereIn('id', $masAssetIds)->get();
 
-        }
-        $joinedItems = implode(',', $items); // Join with comma
+            $postData = [];
+
+            foreach ($assetReturn->details as $detail) {
+                $empLine = $detail->asset->emp_line_num ?? null;
+                $prjLine = $detail->asset->prj_line_num ?? null;
+
+                $formattedItemCode = $detail->asset?->asset_no ?? null;
+                $storeCode = $detail->store->code ?? null;
+                if (!$formattedItemCode) {
+                    DB::rollBack();
+                    return [
+                        'success' => false,
+                        'message' => "Asset serial number is required for return detail {$detail->id}"
+                    ];
+                }
+
+                $postDataItem = [
+                    "AssetNo" => $formattedItemCode,
+                    "U_Status" => "Return",
+                    "ItemProjects" => [
+                        [
+                            "LineNumber" => $prjLine,
+                            "ValidTo" => date('Y-m-d', strtotime('-1 day')),
+                        ],
+                        [
+                            "LineNumber" => $prjLine + 1,
+                            "ValidFrom" => date('Y-m-d'),
+                            "Project" => $storeCode ?? null,
+                        ]
+                    ]
+                ];
+
+                // if ($assetReturn->type->id == 1) {
+                //     $postDataItem['ItemDistributionRules'] = [
+                //         [
+                //             'LineNumber' => $empLine,
+                //             'ValidTo' => date('Y-m-d', strtotime('-1 day')),
+                //         ],
+                //         [
+                //             'LineNumber' => $empLine + 1,
+                //             'ValidFrom' => $assetReturn->transaction_date ?? date('Y-m-d'),
+                //             'DistributionRule4' => $assetReturn->toEmployee?->username,
+                //         ]
+                //     ];
+                // }
+
+                $postData[] = $postDataItem;
+            }
+
+            dd($postData);
+            // Call SAP
+           $sapResponse = $this->sap->postAssetTransferReturn(json_encode($postData), $assetReturn, 2);
+
+            if (!empty($sapResponse['msg_error'])) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => $sapResponse['msg_error'],
+                    'payload' => $sapResponse['payload'] ?? null
+                ];
+            }
 
 
-        $postData = [
-            'asset_post_type' => 'return',
-            'items' => $joinedItems,
-        ];
+            DB::commit();
 
-        $postJournalEntriesResponse = $this->sap->postAssetTransferReturn(json_encode($postData));
+            return [
+                'success' => true,
+                'message' => 'Receipt acknowledged successfully.'
+            ];
 
-        DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
-            throw new \Exception("Acknowledge asset transfer failed: " . $e->getMessage(), 500);
+            \Log::error("Acknowledge asset return failed: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Failed to acknowledge receipt.',
+                'error' => $e->getMessage()
+            ];
         }
     }
 }

@@ -29,4 +29,5 @@ class SapAsset extends Model
     {
         return $this->belongsTo(MasItem::class, 'item_id');
     }
+    
 }

@@ -13,9 +13,13 @@ use App\Models\ReceivedSerial;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
+use App\Models\MasSiteSupervisor;
+use App\Models\MasSite;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+
 
 class AssetReturnApplicationController extends Controller
 {
@@ -28,7 +32,7 @@ class AssetReturnApplicationController extends Controller
         'attachment' => 'nullable|array',
         'attachment.*' => 'file|mimes:pdf,jpg,png,docx|max:2048',
 
-        'details.*.received_serial_id' => 'required',
+        'details.*.mas_asset_id' => 'required',
         'details.*.dzongkhag_id' => 'required',
         'details.*.store_id' => 'required',
         'details.*.condition_code' => 'required|in:1,2,3,4',
@@ -61,9 +65,21 @@ class AssetReturnApplicationController extends Controller
         $types = MasReturnType::whereStatus(1)->get(['id', 'name']);
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
         $stores = MasStore::select('id', 'name')->get();
-        $assetNos = ReceivedSerial::where('is_commissioned', 1)->where('is_transfered', '<>', 1)->get(['id', 'asset_serial_no']);
 
-        return view('asset.asset-return.create', compact('types', 'dzongkhags', 'stores', 'assetNos'));
+        $employeeId = Auth::user()->id;
+        $dzongkhagIds = MasSiteSupervisor::where('employee_id',  auth()->user()->id)
+                ->pluck('dzongkhag_id');
+        $fromSites = MasSite::where(function ($query) use ($dzongkhagIds, $employeeId) {
+                $query->where(function ($q) use ($dzongkhagIds) {
+                    $q->whereNull('site_supervisor')
+                    ->whereIn('dzongkhag_id', $dzongkhagIds);
+                })
+                ->orWhereIn('site_supervisor', [$employeeId]);
+            })
+            ->get(['id', 'name']);
+        // $assetNos = ReceivedSerial::where('is_commissioned', 1)->where('is_transfered', '<>', 1)->get(['id', 'asset_serial_no']);
+
+        return view('asset.asset-return.create', compact('types', 'dzongkhags', 'stores', 'fromSites'));
     }
 
     /**
@@ -93,14 +109,14 @@ class AssetReturnApplicationController extends Controller
 
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(ASSET_RETURN_TYPE, \App\Models\MasReturnType::class, $conditionFields ?? []);
-        $returnType = MasReturnType::where('id', ASSET_RETURN_TYPE)->first();
+        $returnType = MasReturnType::where('id', $request->type_id)->first();
         $lastTransaction = AssetReturnApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($returnType, $lastTransaction, 'transaction_no');
 
         try {
             DB::beginTransaction();
             $assetReturnApplication = AssetReturnApplication::create([
-                'type_id'         => ASSET_RETURN_TYPE,
+                'type_id'         => $request->type_id,
                 'transaction_no'  => $transactionNo,
                 'transaction_date'=> $request->transaction_date,
                 'attachment'       => !empty($attachments) ? json_encode($attachments) : null,
@@ -110,9 +126,16 @@ class AssetReturnApplicationController extends Controller
 
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
+
+                    $mas_assets = MasAssets::where('id', $detail['mas_asset_id'])->first();
+
+                    if($mas_assets){
+                        $mas_assets->is_returned = 1;
+                        $mas_assets->save();
+                    }
                     $assetReturnApplication->details()->create([
                         'asset_return_id'    => $assetReturnApplication->id,
-                        'received_serial_id' => $detail['received_serial_id'],
+                        'mas_asset_id' => $detail['mas_asset_id'],
                         'store_id'           => $detail['store_id'],
                         'condition_code'     => $detail['condition_code'] ?? 1,
                         'remark'             => $detail['remark'] ?? null,
@@ -156,7 +179,7 @@ class AssetReturnApplicationController extends Controller
 
     public function show(string $id)
     {
-        $return = AssetReturnApplication::with('details')->findOrFail($id);
+        $return = AssetReturnApplication::with('details.store')->findOrFail($id);
         $approvalDetail = getApplicationLogs(\App\Models\AssetReturnApplication::class, $return->id);
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
         $stores = MasStore::select('id', 'name')->get();

@@ -334,7 +334,7 @@
 
                         // Add a default "Select" option
                         assetSelect.append('<option value="" disabled selected hidden>Select</option>');
-                    console.log(response);
+
                         // Loop through the received asset numbers and populate the dropdown
                         response.data.forEach(function(assetNo) {
                             let itemNo = assetNo.received_serial?.requisition_detail?.grn_item_detail?.item?.item_no ?? '';

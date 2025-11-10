@@ -789,11 +789,16 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getAssetNoBySiteEmployee($empID, $siteID = null){
+    public function getAssetNoBySiteEmployee(Request $request, $empID, $siteID = null){
         try {
 
+            $sites = $request->input('sites') ?? null;
             if($siteID == null){
-                $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                if($sites != null){
+                    $assetNos = MasAssets::whereIn('current_site_id', $sites)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                }else{
+                    $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                }
             }else{
                 $assetNos = MasAssets::where('current_site_id', $siteID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
@@ -811,7 +816,7 @@ class AjaxRequestController extends Controller
         try {
             $id = MasAssets::where('id', $assetNo)->value('received_serial_id') ?? null;
             if($id == null){
-                $item = MasAssets::where('id', $assetNo)->with('sapAssets')->first();
+                $item = MasAssets::where('id', $assetNo)->with('site.dzongkhag')->with('sapAssets')->first();
             }else{
                 $item = ReceivedSerial::where('id', $id)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             }
