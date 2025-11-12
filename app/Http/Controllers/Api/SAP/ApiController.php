@@ -243,8 +243,8 @@ class ApiController extends BaseController
         $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
-            'details.*.asset_serial_no' => 'nullable|string|required_without:details.*.batch_no',
-            'details.*.batch_no'        => 'nullable|string|required_without:details.*.asset_serial_no',
+            // 'details.*.asset_serial_no' => 'nullable|string|required_without:details.*.batch_no',
+            // 'details.*.batch_no'        => 'nullable|string|required_without:details.*.asset_serial_no',
             'details.*.item_code' => 'required|string|exists:mas_items,item_no',
             'details.*.store_code' => 'required|string|exists:mas_stores,code',
         ];
@@ -252,8 +252,8 @@ class ApiController extends BaseController
         $messages=[
             'purchase_req_doc_no.required' => 'Purchase request document number is required',
             'doc_no.required' => 'Document number is required',
-            'details.*.asset_serial_no.required_without' => 'Either Asset Serial No or Batch No must be provided',
-            'details.*.batch_no.required_without'        => 'Either Batch No or Asset Serial No must be provided',
+            // 'details.*.asset_serial_no.required_without' => 'Either Asset Serial No or Batch No must be provided',
+            // 'details.*.batch_no.required_without'        => 'Either Batch No or Asset Serial No must be provided',
             'details.*.item_code.exists' => 'Item code :input not found in HRMS system.',
             'details.*.store_code.exists' => 'Store code :input not found in HRMS system.',
 
