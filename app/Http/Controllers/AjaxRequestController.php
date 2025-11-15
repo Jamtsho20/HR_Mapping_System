@@ -389,8 +389,18 @@ class AjaxRequestController extends Controller
             }
 
             // Check weekly off dynamically
-            if ($excludeWeekends) {
-                if ($dayName === 'Saturday') {
+            // if ($excludeWeekends) {
+            //     if ($dayName === 'Saturday') {
+            //         // Special case for Saturday
+            //         $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
+            //     } elseif (in_array($dayName, $weeklyOff)) {
+            //         // Normal weekly off (e.g. Sunday)
+            //         $excludedDays += 1;
+            //     }
+            // }
+
+            if ($weeklyOff) {
+                if ($dayName === 'Saturday' && $isEmployeesRequiredOnSaturday) {
                     // Special case for Saturday
                     $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
                 } elseif (in_array($dayName, $weeklyOff)) {
@@ -404,6 +414,37 @@ class AjaxRequestController extends Controller
 
         return $excludedDays;
     }
+    //old code
+    // private function calculateExcludedDays($fromDate, $toDate, $holidayDates, $excludeHolidays, $excludeWeekends, $weeklyOff, $isEmployeesRequiredOnSaturday)
+    // {
+    //     $excludedDays = 0;
+    //     $currentDate = clone $fromDate;
+
+    //     while ($currentDate <= $toDate) {
+    //         $formattedDate = $currentDate->format('Y-m-d');
+    //         $dayName = $currentDate->format('l');
+
+    //         // Check holiday
+    //         if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
+    //             $excludedDays++;
+    //         }
+
+    //         // Check weekly off dynamically
+    //         if ($excludeWeekends) {
+    //             if ($dayName === 'Saturday') {
+    //                 // Special case for Saturday
+    //                 $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
+    //             } elseif (in_array($dayName, $weeklyOff)) {
+    //                 // Normal weekly off (e.g. Sunday)
+    //                 $excludedDays += 1;
+    //             }
+    //         }
+
+    //         $currentDate->modify('+1 day');
+    //     }
+
+    //     return $excludedDays;
+    // }
 
     public function getEmployeeSelect($id)
     {
