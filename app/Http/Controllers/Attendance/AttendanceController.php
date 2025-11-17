@@ -36,12 +36,15 @@ class AttendanceController extends Controller
         for ($month = 1; $month <= 12; $month++) {
             $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
             $yearMonth = "{$monthStr}-{$year}";
-
+            \Log::info("Checking monthYear: {$yearMonth}");
             $startDate = Carbon::createFromFormat('m-Y', $yearMonth)->startOfMonth();
             $daysInMonth = $startDate->daysInMonth;
             
             $attendances = $attendanceService->empAttendanceEntry($user, $year, $yearMonth);
-
+            // Skip months with no attendance data
+            // if (empty($attendances)) {
+            //     continue;
+            // }
             $attendanceMap = collect($attendances)->keyBy(function ($item) {
                 return str_pad($item['for_day'], 2, '0', STR_PAD_LEFT);
             });
@@ -54,7 +57,10 @@ class AttendanceController extends Controller
 
             $maxDays = max($maxDays, $daysInMonth);
         }
-
+        // $monthlyAttendances = collect($monthlyAttendances)
+        //     ->unique('month')
+        //     ->values()
+        //     ->toArray();
         // Build fixed day headers from 01 to max (typically 31)
         $days = [];
         for ($i = 1; $i <= $maxDays; $i++) {

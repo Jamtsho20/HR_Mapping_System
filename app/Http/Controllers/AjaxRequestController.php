@@ -231,7 +231,7 @@ class AjaxRequestController extends Controller
             }
         }
 
-        return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday);
+        return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday, $isShiftEmp);
     }
 
     /**
@@ -308,7 +308,7 @@ class AjaxRequestController extends Controller
     }
 
 
-    private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday)
+    private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates, $weeklyOff, $isEmployeesRequiredOnSaturday, $isShiftEmp)
     {
         try {
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')
@@ -327,7 +327,7 @@ class AjaxRequestController extends Controller
             $totalDays = ($dayDifference === 0)
                 ? $fromDayAdjustment + $toDayAdjustment - 1
                 : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
-
+            
             // Adjust total days based on leave policy restrictions and shift employee and check employee designation as well
             if (!empty($leaveLimits)) {
                 $excludeHolidays = in_array(1, $leaveLimits);
@@ -340,7 +340,8 @@ class AjaxRequestController extends Controller
                     $excludeHolidays,
                     $excludeWeekends,
                     $weeklyOff,
-                    $isEmployeesRequiredOnSaturday
+                    $isEmployeesRequiredOnSaturday,
+                    $isShiftEmp
                 );
             }
 
@@ -389,8 +390,18 @@ class AjaxRequestController extends Controller
             }
 
             // Check weekly off dynamically
-            if ($excludeWeekends) {
-                if ($dayName === 'Saturday') {
+            // if ($excludeWeekends) {
+            //     if ($dayName === 'Saturday') {
+            //         // Special case for Saturday
+            //         $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
+            //     } elseif (in_array($dayName, $weeklyOff)) {
+            //         // Normal weekly off (e.g. Sunday)
+            //         $excludedDays += 1;
+            //     }
+            // }
+
+            if ($weeklyOff) {
+                if ($dayName === 'Saturday' && $isEmployeesRequiredOnSaturday) {
                     // Special case for Saturday
                     $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
                 } elseif (in_array($dayName, $weeklyOff)) {

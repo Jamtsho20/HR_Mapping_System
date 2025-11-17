@@ -71,13 +71,14 @@
                 <th>
                     Designtion
                 </th>
+                <th>DOA</th>
                 <th>
                     Employment Type </th>
                 <th>
-                    amount
+                    Amount
                 </th>
                 <th>
-                    Date
+                    For Month
                 </th>
 
             </tr>
@@ -92,10 +93,11 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $sifa->employee->username }}</td>
-                        <td>{{ $sifa->employee->name }}</td>
+                        <td>{{ $sifa->employee->emp_name }}</td>
                         <td>{{ $sifa->employee->empJob->designation->name }}</td>
+                        <td>{{ getDisplayDateFormat($sifa->employee->date_of_appointment) }}</td>
                         <td>{{ $sifa->employee->empJob->empType->name }}</td>
-                        <td>{{ $sifaAmount }}</td>
+                        <td>{{ formatAmount($sifaAmount) }}</td>
                         <td>{{ \Carbon\Carbon::parse($sifa->for_month)->format('F Y') }}
                         </td>
 
