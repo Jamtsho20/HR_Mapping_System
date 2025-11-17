@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Asset Transfer')
 @section('content')
+@include('layouts.includes.loader')
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
     @if ($privileges->create)
         @section('buttons')
@@ -63,7 +65,7 @@
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $transfer->transaction_no }}</td>
                                                         <td>{{ $transfer->transferType->name }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($transfer->transfer_date)->format('d-M-Y') }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($transfer->transaction_date)->format('d-M-Y') }}</td>
                                                         <td class ="text-center">
                                                             @php
                                                             $statusClasses = [
@@ -96,7 +98,7 @@
                                                         </td>
                                                         <td class="text-center">
                                                             @if ($privileges->view)
-                                                                <a href="{{ url('asset/assets/' . $transfer->id) }}"
+                                                                <a href="{{ url('asset/asset-transfer/' . $transfer->id) }}"
                                                                     class="btn btn-sm btn-outline-secondary"><i
                                                                         class="fa fa-list"></i> Detail</a>
                                                             @endif
@@ -152,7 +154,7 @@
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $transfer->transaction_no }}</td>
                                                             <td>{{ $transfer->transferType->name }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($transfer->transfer_date)->format('d-M-Y') }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($transfer->transaction_date)->format('d-M-Y') }}</td>
                                                             <td class ="text-center">
                                                                 @php
                                                                 $statusClasses = [

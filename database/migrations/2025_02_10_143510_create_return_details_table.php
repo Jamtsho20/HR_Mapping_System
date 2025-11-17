@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('return_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_return_id')->index()->constrained('asset_return_applications')->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('received_serial_id')->index()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('mas_asset_id')->index()->constrained('mas_assets')->cascadeOnUpdate()->cascadeOnDelete();
             //$table->unsignedInteger('unit');
             $table->foreignId('dzongkhag_id')->index()->constrained('mas_dzongkhags')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();

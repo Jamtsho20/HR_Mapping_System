@@ -41,7 +41,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" class="text-center text-danger">No assets found</td>
+                            <td colspan="12" class="text-center text-danger">No assets found</td>
                         </tr>
                         @endforelse
                     </tbody>

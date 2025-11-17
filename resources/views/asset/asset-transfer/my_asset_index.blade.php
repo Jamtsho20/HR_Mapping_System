@@ -72,7 +72,7 @@
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $transfer->transaction_no }}</td>
                                                         <td>{{ $transfer->transferType->name }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($transfer->transfer_date)->format('d-M-Y') }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($transfer->transaction_date)->format('d-M-Y') }}</td>
                                                         <td class ="text-center">
                                                             @php
                                                             $statusClasses = [
@@ -151,6 +151,7 @@
                                         <th>Item Description</th>
                                         <th>Cost</th>
                                         <th>Qty</th>
+                                     
                                     </tr>
                                 </thead>
                                 <tbody>

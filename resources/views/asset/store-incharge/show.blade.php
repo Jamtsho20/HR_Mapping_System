@@ -83,14 +83,16 @@
                                 @forelse ($return->details as $detail)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="text-center">{{ $detail->receivedSerial->asset_serial_no }}</td>
+                                    <td class="text-center">{{ $detail->asset->asset_no }}</td>
                                     <td class="text-center">
-                                        {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                        {{ $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->uom ?? $detail->asset->sapAssets?->uom }}
                                     </td>
-                                    <td class="text-center">{{ $detail->receivedSerial->asset_description }}</td>
-                                    <td class="text-right">1</td>
                                     <td class="text-center">
-                                        {{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
+                                            {{  $detail->asset->receivedSerial?->asset_description ?? $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description ?? $detail->asset->sapAssets?->item_description }}
+                                        </td>
+                                     <td class="text-right">{{ $detail->asset->receivedSerial?->quantity ?? $detail->sapAssets?->quantity ?? 1 }}</td>
+                                    <td class="text-center">
+                                        {{ $detail->store->dzongkhag ?? config('global.null_value') }}
                                     </td>
                                     <td class="text-center">
                                         {{ $detail->store->name ?? config('global.null_value') }}

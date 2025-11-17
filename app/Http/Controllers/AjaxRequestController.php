@@ -415,6 +415,37 @@ class AjaxRequestController extends Controller
 
         return $excludedDays;
     }
+    //old code
+    // private function calculateExcludedDays($fromDate, $toDate, $holidayDates, $excludeHolidays, $excludeWeekends, $weeklyOff, $isEmployeesRequiredOnSaturday)
+    // {
+    //     $excludedDays = 0;
+    //     $currentDate = clone $fromDate;
+
+    //     while ($currentDate <= $toDate) {
+    //         $formattedDate = $currentDate->format('Y-m-d');
+    //         $dayName = $currentDate->format('l');
+
+    //         // Check holiday
+    //         if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
+    //             $excludedDays++;
+    //         }
+
+    //         // Check weekly off dynamically
+    //         if ($excludeWeekends) {
+    //             if ($dayName === 'Saturday') {
+    //                 // Special case for Saturday
+    //                 $excludedDays += $isEmployeesRequiredOnSaturday ? 0.5 : 1;
+    //             } elseif (in_array($dayName, $weeklyOff)) {
+    //                 // Normal weekly off (e.g. Sunday)
+    //                 $excludedDays += 1;
+    //             }
+    //         }
+
+    //         $currentDate->modify('+1 day');
+    //     }
+
+    //     return $excludedDays;
+    // }
 
     public function getEmployeeSelect($id)
     {
@@ -800,11 +831,16 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getAssetNoBySiteEmployee($empID, $siteID = null){
+    public function getAssetNoBySiteEmployee(Request $request, $empID, $siteID = null){
         try {
 
+            $sites = $request->input('sites') ?? null;
             if($siteID == null){
-                $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                if($sites != null){
+                    $assetNos = MasAssets::whereIn('current_site_id', $sites)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                }else{
+                    $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+                }
             }else{
                 $assetNos = MasAssets::where('current_site_id', $siteID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
@@ -822,7 +858,7 @@ class AjaxRequestController extends Controller
         try {
             $id = MasAssets::where('id', $assetNo)->value('received_serial_id') ?? null;
             if($id == null){
-                $item = MasAssets::where('id', $assetNo)->with('sapAssets')->first();
+                $item = MasAssets::where('id', $assetNo)->with('site.dzongkhag')->with('sapAssets')->first();
             }else{
                 $item = ReceivedSerial::where('id', $id)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             }
@@ -833,16 +869,27 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
+   public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
     {
         try {
             $type = $request->input('type');
-            $ackService->acknowledge($id, $type);
+            $result = $ackService->acknowledge($id, $type);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Receipt acknowledged successfully.'
-            ]);
+            if (!empty($result['success']) && $result['success'] === true) {
+                // SAP and DB succeeded
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Receipt acknowledged successfully.'
+                ]);
+            } else {
+                // SAP returned error or failure
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Failed to acknowledge receipt.',
+                    'payload' => $result['payload'] ?? null
+                ], 400); // 400 for bad request from SAP
+            }
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
