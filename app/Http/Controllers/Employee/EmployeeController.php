@@ -879,7 +879,9 @@ class EmployeeController extends Controller
             }
 
             // Update the employee record and related job details
-            $record->regularized_on = Carbon::now();
+            $record->regularized_on = Carbon::parse($record->date_of_appointment)
+                                ->addMonths(6)
+                                ->format('Y-m-d');
             $record->empJob->mas_employment_type_id = 2;
             $record->empJob->save();
             $record->save();

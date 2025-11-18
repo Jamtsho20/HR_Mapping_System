@@ -12,9 +12,8 @@ class AssetReturnDetail extends Model
     protected $table = "return_details";
     protected $fillable = [
         'asset_return_id',
-        'received_serial_id',
+        'mas_asset_id',
         'unit',
-        'dzongkhag_id',
         'store_id',
         'condition_code',
         'remark'
@@ -24,17 +23,10 @@ class AssetReturnDetail extends Model
         return $this->belongsTo(AssetReturnApplication::class, 'asset_return_id');
     }
 
-    public function receivedSerial()
+     public function asset()
     {
-        return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
+        return $this->belongsTo(MasAssets::class, 'mas_asset_id');
     }
-
-    
-    public function dzongkhag()
-    {
-        return $this->belongsTo(MasDzongkhag::class, 'dzongkhag_id');
-    }
-
 
     public function store()
     {

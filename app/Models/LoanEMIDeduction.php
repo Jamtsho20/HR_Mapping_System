@@ -22,7 +22,8 @@ class LoanEMIDeduction extends Model
         'remark',
         'is_paid_of',
         'advance_application_id',
-        'paid_off_by'
+        'paid_off_by',
+        'paid_off_at',
     ];
 
     public function employee()
@@ -47,6 +48,10 @@ class LoanEMIDeduction extends Model
 
     public function paySlip(){
         return $this->belongsTo(FinalPaySlip::class, 'mas_employee_id', 'mas_employee_id');
+    }
+
+    public function loanDeductionLogs(){
+        return $this->hasMany(LoanEMIDeduction::class, 'loan_id');
     }
 
     //filters

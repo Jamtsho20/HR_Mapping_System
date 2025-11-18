@@ -243,8 +243,8 @@ class ApiController extends BaseController
         $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
-            'details.*.asset_serial_no' => 'nullable|string|required_without:details.*.batch_no',
-            'details.*.batch_no'        => 'nullable|string|required_without:details.*.asset_serial_no',
+            // 'details.*.asset_serial_no' => 'nullable|string|required_without:details.*.batch_no',
+            // 'details.*.batch_no'        => 'nullable|string|required_without:details.*.asset_serial_no',
             'details.*.item_code' => 'required|string|exists:mas_items,item_no',
             'details.*.store_code' => 'required|string|exists:mas_stores,code',
         ];
@@ -252,8 +252,8 @@ class ApiController extends BaseController
         $messages=[
             'purchase_req_doc_no.required' => 'Purchase request document number is required',
             'doc_no.required' => 'Document number is required',
-            'details.*.asset_serial_no.required_without' => 'Either Asset Serial No or Batch No must be provided',
-            'details.*.batch_no.required_without'        => 'Either Batch No or Asset Serial No must be provided',
+            // 'details.*.asset_serial_no.required_without' => 'Either Asset Serial No or Batch No must be provided',
+            // 'details.*.batch_no.required_without'        => 'Either Batch No or Asset Serial No must be provided',
             'details.*.item_code.exists' => 'Item code :input not found in HRMS system.',
             'details.*.store_code.exists' => 'Store code :input not found in HRMS system.',
 
@@ -815,28 +815,64 @@ class ApiController extends BaseController
                     $asset->save();
             }
             return ['msg_success' => 'SAP updated successfully'];
-        }elseif($data['asset_post_type'] == 'return') {
-            $items = explode(',', $data['items']);
-            foreach ($items as $itemCode) {
-                $itemCode = trim($itemCode); // Clean up the item code
-                $url = "/b1s/v1/Items/('" . $itemCode . "')"; // API URL for each item
+        }elseif($typeFlag == 2) {
+            foreach ($data as $postData) {
+                $assetNo = $postData['AssetNo'];
+                $url = "/b1s/v1/Items('$assetNo')";
+
                 $postField = [];
 
-                $postField['ItemProjects'] = [
-                    [
-                        'U_Status' => 'return'
-                    ]
-                ];
+                if (isset($postData['ItemProjects'])) {
+                    $postField['ItemProjects'] = $postData['ItemProjects'];
+                }
 
-                // dd($postField, $url);
-                // $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
-                // if ($response['status'] !== 201) {
-                //     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
-                // }
+                if (isset($postData['ItemDistributionRules'])) {
+                    $postField['ItemDistributionRules'] = $postData['ItemDistributionRules'];
+                }
+                \Log::info("Asset return Payload for AssetNo: {$assetNo}\n" .json_encode($postField, JSON_PRETTY_PRINT));
 
-                $responseArray = $response;
-                return response()->json(['success' => true, 'data' => $responseArray], 201);
+
+                $response = $this->sendPatchRequest($url, json_encode($postField), $sessionId);
+                if($response['status'] == 400){
+                    \Log::info("Asset return Failed for AssetNo: {$assetNo}\n" .json_encode($postField, JSON_PRETTY_PRINT));
+                    return [
+                        'msg_error' => $response['error'] ?? 'Something went wrong from SAP API',
+                        'payload' => $postField
+                    ];
+                }
+                if ($response['status'] !== 204) {
+                    return [
+                        'msg_error' => $response['error'] ?? 'Something went wrong from SAP API',
+                        'payload' => $postField
+                    ];
+                    }
+
+                    $detail = $application->details->firstWhere('asset.asset_no', $assetNo);
+
+                    if (!$detail) {
+                        \Log::warning("No detail found for AssetNo: $assetNo");
+                        continue;
+                    }
+
+                    $asset = $detail->asset;
+                    if (!$asset) {
+                        \Log::warning("No asset found for detail ID: {$detail->id}");
+                        continue;
+                    }
+
+                    $returnType = $application->returnType->id;
+
+                    if ($returnType == 1) {
+                        $asset->prj_line_num += 1;
+                        $asset->emp_line_num += 1;
+                    } elseif ($returnType == 2) {
+                        $asset->prj_line_num += 1;
+                    }
+
+                    $asset->return_detail_id = $detail->id;
+                    $asset->save();
             }
+            return ['msg_success' => 'SAP updated successfully'];
         }
 
     }

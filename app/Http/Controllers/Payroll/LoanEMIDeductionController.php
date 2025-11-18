@@ -249,6 +249,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? $loanEMIDeduction->is_paid_off;
             if ($request->paid_off_early) {
                 $loanEMIDeduction->paid_off_by = auth()->user()->id;
+                $loanEMIDeduction->paid_off_at = now()->format('Y-m-d');
             }
             $loanEMIDeduction->save();
 

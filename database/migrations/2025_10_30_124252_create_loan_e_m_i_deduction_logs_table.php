@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('loan_e_m_i_deductions', function (Blueprint $table) {
+        Schema::create('loan_e_m_i_deduction_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId("mas_pay_head_id")->index()->constrained();
             $table->foreignId("mas_employee_id")->index()->constrained();
             $table->date("start_date");
-            $table->date("paid_off_at")->nullable();
             $table->date("end_date")->nullable();
             $table->decimal("amount", 20,2);
             $table->string("loan_number",100)->comment("accpunt nunber for loan");
@@ -25,9 +24,6 @@ return new class extends Migration
             $table->integer("recurring_months")->nullable();
             $table->text("remarks")->nullable();
             $table->boolean("is_paid_off")->default(0)->comment("1 for Yes, 0 for No");
-            $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-            $table->foreignId('paid_off_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }
@@ -37,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('loan_e_m_i_deductions');
+        Schema::dropIfExists('loan_e_m_i_deduction_logs');
     }
 };

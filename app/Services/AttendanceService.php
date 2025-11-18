@@ -165,6 +165,7 @@ class AttendanceService
 
     public function empAttendanceEntry($loggedInUser, $year = null, $monthYear = null, $flag = null)
     {
+        // dd($year);
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
 
@@ -179,8 +180,9 @@ class AttendanceService
                 $query->where('day', $currentDay);
             }
         }])
-            ->year($year)         // optional filter by year
+            // ->year($year)         // optional filter by year
             ->forMonth($monthYear)
+            // ->where('for_month', $monthYear)
             ->first();
 
 

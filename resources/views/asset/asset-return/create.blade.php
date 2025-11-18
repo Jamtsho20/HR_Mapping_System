@@ -15,17 +15,28 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
-                                <label for="transaction_no">Asset Return No. <span class="text-danger">*</span></label>
+                                <label for="transaction_no">Asset Return No.</label>
                                 <input type="text" class="form-control" name="transaction_no" value="" placeholder="Generating..." required readonly>
                             </div>
                         </div>
 
                         <!-- <input type="hidden" name="return_type" value="1"> -->
                         <input type="hidden" name="total_quantity" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
-
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="return_date">Return Date<span class="text-danger">*</span></label>
+                                <label for="type_id">Return Type<span class="text-danger">*</span></label>
+                                <select class="form-control" name="type_id" required>
+                                    <option value="" disabled selected hidden>Select your option</option>
+                                    @foreach($types as $type)
+                                        <option value="{{ $type->id }}" {{ old('type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="return_date">Return Date</label>
                                 <input type="date" class="form-control" name="transaction_date" value="{{ old('date', now()->format('Y-m-d')) }}" required readonly>
                             </div>
                         </div>
@@ -46,7 +57,7 @@
                                 </div>
                             </div>
                         </div> -->
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <div class="file-uploader">
                                     <label for="file">Upload File <span id="attachment_required"
@@ -80,6 +91,9 @@
                                             Uom*
                                         </th>
                                         <th>
+                                            Category*
+                                        </th>
+                                        <th colspan="2">
                                             Description*
                                         </th>
                                         <th>
@@ -109,25 +123,28 @@
                                             <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                         </td>
                                         <td>
-                                            <select class="asset_no form-control select2 form-control-sm resetKeyForNew asset-number-selector" name="details[AAAAA][received_serial_id]">
+                                            <select class="asset_no form-control select2 form-control-sm resetKeyForNew asset-number-selector" name="details[AAAAA][mas_asset_id]">
                                                 <option value="" disabled selected hidden>Select</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" name="details[AAAAA][uom]" class="form-control form-control-sm resetKeyForNew" disabled>
+                                            <input type="text" id="uom" name="details[AAAAA][uom]" class="form-control form-control-sm resetKeyForNew" disabled>
                                         </td>
                                         <td>
-                                            <input type="text" name="details[AAAAA][description]" class="form-control form-control-sm resetKeyForNew" disabled>
+                                        <input type="text" id="category" name="details[AAAAA][category]" class="form-control form-control-sm resetKeyForNew" disabled>
+                                        </td>
+                                        <td colspan="2">
+                                            <input type="text" id="description" name="details[AAAAA][description]" class="form-control form-control-sm resetKeyForNew" disabled>
                                         </td>
                                         <td>
-                                            <input type="number" name="details[AAAAA][qty]" value=""
+                                            <input type="number" id="qty" name="details[AAAAA][qty]" value=""
                                                 class="form-control form-control-sm resetKeyForNew quantity-input text-right" disabled required>
                                         </td>
                                         <td>
-                                           <input type="text" name="details[AAAAA][dzongkhag_id]" class="form-control form-control-sm resetKeyForNew" readonly>
+                                           <input type="text" id="dzongkhag" name="details[AAAAA][dzongkhag_id]" class="form-control form-control-sm resetKeyForNew" readonly>
                                         </td>
                                         <td>
-                                            <input type="text" name="details[AAAAA][site_id]" class="form-control form-control-sm resetKeyForNew" readonly>
+                                            <input type="text" id="site" name="details[AAAAA][site_id]" class="form-control form-control-sm resetKeyForNew" readonly>
                                         </td>
                                         <td>
                                             <select class="form-control form-control-sm select2 resetKeyForNew" name="details[AAAAA][store_id]">
@@ -152,7 +169,7 @@
 
                                     </tr>
                                     <tr class="notremovefornew">
-                                        <td colspan="9"></td>
+                                        <td colspan="11"></td>
                                         <td class="text-right">
                                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                         </td>
@@ -197,86 +214,155 @@
                                     loader.style.display = 'flex';
                                 });
 
-        const empId = $('input[name="user_id"]').val();
+        const $transferType = $('select[name="type_id"]');
 
-        if (empId) {
-            $('#loader').show();
 
-            $.ajax({
-                url: `/assetNosBySiteEmployee/${empId}`,
-                method: 'GET',
-                success: function(response) {
-                    const assetSelect = $('.asset_no');
+            function toggleTransferFields() {
+                const type = $transferType.val();
 
-                    assetSelect.empty();
-                    assetSelect.append('<option value="" disabled selected hidden>Select</option>');
+                if (type == '1') {
+                    $('.table-class tbody').empty();
 
-                    response.data.forEach(function(assetNo) {
-                        assetSelect.append(
-                            '<option value="' + assetNo.id + '">' +
-                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.asset_serial_no) +
-                            '</option>');
+                    const empId = $('input[name="user_id"]').val();
+                    $('#loader').show();
+                    $.ajax({
+                        url: `/assetNosBySiteEmployee/${empId}`,
+                        method: 'GET',
+                        success: function(response) {
+                            const assetSelect = $('.asset_no');
+
+                                assetSelect.empty();
+                                // Add a default "Select" option
+                                assetSelect.append('<option value="" disabled selected hidden>Select</option>');
+
+                                // Loop through the received asset numbers and populate the dropdown
+                                response.data.forEach(asset => {
+                                    const itemNo = asset.receivedSerial?.requisitionDetail?.grnItemDetail?.item?.item_no ?? '';
+                                    const serialNo = asset.receivedSerial?.asset_serial_no ?? asset.serial_number ?? 'N/A';
+                                    const separator = (itemNo && serialNo) ? '-' : '';
+
+                                    assetSelect.append(`
+                                        <option value="${asset.id}">
+                                            ${itemNo}${separator}${serialNo}
+                                        </option>
+                                    `);
+                                });
+
+                                $('#loader').hide();
+                        },
+                        error: function(xhr) {
+                            $('#loader').hide();
+                            showErrorMessage(xhr.responseText);
+                        }
                     });
 
-                    $('#loader').hide();
-                },
-                error: function(xhr) {
-                    $('#loader').hide();
-                    showErrorMessage(xhr.responseText);
+                } else if (type == '2') {
+                    $('.table-class tbody').empty();
+
+                    const empId = $('input[name="user_id"]').val();
+                    const sites = @json($fromSites);
+                    const siteIds = sites.map(site => site.id);
+
+                    const assetSelect = $('.asset_no');
+                    assetSelect.empty().append('<option value="" disabled selected hidden>Loading...</option>');
+                    $('#loader').show();
+
+                    $.ajax({
+                        url: `/assetNosBySiteEmployee/${empId}`,
+                        method: 'GET',
+                        data: { sites: siteIds }, // send all sites
+                        success: function(response) {
+                            assetSelect.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                            response.data.forEach(asset => {
+                                const itemNo = asset.received_serial?.requisition_detail?.grn_item_detail?.item?.item_no ?? '';
+                                const serialNo = asset.received_serial?.asset_serial_no ?? asset.serial_number ?? 'N/A';
+                                const separator = (itemNo && serialNo) ? '-' : '';
+                                assetSelect.append(`<option value="${asset.id}">${itemNo}${separator}${serialNo}</option>`);
+                            });
+
+                            $('#loader').hide();
+                        },
+                        error: function(xhr) {
+                            $('#loader').hide();
+                            showErrorMessage(xhr.responseText);
+                        }
+                    });
+
                 }
-            });
-        }
-    });
+            }
+
+            toggleTransferFields(); // Initial run
+            $transferType.on('change', toggleTransferFields);
 
     //populate asset description and uom based on selection of asset no
-    $(document).on('change', '.asset-number-selector', function() {
-        var serialId = $(this).val();
-        var row = $(this).closest('tr');
+     $(document).on('change', '.asset-number-selector', function () {
+                    const selectedVal = $(this).val();
+                    const $currentSelect = $(this);
+                    console.log(selectedVal);
+                    $('#loader').show();
 
-        if (serialId) {
-            $.ajax({
-                url: "/getdescriptionanduombyserialid/" +
-                    serialId, // Update with your actual API URL
-                dataType: "JSON",
-                type: "GET",
-                success: function(data) {
-                    let serialData = data?.data?.serial[0];
-                    console.log(serialData)
-                    if (serialData) {
-                        row.find("input[name^='details'][name$='[description]']").val(
-                            serialData.asset_description ?? serialData
-                            ?.requisition_detail?.grn_item_detail.item
-                            .item_description);
-                        row.find("input[name^='details'][name$='[uom]']").val(
-                            serialData?.requisition_detail?.grn_item_detail.item.uom
-                        );
-                        // row.find("input[name^='details'][name$='[qty]']").val(1);
-                        row.find("input[name^='details'][name$='[qty]']").val(serialData?.requisition_detail?.grn_item_detail.item.quantity ?? 1);
-                        row.find("input[name^='details'][name$='[dzongkhag_id]']").val(serialData?.requisition_detail?.dzongkhag.dzongkhag);
-                        row.find("input[name^='details'][name$='[site_id]']").val(serialData?.requisition_detail?.site.name);
-                        row.find("input[name^='details'][name$='[amount]']").val(
-                            serialData.amount ?? 0.00
-                        );
-                        updateTotalQuantity();
+                    // Skip if no value is selected
+                    if (!selectedVal) return;
+
+                    let isDuplicate = false;
+                    // Loop through other selects and compare values
+                    $('.asset_no').not(this).each(function () {
+                        if ($(this).val() === selectedVal) {
+                            isDuplicate = true;
+                            return false; // Break loop
+                        }
+                    });
+                    if (selectedVal == null) {
+                        $('#loader').hide();
+                        return;
                     }
-                },
-                error: function(error) {
-                    showErrorMessage(error.responseJSON.message ||
-                        'An error occurred.');
-                }
-            });
-        }
-
-        function updateTotalQuantity() {
-            let total = 0;
-            $(".quantity-input").each(function() {
-                let value = $(this).val();
-                total += value ? parseFloat(value) : 0;
-            });
-            $("#total-quantity-id").val(total);
-        }
-
-        updateTotalQuantity();
-    });
+                    if (isDuplicate) {
+                        $('#loader').hide();
+                        setTimeout(() => {
+                                $('#loader').hide();
+                            }, 300);
+                        showErrorMessage('Asset number already selected.');
+                        $currentSelect.val(null).trigger('change');
+                        $currentSelect.select2('destroy');
+                        $currentSelect.select2();
+                    } else {
+                        $.ajax({
+                            url: `/itemByAssetId/${selectedVal}`,
+                            method: 'GET',
+                            success: function(response) {
+                                const data = response.data;
+                                console.log(data);
+                                const grnDetail = data?.requisition_detail?.grn_item_detail;
+                                const item = grnDetail?.item;
+                                const $row = $currentSelect.closest('tr');
+                                $row.find('input[id="category"]').val(data.sap_assets?.category ||  data.requisition_detail?.grn_item_detail.item.item_group || '');
+                                $row.find('input[id="description"]').val(grnDetail?.description || data.description || data.sap_assets?.item_description || '');
+                                $row.find('input[id="asset_type"]').val('');
+                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || data.uom ||data.sap_assets?.uom || '');
+                                $row.find('input[id="qty"]').val(data.quantity || data.sap_assets?.quantity || '');
+                                $row.find('input[id="date_placed_in_service"]').val(data.commission_detail?.date_placed_in_service || data.sap_assets?.capitalization_date || '');
+                                console.log(data.site?.dzongkhag);
+                                $row.find('input[id="dzongkhag"]').val(data.site?.dzongkhag.dzongkhag || '');
+                                $row.find('input[id="site"]').val(data.site?.name || '');
+                                updateTotalQuantity();
+                                $('#loader').hide();
+                            },
+                            error: function(xhr) {
+                                $('#loader').hide();
+                                showErrorMessage(xhr);
+                            }
+                        })
+                    }
+                });
+    function updateTotalQuantity() {
+        let total = 0;
+        $(".quantity-input").each(function() {
+            let value = $(this).val();
+            total += value ? parseFloat(value) : 0;
+        });
+        $("#total-quantity-id").val(total);
+    }
+})
 </script>
 @endpush
