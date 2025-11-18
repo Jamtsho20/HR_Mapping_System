@@ -220,7 +220,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('training-evaluations-answers', 'TrainingEvaluationAnswerController');
         Route::resource('training-applications', 'TrainingApplicationController');
         // Route::resource('trainee-lists', 'TraineeListController');
-        // Route::resource('training-materials', 'TrainingMaterialsController');
+        Route::resource('training-materials', 'TrainingMaterialsController');
 
 
         Route::resource('my-evaluations', MyEvaluationAnswerController::class)

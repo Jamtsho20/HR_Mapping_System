@@ -24,4 +24,8 @@ class TraineesTrainingMaterial extends Model
         'created_by',
         'updated_by',
     ];
+     public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
