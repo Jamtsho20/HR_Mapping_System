@@ -54,11 +54,13 @@ class SifaExport implements FromCollection, WithHeadings
                 return [
                     $serialNo++,
                     $item->employee->username ?? '-',
-                    $item->employee->name ?? '-',
+                    $item->employee->emp_name ?? '-',
                     $item->employee->empJob->designation->name ?? '-',
+                    getDisplayDateFormat($item->employee->date_of_appointment),
                     $item->employee->empJob->empType->name ?? '-',
                     $details['deductions']['SIFA'] ?? 0,
-                    $item->for_month ?? '-',
+                    // $item->for_month ?? '-',
+                    \Carbon\Carbon::parse($item->for_month)->format('F Y') ?? '-'
                 ];
             });
 
@@ -71,11 +73,13 @@ class SifaExport implements FromCollection, WithHeadings
                 return [
                     $serialNo++,
                     $item->employee->username ?? '-',
-                    $item->employee->name ?? '-',
+                    $item->employee->emp_name ?? '-',
                     $item->employee->empJob->designation->name ?? '-',
+                    getDisplayDateFormat($item->employee->date_of_appointment),
                     $item->employee->empJob->empType->name ?? '-',
-                    floatval($item->sifa_contr),
-                    $item->for_month ?? '-',
+                    // floatval($item->sifa_contr),
+                    $item->sifa_contr,
+                    \Carbon\Carbon::parse($item->for_month)->format('F Y') ?? '-'
                 ];
             });
 
@@ -83,6 +87,9 @@ class SifaExport implements FromCollection, WithHeadings
         return $oldData->isNotEmpty() && $newData->isNotEmpty()
             ? $oldData->merge($newData)->values()
             : ($oldData->isNotEmpty() ? $oldData->values() : ($newData->isNotEmpty() ? $newData->values() : collect()));
+
+        //incase if report is required from 2025 onwards no need to merge as there will duplication for Jan month
+        // return $newData->isNotEmpty() ? $newData->values() : collect(); 
     }
 
     public function headings(): array
@@ -91,10 +98,11 @@ class SifaExport implements FromCollection, WithHeadings
             'Sl No',
             'Employee ID',
             'Employee Name',
-            'Job Title',
+            'Designation',
+            'DOA',
             'Employment Type',
-            'SIFA',
-            'Date',
+            'Amount',
+            'For Month',
 
         ];
     }
