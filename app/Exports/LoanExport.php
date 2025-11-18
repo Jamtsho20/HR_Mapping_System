@@ -27,6 +27,7 @@ class LoanExport implements FromCollection, WithHeadings
             ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
             ->where('mas_employees.is_active', 1)
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
+            ->whereDate('loan_e_m_i_deductions.end_date', '>=', Carbon::now()->startOfMonth()) // ✅ added condition
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->filter($this->request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get()->map(function ($loans) use (&$serialNo) {
