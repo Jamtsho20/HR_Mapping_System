@@ -1290,7 +1290,7 @@ public function getAssetData(Request $request)
                                 ]
                             );
                         }
-
+ 
                         // Create SAP Asset with duplicate prevention
                         $sapAsset = SapAsset::firstOrCreate(
                             [
