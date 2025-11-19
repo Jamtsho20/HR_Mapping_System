@@ -1241,7 +1241,9 @@ public function getAssetData(Request $request)
             $serialNos = array_filter(array_column($chunk, 'serial_no'));
 
             $existingAssets = SapAsset::whereIn('asset_number', $assetNos)
-                ->orWhereIn('serial_number', $serialNos)
+                        ->orWhere(function($q) use ($serialNos) {
+                            $q->whereNotNull('serial_number')->whereIn('serial_number', $serialNos);
+                        })
                 ->get(['asset_number', 'serial_number'])
                 ->toArray();
 
@@ -1254,7 +1256,7 @@ public function getAssetData(Request $request)
             $seen = [];
 
             foreach ($chunk as $index => $item) {
-                $key = ($item['asset_no'] ?? '') . '-' . ($item['serial_no'] ?? '');
+                $key = $item['asset_no'];
 
                 // Skip duplicates
                 if (($item['asset_no'] && isset($existingMap[$item['asset_no']])) ||
@@ -1293,9 +1295,9 @@ public function getAssetData(Request $request)
                         $sapAsset = SapAsset::firstOrCreate(
                             [
                                 'asset_number' => $item['asset_no'],
-                                'serial_number' => $item['serial_no'],
                             ],
                             [
+                                'serial_number' => $item['serial_no'],
                                 'item_id' => $i_code?->id,
                                 'uom' => $i_code ? $i_code->uom : ($item['uom'] ?? 'Nos'),
                                 'grn_number' => $item['grn_number'] ?? null,
