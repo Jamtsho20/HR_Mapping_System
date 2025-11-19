@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId("mas_pay_head_id")->index()->constrained();
             $table->foreignId("mas_employee_id")->index()->constrained();
             $table->date("start_date");
+            $table->date("paid_off_at")->nullable();
             $table->date("end_date")->nullable();
             $table->decimal("amount", 20,2);
             $table->string("loan_number",100)->comment("accpunt nunber for loan");

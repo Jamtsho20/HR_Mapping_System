@@ -234,7 +234,60 @@ class SifaRegistrationController extends Controller
     {
         //dd($request->all());
         // Validate incoming data
-        //$this->validate($request, $this->rules);
+        // $this->validate($request, $this->rules);
+     $request->validate([
+    /* -------------------------
+     | SIFA NOMINATIONS
+     ------------------------- */
+    'sifa_nomination' => 'required|array|min:1',
+    'sifa_nomination.*.nominee_name' => 'required|string',
+    'sifa_nomination.*.relation_with_employee' => 'required|string',
+    'sifa_nomination.*.cid_number' => 'required|string',
+    'sifa_nomination.*.percentage_of_share' => 'required|numeric',
+    'sifa_nomination.*.attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+
+    /* -------------------------
+     | SIFA DEPENDENTS
+     ------------------------- */
+    'sifa_dependents' => 'required|array|min:1',
+    'sifa_dependents.*.dependent_name' => 'required|string',
+    'sifa_dependents.*.relation_with_employee' => 'required|string',
+    'sifa_dependents.*.cid_number' => 'required|string',
+    'sifa_dependents.*.attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+
+    /* -------------------------
+     | SIFA DOCUMENTS
+     ------------------------- */
+    'family_tree'          => 'required',
+    'marriage_certificate' => 'nullable',
+    'family_tree_spouse'   => 'nullable',
+    'spouse_cid'           => 'required',
+    'birth_certificate'    => 'nullable',
+    'adopted_children'     => 'nullable',
+    'if_divorced'          => 'nullable',
+], [
+
+    /* ----- Custom readable messages (Nomination) ----- */
+    'sifa_nomination.required' => 'Please add at least one nominee.',
+    'sifa_nomination.array'    => 'Nominee data is invalid.',
+    'sifa_nomination.*.nominee_name.required' => 'Nominee name is required.',
+    'sifa_nomination.*.relation_with_employee.required' => 'Nominee relation is required.',
+    'sifa_nomination.*.cid_number.required' => 'Nominee CID number is required.',
+    'sifa_nomination.*.percentage_of_share.required' => 'Percentage of share is required.',
+
+    /* ----- Custom readable messages (Dependent) ----- */
+    'sifa_dependents.required' => 'Please add at least one dependent.',
+    'sifa_dependents.array'    => 'Dependent data is invalid.',
+    'sifa_dependents.*.dependent_name.required' => 'Dependent name is required.',
+    'sifa_dependents.*.relation_with_employee.required' => 'Dependent relation is required.',
+    'sifa_dependents.*.cid_number.required' => 'Dependent CID number is required.',
+
+    /* ----- Custom readable messages (Documents) ----- */
+    'family_tree.required'          => 'Family tree document is required.',
+    'spouse_cid.required'           => 'CID Copy is required.',
+
+]);
+
 
         try {
             DB::beginTransaction();

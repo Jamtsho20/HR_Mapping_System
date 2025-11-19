@@ -22,7 +22,8 @@ class LoanEMIDeduction extends Model
         'remark',
         'is_paid_of',
         'advance_application_id',
-        'paid_off_by'
+        'paid_off_by',
+        'paid_off_at',
     ];
 
     public function employee()

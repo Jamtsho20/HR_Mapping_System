@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sap_assets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained('mas_items')->cascadeOnDelete();
             $table->string('serial_number')->unique()->nullable();
             $table->string('asset_number')->unique();
             $table->string('uom', 20)->nullable();
