@@ -42,12 +42,12 @@ class UpdateAbsenteesDaily extends Command
             foreach ($attendanceDetails as $detail) {
                 $remarks = null;
                 $isHalfDayWeekendAbsent = (
-                    $attendanceDetails->attendance_status_id == HALF_DAY_WEEKEND_STATUS
-                    && is_null($attendanceDetails->check_in_at)
-                    && is_null($attendanceDetails->check_out_at)
+                    $detail->attendance_status_id == HALF_DAY_WEEKEND_STATUS
+                    && is_null($detail->check_in_at)
+                    && is_null($detail->check_out_at)
                 );
 
-                $isCreatedStatus = $attendanceDetails->attendance_status_id == CREATED_STATUS;
+                $isCreatedStatus = $detail->attendance_status_id == CREATED_STATUS;
 
                 if ($isHalfDayWeekendAbsent || $isCreatedStatus) {
                     $remarks = 'Marked as absent for ' . now()->format('Y-m-d') .
