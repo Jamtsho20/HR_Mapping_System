@@ -106,8 +106,11 @@ class LoanReportController extends Controller
         $loans = $this->prepareQuery($request)->get();
 
         // Sum from salary_emi_amount to match salary report
-        //$totalLoans = $loans->sum(fn($loan) => $loan->amount ?? 0);
-        $totalLoans = $loans->sum(fn($loan) => $loan->salary_emi_amount ? (float)$loan->salary_emi_amount : 0);
+        
+             $totalLoans = $loans->sum(function ($loan) {
+            return $loan->amount ?? 0;
+        });
+        // $totalLoans = $loans->sum(fn($loan) => $loan->salary_emi_amount ? (float)$loan->salary_emi_amount : 0);
 
         // Bank name
         $payHeadId = $request->input('mas_pay_head_id');
