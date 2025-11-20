@@ -77,9 +77,9 @@ class LoanReportController extends Controller
     {
         $loans = $this->prepareQuery($request)->get();
 
-        $loans = $loans->filter(function ($loan) use ($loans) {
-            return $this->filterData($loans, $loan);
-        });
+        // $loans = $loans->filter(function ($loan) use ($loans) {
+        //     return $this->filterData($loans, $loan);
+        // });
 
         return Excel::download(new LoanExport($request, $loans), 'loan-report.xlsx');
     }
