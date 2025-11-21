@@ -78,7 +78,7 @@ class LeaveApplicationObserver
                     foreach ($attendanceRecords as $attendance) {
                     // Update main fields
                         $attendance->attendance_status_id = ABSENT_STATUS;
-                        $attendance->updated_by = $leaveApplication->updated_by;
+                        $attendance->updated_by = $leaveApplication->updated_by; 
 
                         // Handle update history
                         $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
