@@ -40,6 +40,7 @@
                     <option value="" disabled="" selected="" hidden="">Select Status</option>
                     <option value="3" {{ request()->get('status') == 3 ? 'selected' : '' }}>Approved</option>
                     <option value="-1" {{ request()->get('status') == -1 ? 'selected' : '' }}>Rejected</option>
+                    <option value="1" {{ request()->get('status') == 1 ? 'selected' : '' }}>Pending</option>
                 </select>
             </div>
         @endcomponent
