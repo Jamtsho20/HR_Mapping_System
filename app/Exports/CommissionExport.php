@@ -31,7 +31,7 @@ class CommissionExport implements FromCollection, WithHeadings
             'details.site',
             'audit_logs',
         ])
-            ->whereIn('status', [-1,1, 3])
+            ->whereIn('status', [-1, 3])
             ->filter($this->request, false)
             ->orderBy('created_at', 'desc')
             ->get();

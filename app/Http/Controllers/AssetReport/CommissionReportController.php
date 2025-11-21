@@ -36,7 +36,7 @@ class CommissionReportController extends Controller
         //     ->withQueryString();
 
         $commissions = AssetCommissionApplication::with(['audit_logs', 'details',])
-            ->whereIn('status', [-1, 1, 3])
+            ->whereIn('status', [-1, 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->paginate(config('global.pagination'))
@@ -99,7 +99,7 @@ class CommissionReportController extends Controller
     {
 
         $commissions = AssetCommissionApplication::with(['audit_logs', 'details',])
-            ->whereIn('status', [-1,1, 3])
+            ->whereIn('status', [-1, 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -119,7 +119,7 @@ class CommissionReportController extends Controller
     public function printCommissionReport(Request $request)
     {
         $commissions = AssetCommissionApplication::with(['audit_logs', 'details',])
-            ->whereIn('status', [-1,1, 3])
+            ->whereIn('status', [-1, 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')->get();
 
