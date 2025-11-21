@@ -165,4 +165,21 @@
                         @endif
                     </div>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-group file-upload-border">
+                        <label for="input-file0">
+                            <strong>Your former spouse's official family tree (if divorced and have children registered with them)</strong>
+
+                        </label>
+                        @if (optional($sifaDocuments)->former_spouse)
+                        <div class="mt-3">
+                            <a href="{{ asset('images/sifa/' . basename($sifaDocuments->former_spouse)) }}" target="_blank">
+                                View Document
+                            </a>
+                        </div>
+                        @else
+                        <p>No Document uploaded</p>
+                        @endif
+                    </div>
+                </div>
             </div>

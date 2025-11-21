@@ -7,7 +7,7 @@
      <div class="row">
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file0"><strong>Your Certified Family Tree</strong> <span
+                 <label for="input-file0"><strong>Official Family Tree</strong> <span
                          class="text-danger">*</span></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -52,7 +52,7 @@
             </div>
          <div class="col-md-6 mb-3">
              <div class="form-group file-upload-border">
-                 <label for="input-file3"><strong>Your Spouse's Certified Family Tree (if married)
+                 <label for="input-file3"><strong>Your Spouse's Official Family Tree (if married)
                          married</strong></label>
                  <div class="input-group">
                      <div class="custom-file">
@@ -104,6 +104,20 @@
                          <input type="hidden" name="documents[7][label]"
                              value="If divorced, court verdict / legal agreement endorsed by a Royal Court of Justice">
                          <label class="custom-file-label text-truncate" for="input-file7"></label>
+                     </div>
+                 </div>
+             </div>
+         </div>
+         <div class="col-md-6 mb-3">
+             <div class="form-group file-upload-border">
+                 <label for="input-file8"><strong>Your former spouse's official family tree (if divorced and have children registered with them)</strong></label>
+                 <div class="input-group">
+                     <div class="custom-file">
+                         <input type="file" class="custom-file-input" id="input-file8"
+                             name="former_spouse">
+                         <input type="hidden" name="documents[8][label]"
+                             value="Your former spouse's official family tree (if divorced and have children registered with them)">
+                         <label class="custom-file-label text-truncate" for="input-file8"></label>
                      </div>
                  </div>
              </div>
