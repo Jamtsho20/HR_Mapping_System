@@ -91,7 +91,7 @@ class LeaveAvailedReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $leaveReports = LeaveApplication::filter($request, false)->get();
+        $leaveReports = LeaveApplication::where('status', '=', 3)->filter($request, false)->get();
 
 
 
@@ -108,7 +108,7 @@ class LeaveAvailedReportController extends Controller
 
     public function printLeave(Request $request)
     {
-        $leaveReports = LeaveApplication::filter($request, false)->get();
+        $leaveReports = LeaveApplication::where('status', '=', 3)->filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.leave-availed-report-pdf', compact('leaveReports'))

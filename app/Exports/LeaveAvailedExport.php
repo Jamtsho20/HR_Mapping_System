@@ -25,7 +25,7 @@ class LeaveAvailedExport implements FromCollection, WithHeadings
         $serialNo = 1;
 
         // Access the request data to apply filters
-        return LeaveApplication::filter($this->request,false)->get()->map(function ($leaveReports) use (&$serialNo) {
+        return LeaveApplication::where('status', '=', 3)->filter($this->request,false)->get()->map(function ($leaveReports) use (&$serialNo) {
             return [
                 $serialNo++,
                 $leaveReports->employee->name,
@@ -35,6 +35,7 @@ class LeaveAvailedExport implements FromCollection, WithHeadings
                 $leaveReports->employee->empJob->office->name,
                 $leaveReports->from_date,
                 $leaveReports->to_date,
+                $leaveReports->no_of_days
             ];
         });
     }
@@ -43,12 +44,13 @@ class LeaveAvailedExport implements FromCollection, WithHeadings
         return [
             'Sl No',
             'Employee Name',
-            'Designation',      
+            'Designation',
             'Department',
             'Leave Type',
             'Location',
             'From Date',
             'To Date',
+            'No of Days'
 
         ];
     }
