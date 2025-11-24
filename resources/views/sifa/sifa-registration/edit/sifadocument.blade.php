@@ -8,7 +8,7 @@
      <div class="col-md-6 mb-3">
          <div class="form-group file-upload-border">
              <label for="family_tree">
-                 <strong>Your certified family tree</strong>
+                 <strong>Your Officical family tree</strong>
                  <span class="text-danger">*</span>
              </label>
              @if (!empty($sifaDocuments->family_tree))
@@ -126,7 +126,7 @@
  <div class="row">
      <div class="col-md-6 mb-3">
          <div class="form-group file-upload-border">
-             <label for="if_divorced">
+             <label for="former_spouse">
                  <strong>Court verdict or legal document (if divorced)</strong>
 
              </label>
@@ -139,6 +139,24 @@
              </div>
              @endif
              <input type="file" name="if_divorced" class="form-control mt-2"
+                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+         </div>
+     </div>
+     <div class="col-md-6 mb-3">
+         <div class="form-group file-upload-border">
+             <label for="if_divorced">
+                 <strong>Your former spouse's official family tree (if divorced and have children registered with them)</strong>
+
+             </label>
+             @if (!empty($sifaDocuments->former_spouse))
+             <div class="mt-3">
+                 <a href="{{ asset('images/sifa/' . basename($sifaDocuments->former_spouse)) }}"
+                     target="_blank">
+                     View Document
+                 </a>
+             </div>
+             @endif
+             <input type="file" name="former_spouse" class="form-control mt-2"
                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
          </div>
      </div>

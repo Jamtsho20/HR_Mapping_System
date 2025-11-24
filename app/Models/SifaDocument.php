@@ -18,7 +18,8 @@ class SifaDocument extends Model
         'spouse_cid',    
         'birth_certificate',    
         'adopted_children',    
-        'if_divorced'    
+        'if_divorced',
+        'former_spouse' 
     ];
     protected $casts = [
         'cid_of_dep_nom' => 'array',

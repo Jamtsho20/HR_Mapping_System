@@ -34,7 +34,7 @@
             <div class="col-3 form-group">
                 <select name="mas_pay_head_id" class="form-control select2 select2-hidden-accessible"
                     data-placeholder="Select Bank Type">
-                    <option value="" disabled="" selected="" hidden="">Select Bank Type</option>
+                    <option value="" disabled="" selected="" hidden="">Select Loan Type</option>
                     @foreach ($banks as $bank)
                         <option value="{{ $bank->id }}"
                             {{ request()->get('mas_pay_head_id') == $bank->id ? 'selected' : '' }}>
@@ -93,7 +93,6 @@
 
                                                     </tr>
                                                 </thead>
-
                                                 <tbody>
                                                     @forelse($loans as $loan)
                                                         <tr>
@@ -104,7 +103,8 @@
                                                             <td>{{ $loan->loan_number }}</td>
                                                             <td>{{ $loan->loan_type ?? config('global.null_value') }}
                                                             </td>
-                                                            <td>{{ $loan->amount }}</td>
+                                                            {{-- <td>{{ $loan->amount }}</td> --}}
+                                                            <td>{{ $loan->salary_emi_amount }}</td>
                                                             <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
                                                             </td>
                                                         </tr>

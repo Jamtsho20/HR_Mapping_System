@@ -86,6 +86,9 @@
                 <th>
                     TO DATE
                 </th>
+                <th>
+                    NO. of DAYS
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -100,6 +103,7 @@
                 <td>{{$report->employee->empJob->office->name}}</td>
                 <td>{{$report->from_date}}</td>
                 <td>{{$report->to_date}}</td>
+                <td>{{$report->no_of_days}}</td>
             </tr>
             @empty
             <tr>
