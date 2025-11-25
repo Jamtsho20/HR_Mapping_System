@@ -66,7 +66,7 @@
                                                         Department
                                                     </th>
                                                     <th>
-                                                        Amount Allocated
+                                                       Budget Approved
                                                     </th>
                                                     <th>
                                                         Action

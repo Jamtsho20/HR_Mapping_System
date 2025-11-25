@@ -25,9 +25,9 @@
                     <select class="form-control" id="type_id" name="type_id" required>
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($trainingTypes as $type)
-                            <option value="{{ $type->id }}" {{ old('type_id', $trainingList->type_id) == $type->id ? 'selected' : '' }}>
-                                {{ $type->name }}
-                            </option>
+                        <option value="{{ $type->id }}" {{ old('type_id', $trainingList->type_id) == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -38,9 +38,9 @@
                     <select class="form-control" id="country_id" name="country_id">
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($countries as $country)
-                            <option value="{{ $country->id }}" {{ old('country_id', $trainingList->country_id) == $country->id ? 'selected' : '' }}>
-                                {{ $country->name }}
-                            </option>
+                        <option value="{{ $country->id }}" {{ old('country_id', $trainingList->country_id) == $country->id ? 'selected' : '' }}>
+                            {{ $country->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -51,9 +51,9 @@
                     <select class="form-control" id="dzongkhag_id" name="dzongkhag_id">
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($dzongkhags as $dz)
-                            <option value="{{ $dz->id }}" {{ old('dzongkhag_id', $trainingList->dzongkhag_id) == $dz->id ? 'selected' : '' }}>
-                                {{ $dz->dzongkhag }}
-                            </option>
+                        <option value="{{ $dz->id }}" {{ old('dzongkhag_id', $trainingList->dzongkhag_id) == $dz->id ? 'selected' : '' }}>
+                            {{ $dz->dzongkhag }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -64,9 +64,9 @@
                     <select class="form-control" id="training_nature_id" name="training_nature_id" required>
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($trainingNatures as $nature)
-                            <option value="{{ $nature->id }}" {{ old('training_nature_id', $trainingList->training_nature_id) == $nature->id ? 'selected' : '' }}>
-                                {{ $nature->name }}
-                            </option>
+                        <option value="{{ $nature->id }}" {{ old('training_nature_id', $trainingList->training_nature_id) == $nature->id ? 'selected' : '' }}>
+                            {{ $nature->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -77,9 +77,9 @@
                     <select class="form-control" id="funding_type_id" name="funding_type_id" required>
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($fundingTypes as $funding)
-                            <option value="{{ $funding->id }}" {{ old('funding_type_id', $trainingList->funding_type_id) == $funding->id ? 'selected' : '' }}>
-                                {{ $funding->name }}
-                            </option>
+                        <option value="{{ $funding->id }}" {{ old('funding_type_id', $trainingList->funding_type_id) == $funding->id ? 'selected' : '' }}>
+                            {{ $funding->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -114,49 +114,28 @@
                     <select class="form-control" id="department_id" name="department_id" required>
                         <option value="" disabled hidden>Select your option</option>
                         @foreach ($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ old('department_id', $trainingList->department_id) == $dept->id ? 'selected' : '' }}>
-                                {{ $dept->name }}
-                            </option>
+                        <option value="{{ $dept->id }}" {{ old('department_id', $trainingList->department_id) == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
 
                 <!-- Amount -->
                 <div class="col-md-4 mb-3">
-                    <label for="amount_allocated">Amount Allocated <span class="text-danger">*</span></label>
+                    <label for="amount_allocated">Budget Approved <span class="text-danger">*</span></label>
                     <input type="text" step="0.01" name="amount_allocated" id="amount_allocated" value="{{ old('amount_allocated', $trainingList->amount_allocated) }}" class="form-control" required>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Training Budget Allocation -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fa fa-money me-2"></i> TRAINING BUDGET ALLOCATION</h5>
-        </div>
-        <div class="card-body">
-            @include('training-application.training-lists.edit.budget', ['trainingList' => $trainingList])
-        </div>
-    </div>
-
-    <!-- Training Bonds -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fa fa-handshake-o me-2"></i> TRAINING BONDS</h5>
-        </div>
-        <div class="card-body">
-            @include('training-application.training-lists.edit.bond', ['trainingList' => $trainingList])
-        </div>
-    </div>
-
-    <!-- Form Footer -->
-    <div class="card-footer text-center">
-        @include('layouts.includes.buttons', [
+        <div class="card-footer text-center">
+            @include('layouts.includes.buttons', [
             'buttonName' => 'UPDATE',
             'cancelUrl' => url('training/training-lists'),
             'cancelName' => 'CANCEL'
-        ])
+            ])
+        </div>
     </div>
 </form>
 

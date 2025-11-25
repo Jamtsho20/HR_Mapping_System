@@ -122,41 +122,22 @@
 
                 <!-- Amount -->
                 <div class="col-md-4 mb-3">
-                    <label for="amount_allocated">Amount Allocated <span class="text-danger">*</span></label>
+                    <label for="amount_allocated">Budget Approved <span class="text-danger">*</span></label>
                     <input type="text" step="0.01" name="amount_allocated" id="amount_allocated" value="{{ old('amount_allocated') }}" class="form-control" required>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Training Budget Allocation -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fa fa-money me-2"></i> TRAINING BUDGET ALLOCATION</h5>
-        </div>
-        <div class="card-body">
-            @include('training-application.training-lists.create.budget')
+        <!-- Form Footer -->
+        <div class="card-footer text-center">
+            @include('layouts.includes.buttons', [
+                'buttonName' => 'SAVE',
+                'cancelUrl' => url('training/training-lists'),
+                'cancelName' => 'CANCEL'
+            ])
         </div>
     </div>
 
-    <!-- Training Bonds -->
-    <div class="card ">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fa fa-handshake-o me-2"></i> TRAINING BONDS</h5>
-        </div>
-        <div class="card-body">
-            @include('training-application.training-lists.create.bond')
-        </div>
-    </div>
 
-    <!-- Form Footer -->
-    <div class="card-footer text-center">
-        @include('layouts.includes.buttons', [
-            'buttonName' => 'SAVE',
-            'cancelUrl' => url('training/training-lists'),
-            'cancelName' => 'CANCEL'
-        ])
-    </div>
 </form>
 
 @include('layouts.includes.delete-modal')
