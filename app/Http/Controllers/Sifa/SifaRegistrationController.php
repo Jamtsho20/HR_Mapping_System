@@ -258,8 +258,8 @@ class SifaRegistrationController extends Controller
             /* -------------------------
      | SIFA DOCUMENTS
      ------------------------- */
-            'family_tree'          => 'sometimes|required_without:existing_family_tree|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'spouse_cid'           => 'sometimes|required_without:existing_spouse_cid|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'family_tree'          => 'sometimes|required_without:existing_family_tree|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'spouse_cid'           => 'sometimes|required_without:existing_spouse_cid|file|mimes:jpg,jpeg,png,pdf|max:5120',
 
             'marriage_certificate' => 'nullable',
             'family_tree_spouse'   => 'nullable',
