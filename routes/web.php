@@ -83,7 +83,7 @@ Route::redirect('/', '/login', 301);
 //     }
 // }
 
-Route::get('/getservertime', function(){
+Route::get('/getservertime', function () {
     return now()->format('H:i:s');
 });
 Route::get('/updateemppas', function () {
@@ -233,7 +233,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('training-applications/training-list/{id}/details', [App\Http\Controllers\TrainingApplication\TrainingApplicationController::class, 'getTrainingListDetails'])
         ->name('training-applications.training-list.details');
+Route::get('/employee-job/{id}', function ($id) {
+    $employee = User::with('empJob.designation','empJob.department')->find($id);
 
+    return response()->json([
+        'designation_name' => $employee->empJob->designation->name ?? '',
+        'department_name'  => $employee->empJob->department->name ?? '',
+        'designation_id'   => $employee->empJob->designation->id ?? null,
+        'department_id'    => $employee->empJob->department->id ?? null,
+    ]);
+});
 
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
@@ -639,10 +648,6 @@ Route::middleware('auth')->group(function () {
     Route::post('assets/receive-consumable', 'AjaxRequestController@receiveConsumable');
     // Route::get('aaa/{employeeID}', [AdvanceLoanApplicationController::class, 'repaymentSchedule']);
     Route::get('assets/getGrnDetails/{grnNo}', 'AjaxRequestController@getGrnDetailByGrnNo');
-
-
-
-
 });
 
 

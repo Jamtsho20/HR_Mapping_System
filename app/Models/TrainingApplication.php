@@ -25,6 +25,17 @@ class TrainingApplication extends Model
     {
         return $this->belongsTo(MasTrainingList::class, 'training_list_id');
     }
+
+    public function trainingProposal(){
+        return $this->belongsTo(TrainingProposal::class,'training_application_id');
+    }
+    public function trainingFees(){
+        return $this->belongsTo(TrainingFee::class,'training_application_id');
+    }
+    public function airFare(){
+        return $this->belongsTo(AirFare::class,'training_application_id');
+    }
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');

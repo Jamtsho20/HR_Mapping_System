@@ -8,6 +8,7 @@ use App\Models\MasTrainingList;
 use App\Models\MasTrainingType;
 use App\Models\TrainingApplication;
 use App\Models\TrainingApplicationType;
+use App\Models\User;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
@@ -128,7 +129,8 @@ class TrainingApplicationController extends Controller
             'training_list_id' => 'required|exists:mas_training_lists,id',
             // Employee table validation: employees.*.employee_id and is_available
             'employees.*.employee_id' => 'required|exists:mas_employees,id',
-            'employees.*.is_available' => 'required|boolean',
+            'employees.*.department_id' => 'required',
+            'employees.*.designation_id' => 'required',
         ]);
 
         try {
@@ -147,16 +149,73 @@ class TrainingApplicationController extends Controller
                 foreach ($request->employees as $employeeData) {
                     DB::table('trainee_lists')->insert([
                         'training_application_id' => $trainingApplication->id,
-                        'employee_id' => $employeeData['employee_id'],
-                        'is_availaible_for_training' => $employeeData['is_available'],
-                        'certificate' => null, // nullable
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                        'created_by' => auth()->user()->id,
-                        'updated_by' => auth()->user()->id
+                        'employee_id'             => $employeeData['employee_id'],
+                        'designation_id'          => $employeeData['designation_id'] ?? null,
+                        'department_id'           => $employeeData['department_id'] ?? null,
+                        'certificate'             => null,
+                        'created_at'              => now(),
+                        'updated_at'              => now(),
+                        'created_by'              => auth()->user()->id,
+                        'updated_by'              => auth()->user()->id,
+                    ]);
+                }
+            }
+            //save Training Proposal
+            if ($request->has('proposals')) {
+                foreach ($request->proposals as $proposal) {
+                    DB::table('training_proposals')->insert([
+                        'training_application_id' => $trainingApplication->id,
+                        'training_provider'       => $proposal['training_provider'] ?? null,
+                        'course'                  => $proposal['course'] ?? null,
+                        'location'                => $proposal['location'] ?? null,
+                        'duration'                => $proposal['duration'] ?? null,
+                        'fee_per_person'          => $proposal['fee_per_person'] ?? null,
+                        'total'                   => $proposal['total'] ?? null,
+                        'best_option'             => isset($proposal['best_option']) ? (int)$proposal['best_option'] : 0,
+                        'created_by'              => auth()->user()->id,
+                        'updated_by'              => auth()->user()->id,
+                        'created_at'              => now(),
+                        'updated_at'              => now(),
+                    ]);
+                }
+            }
+            
+            //save Training Fees
+            if ($request->has('fees')) {
+                foreach ($request->fees as $fee) {
+                    DB::table('training_fees')->insert([
+                        'training_application_id' => $trainingApplication->id,
+                        'institute'               => $fee['institute'] ?? null,
+                        'training_name'           => $fee['training_name'] ?? null,
+                        'location'                => $fee['location'] ?? null,
+                        'participants'            => $fee['participants'] ?? null,
+                        'total_cost'              => $fee['total_cost'] ?? null,
+                        'created_by'              => auth()->user()->id,
+                        'updated_by'              => auth()->user()->id,
+                        'created_at'              => now(),
+                        'updated_at'              => now(),
 
                     ]);
                 }
+            }
+
+            //save Air Fare
+            if ($request->has('airfares')) {
+                foreach ($request->airfares as $airfare) {
+                    DB::table('air_fares')->insert([
+                        'training_application_id' => $trainingApplication->id,
+                        'airline'                 => $airfare['airline'] ?? null,
+                        'departure_date'          => $airfare['departure_date'] ?? null,
+                        'return_date'             => $airfare['return_date'] ?? null,
+                        'journey'                => $airfare['journey'] ?? null,
+                        'grand_total'              => $airfare['grand_total'] ?? null,
+                        'created_by'              => auth()->user()->id,
+                        'updated_by'              => auth()->user()->id,
+                        'created_at'              => now(),
+                        'updated_at'              => now(),
+                    ]);
+                }
+                
             }
 
             // Save History
