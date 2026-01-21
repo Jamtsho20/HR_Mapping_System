@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('mas_employee_jobs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignId('mas_company_id')->constrained('mas_company')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('mas_function_id')->constrained('mas_function')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_department_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_section_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_designation_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
@@ -27,6 +29,7 @@ return new class extends Migration
             $table->integer('basic_pay');
             $table->unsignedTinyInteger('salary_disbursement_mode')->comment('1 => Cash, 2 => Saving Account');
             $table->string('bank', 50)->nullable();
+            $table->string('bank_code', 50)->nullable();
             $table->string('account_number')->nullable();
             $table->string('pf_number', 100);
             $table->string('tpn_number', 100);

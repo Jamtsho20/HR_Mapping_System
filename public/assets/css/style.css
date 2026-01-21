@@ -18265,10 +18265,6 @@ svg.table-delete {
 }
 
 @media (min-width: 992px) {
-    .sidebar-mini.sidenav-toggled .side-menu {
-        padding: 0 0px 40px 0px;
-    }
-
     .sidebar-mini.sidenav-toggled .side-menu__item.active .side-menu__icon {
         color: #ffffff !important;
     }
@@ -42455,14 +42451,7 @@ body.rtl {
         left: inherit;
     }
 
-    .rtl .sidebar-mini footer.footer {
-        padding: 1.25rem 270px 1.25rem 1.25rem;
-    }
-
-    .rtl .sidebar-mini.sidenav-toggled footer.footer {
-        padding: 1.25rem 1.25rem 1.25rem 80px;
-    }
-}
+ 
 
 @media (max-width: 991px) {
     .rtl .app .app-sidebar {
@@ -42947,9 +42936,7 @@ body.rtl {
         margin-left: inherit;
     }
 
-    .rtl.sidebar-mini footer.footer {
-        padding: 1.25rem 270px 1.25rem 1.25rem;
-    }
+
 
     .rtl.horizontal .side-menu__item.active {
         border-radius: 0;
@@ -43906,9 +43893,6 @@ body.rtl {
         width: 80px !important;
     }
 
-    .sidebar-mini footer.footer {
-        padding: 1.25rem 1.25rem 1.25rem 270px;
-    }
 
     .sidebar-mini.sidenav-toggled footer.footer {
         padding: 1.25rem 1.25rem 1.25rem 80px;

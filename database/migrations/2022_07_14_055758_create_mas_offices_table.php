@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('latitude')->nullable();
+            $table->string('code')->nullable();
             $table->string('longitude')->nullable();
             $table->decimal('radius', 5,2)->default(100); // Radius in meters
             $table->boolean('status')->default(1);

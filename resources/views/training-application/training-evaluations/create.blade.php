@@ -11,36 +11,15 @@
         <div class="card-body">
             <div class="row">
 
-                <!-- Training List -->
-                <div class="col-md-6 mb-3">
-                    <label for="training_list_id" class="form-label fw-semibold">
-                        Training List <span class="text-danger">*</span>
-                    </label>
-                    <select class="form-select @error('training_list_id') is-invalid @enderror" 
-                            id="training_list_id" 
-                            name="training_list_id" 
-                            required>
-                        <option value="" disabled selected hidden>Select Training</option>
-                        @foreach ($trainingLists as $list)
-                        <option value="{{ $list->id }}" {{ old('training_list_id') == $list->id ? 'selected' : '' }}>
-                            {{ $list->title }}
-                        </option>
-                        @endforeach
-                    </select>
-                    @error('training_list_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
                 <!-- Evaluation Type -->
                 <div class="col-md-6 mb-3">
                     <label for="evaluation_type_id" class="form-label fw-semibold">
                         Evaluation Type <span class="text-danger">*</span>
                     </label>
-                    <select class="form-select @error('evaluation_type_id') is-invalid @enderror" 
-                            id="evaluation_type_id" 
-                            name="evaluation_type_id" 
-                            required>
+                    <select class="form-select @error('evaluation_type_id') is-invalid @enderror"
+                        id="evaluation_type_id"
+                        name="evaluation_type_id"
+                        required>
                         <option value="" disabled selected hidden>Select Evaluation Type</option>
                         @foreach ($evaluationTypes as $type)
                         <option value="{{ $type->id }}" {{ old('evaluation_type_id') == $type->id ? 'selected' : '' }}>
@@ -58,13 +37,13 @@
                     <label for="title" class="form-label fw-semibold">
                         Evaluation Title <span class="text-danger">*</span>
                     </label>
-                    <input type="text" 
-                           class="form-control @error('title') is-invalid @enderror" 
-                           id="title" 
-                           name="title"
-                           value="{{ old('title') }}" 
-                           placeholder="e.g., Post-Training Knowledge Assessment" 
-                           required>
+                    <input type="text"
+                        class="form-control @error('title') is-invalid @enderror"
+                        id="title"
+                        name="title"
+                        value="{{ old('title') }}"
+                        placeholder="e.g., Post-Training Knowledge Assessment"
+                        required>
                     @error('title')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -76,7 +55,6 @@
                         <label class="form-label fw-semibold mb-0">
                             Sub Questions <span class="text-danger">*</span>
                         </label>
-                        <span class="badge bg-info" id="question-count">1 Question</span>
                     </div>
 
                     <div id="questions-wrapper">
@@ -89,16 +67,16 @@
                                         <i class="fa fa-trash me-1"></i>
                                     </button>
                                 </div>
-                                
+
                                 <div class="row g-3">
                                     <!-- Question Text -->
                                     <div class="col-md-12">
-                                        <label class="form-label small">Question Text <span class="text-danger">*</span></label>
-                                        <input type="text" 
-                                               name="questions[0][text]" 
-                                               class="form-control" 
-                                               placeholder="Enter your question here" 
-                                               required>
+                                        <label class="form-label small">Question Title <span class="text-danger">*</span></label>
+                                        <input type="text"
+                                            name="questions[0][text]"
+                                            class="form-control"
+                                            placeholder="Enter your question here"
+                                            required>
                                     </div>
 
                                     <!-- Question Type and Sequence -->
@@ -111,16 +89,16 @@
                                             <option value="option">Multiple Choice</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="col-md-6">
                                         <label class="form-label small">Sequence Order <span class="text-danger">*</span></label>
-                                        <input type="number" 
-                                               name="questions[0][sequence]" 
-                                               class="form-control sequence-input" 
-                                               placeholder="e.g., 1" 
-                                               min="1"
-                                               value="1"
-                                               required>
+                                        <input type="number"
+                                            name="questions[0][sequence]"
+                                            class="form-control sequence-input"
+                                            placeholder="e.g., 1"
+                                            min="1"
+                                            value="1"
+                                            required>
                                     </div>
 
                                     <!-- Options Section (Hidden by default) -->
@@ -136,13 +114,13 @@
                                                 <span class="input-group-text">
                                                     <i class="fa fa-circle"></i>
                                                 </span>
-                                                <input type="text" 
-                                                       name="questions[0][options][]" 
-                                                       class="form-control form-control-sm" 
-                                                       placeholder="Enter option text">
-                                                <button type="button" 
-                                                        class="btn btn-danger btn-sm remove-option" 
-                                                        title="Remove option">
+                                                <input type="text"
+                                                    name="questions[0][options][]"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter option text">
+                                                <button type="button"
+                                                    class="btn btn-danger btn-sm remove-option"
+                                                    title="Remove option">
                                                     <i class="fa fa-trash me-1"></i>
                                                 </button>
                                             </div>
@@ -166,14 +144,14 @@
 
             </div>
         </div>
-    
+
 
         <!-- Form Footer -->
         <div class="card-footer bg-light text-center py-3">
             @include('layouts.includes.buttons', [
-                'buttonName' => 'SAVE EVALUATION',
-                'cancelUrl' => route('training-application.training-evaluations.index'),
-                'cancelName' => 'CANCEL'
+            'buttonName' => 'SAVE EVALUATION',
+            'cancelUrl' => route('training-application.training-evaluations.index'),
+            'cancelName' => 'CANCEL'
             ])
         </div>
     </div>
@@ -213,9 +191,10 @@
             const items = wrapper.querySelectorAll('.question-item');
             items.forEach((item, index) => {
                 const sequenceInput = item.querySelector('.sequence-input');
-                if (sequenceInput && !sequenceInput.value) {
+                if (sequenceInput) {
                     sequenceInput.value = index + 1;
                 }
+
             });
         }
 
@@ -291,7 +270,7 @@
                     </div>
                 </div>
             </div>`;
-            
+
             wrapper.insertAdjacentHTML('beforeend', questionHTML);
             questionIndex++;
             updateQuestionCount();
@@ -317,7 +296,7 @@
             if (e.target.classList.contains('question-type')) {
                 const container = e.target.closest('.question-item');
                 const optionFields = container.querySelector('.option-fields');
-                
+
                 if (e.target.value === 'option') {
                     optionFields.classList.remove('d-none');
                 } else {
@@ -332,7 +311,7 @@
                 const container = e.target.closest('.question-item');
                 const optionsWrapper = container.querySelector('.options-wrapper');
                 const index = container.dataset.index;
-                
+
                 const optionHTML = `
                 <div class="input-group mb-2" style="max-width: 400px;">
                     <span class="input-group-text bg-light">
@@ -348,7 +327,7 @@
                         <i class="fa fa-trash me-1"></i>
                     </button>
                 </div>`;
-                
+
                 optionsWrapper.insertAdjacentHTML('beforeend', optionHTML);
             }
         });
@@ -359,7 +338,7 @@
                 const container = e.target.closest('.question-item');
                 const optionsWrapper = container.querySelector('.options-wrapper');
                 const options = optionsWrapper.querySelectorAll('.input-group');
-                
+
                 if (options.length > 1) {
                     e.target.closest('.input-group').remove();
                 } else {
@@ -373,13 +352,13 @@
         form.addEventListener('submit', function(e) {
             const optionQuestions = wrapper.querySelectorAll('.question-type');
             let isValid = true;
-            
+
             optionQuestions.forEach(select => {
                 if (select.value === 'option') {
                     const container = select.closest('.question-item');
                     const options = container.querySelectorAll('.options-wrapper input[type="text"]');
                     const filledOptions = Array.from(options).filter(opt => opt.value.trim() !== '');
-                    
+
                     if (filledOptions.length < 2) {
                         alert('Multiple choice questions must have at least 2 options.');
                         isValid = false;
@@ -387,7 +366,7 @@
                     }
                 }
             });
-            
+
             if (!isValid) {
                 e.preventDefault();
             }
@@ -399,15 +378,15 @@
     .question-item {
         transition: all 0.3s ease;
     }
-    
+
     .question-item:hover {
         box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
     }
-    
+
     .alert-sm {
         font-size: 0.875rem;
     }
-    
+
     .form-label.small {
         font-size: 0.875rem;
         margin-bottom: 0.375rem;

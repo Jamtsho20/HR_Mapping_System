@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('retirement_benefits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('benefit_type_id')->index()->constrained('benefit_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->boolean('status')->default(1);
             $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');

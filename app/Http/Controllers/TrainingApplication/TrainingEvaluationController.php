@@ -29,33 +29,43 @@ class TrainingEvaluationController extends Controller
     {
         $privileges = $request->instance();
 
-        $evaluations = TrainingEvaluation::with(['trainingList', 'evaluationType', 'creator', 'children.options'])
-            ->whereNull('parent_id')
-            ->orderBy('sequence', 'asc')
-            ->paginate(config('global.pagination'));
-
+        $evaluationTypes = MasTrainingEvaluationType::select('id', 'name')->get();
         $employees = User::select('id', 'name', 'username')->orderBy('name')->get();
         $trainingLists = MasTrainingList::select('id', 'title')->get();
-        $evaluationTypes = MasTrainingEvaluationType::select('id', 'name')->get();
+
+        $hasFilter = $request->filled('evaluation_type_id');
+
+        if ($hasFilter) {
+            $evaluations = TrainingEvaluation::with(['trainingList', 'evaluationType', 'creator', 'children.options'])
+                ->whereNull('parent_id')
+                ->where('evaluation_type_id', $request->evaluation_type_id)
+                ->orderBy('sequence', 'asc')
+                ->paginate(config('global.pagination'))
+                ->appends($request->query());
+        } else {
+            $evaluations = null;
+        }
 
         return view('training-application.training-evaluations.index', compact(
             'privileges',
             'evaluations',
             'trainingLists',
             'evaluationTypes',
-            'employees'
+            'employees',
+            'hasFilter'
         ));
     }
+
 
     /**
      * Show the form for creating a new evaluation.
      */
     public function create()
     {
-        $trainingLists = MasTrainingList::get(['id', 'title']);
+        // $trainingLists = MasTrainingList::get(['id', 'title']);
         $evaluationTypes = MasTrainingEvaluationType::get(['id', 'name']);
 
-        return view('training-application.training-evaluations.create', compact('trainingLists', 'evaluationTypes'));
+        return view('training-application.training-evaluations.create', compact('evaluationTypes'));
     }
 
     /**
@@ -64,7 +74,6 @@ class TrainingEvaluationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'training_list_id' => 'required|exists:mas_training_lists,id',
             'evaluation_type_id' => 'required|exists:mas_training_evaluation_types,id',
             'title' => 'required|string|max:255',
             'questions' => 'required|array|min:1',
@@ -78,7 +87,6 @@ class TrainingEvaluationController extends Controller
         DB::transaction(function () use ($request) {
             // Create the main title (parent evaluation)
             $parent = TrainingEvaluation::create([
-                'training_list_id' => $request->training_list_id,
                 'evaluation_type_id' => $request->evaluation_type_id,
                 'title' => $request->title,
                 'sequence' => 1,
@@ -89,7 +97,6 @@ class TrainingEvaluationController extends Controller
             // Add sub-questions
             foreach ($request->questions as $q) {
                 $question = TrainingEvaluation::create([
-                    'training_list_id' => $request->training_list_id,
                     'evaluation_type_id' => $request->evaluation_type_id,
                     'parent_id' => $parent->id,
                     'question' => $q['text'],
@@ -170,7 +177,6 @@ class TrainingEvaluationController extends Controller
         $parent = TrainingEvaluation::findOrFail($id);
 
         $request->validate([
-            'training_list_id' => 'required|exists:mas_training_lists,id',
             'evaluation_type_id' => 'required|exists:mas_training_evaluation_types,id',
             'title' => 'required|string|max:255',
             'questions' => 'required|array|min:1',
@@ -184,7 +190,6 @@ class TrainingEvaluationController extends Controller
         DB::transaction(function () use ($request, $parent) {
             // Update parent
             $parent->update([
-                'training_list_id' => $request->training_list_id,
                 'evaluation_type_id' => $request->evaluation_type_id,
                 'title' => $request->title,
                 'updated_by' => auth()->id(),
@@ -199,7 +204,6 @@ class TrainingEvaluationController extends Controller
             // Recreate children
             foreach ($request->questions as $q) {
                 $question = TrainingEvaluation::create([
-                    'training_list_id' => $request->training_list_id,
                     'evaluation_type_id' => $request->evaluation_type_id,
                     'parent_id' => $parent->id,
                     'question' => $q['text'],

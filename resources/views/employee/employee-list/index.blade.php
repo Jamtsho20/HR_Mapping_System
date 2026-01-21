@@ -134,10 +134,19 @@
                                                                 Gender
                                                             </th>
                                                             <th>
+                                                                Company
+                                                            </th>
+                                                            <th>
+                                                                Function
+                                                            </th>
+                                                            <th>
                                                                 Department
                                                             </th>
                                                             <th>
                                                                 Section
+                                                            </th>
+                                                             <th>
+                                                                Designation
                                                             </th>
                                                             <th>
                                                                 Work Location
@@ -180,9 +189,15 @@
                                                             <td>
                                                                 {{ $employee->gender == 1 ? 'Male' : ($employee->gender == 2 ? 'Female' : 'Other') }}
                                                             </td>
+                                                            <td>{{ $employee->empJob->company->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $employee->empJob->function->name ?? config('global.null_value') }}
+                                                            </td>
                                                             <td>{{ $employee->empJob->department->name ?? config('global.null_value') }}
                                                             </td>
                                                             <td>{{ $employee->empJob->section->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $employee->empJob->designation->name ?? config('global.null_value') }}
                                                             </td>
                                                             <td>{{ $employee->empJob->office->name ?? config('global.null_value') }}
                                                             </td>
@@ -212,10 +227,26 @@
                                                             </td>
 
                                                             <td>
-                                                                <span
-                                                                    class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 'Active' ? 'primary' : 'danger' }}">
-                                                                    {{ $employee->is_active }}
+                                                                @php
+                                                                // Define valid statuses and their corresponding badge colors
+                                                                $statusColors = [
+                                                                'active' => 'primary',
+                                                                'resigned' => 'danger',
+                                                                'compulsory_retirement' => 'secondary',
+                                                                'super_annuate' => 'info',
+                                                                ];
+
+                                                                // Normalize the status value from the accessor
+                                                                $status = strtolower(str_replace(' ', '_', $employee->is_active ?? 'active'));
+
+                                                                // Determine badge color, default to secondary for unknown statuses
+                                                                $badgeColor = $statusColors[$status] ?? 'secondary';
+                                                                @endphp
+
+                                                                <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $badgeColor }}">
+                                                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
                                                                 </span>
+
                                                             </td>
                                                             <td>
                                                                 <span
@@ -259,9 +290,9 @@
                                                 </table>
                                             </div>
                                             @if ($employees->hasPages())
-                                                <div class="card-footer">
-                                                    {{ $employees->links() }}
-                                                </div>
+                                            <div class="card-footer">
+                                                {{ $employees->links() }}
+                                            </div>
                                             @endif
                                         </div>
                                     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendCredentialsMail;
+use App\Models\FunctionModel;
 use App\Models\MasDepartment;
 use App\Models\MasDesignation;
 use Illuminate\Http\Request;
@@ -33,7 +34,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\Api\SOMs\ApiController as SomsApiController;
+use App\Models\MasCompany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use App\Models\SystemNotification;
 
 class EmployeeController extends Controller
 {
@@ -58,7 +62,35 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
+        $user = auth()->user();
+        $isAdmin = $user->roles()->where('name', 'Administrator')->exists();
+        $isHRorHOD = $user->roles()->whereIn('name', [
+            'Human Resource',
+            'Head Of Department'
+        ])->exists();
+        $companyId = $user->empJob->mas_company_id ?? null;
         $privileges = $request->instance();
+        $companies = MasCompany::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+
+        $functions = FunctionModel::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('mas_company_id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+        $employeesQuery = User::filter($request);
+
+        // Restrict employees for HR/HOD
+        if (!$isAdmin && $companyId) {
+            $employeesQuery->whereHas('empJob', function ($q) use ($companyId) {
+                $q->where('mas_company_id', $companyId);
+            });
+        }
+
+        $employees = $employeesQuery
+            ->orderBy('id')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
         $empTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
@@ -66,16 +98,31 @@ class EmployeeController extends Controller
         $workLocations = MasOffice::orderBy('name')->get(['id', 'name']);
 
         // dd(User::get());
-        $employees = User::filter($request)->orderBy('id')->paginate(config('global.pagination'))->withQueryString();
-        return view('employee/employee-list.index', compact('privileges', 'employees', 'departments', 'sections', 'designations', 'workLocations', 'empTypes'));
+        return view('employee/employee-list.index', compact('privileges', 'employees', 'companies', 'functions', 'departments', 'sections', 'designations', 'workLocations', 'empTypes'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
     {
+        $user = auth()->user();
+        // Role checks
+        $isAdmin = $user->roles()->where('name', 'Administrator')->exists();
+        $isHRorHOD = $user->roles()->whereIn('name', [
+            'Human Resource',
+            'Head Of Department'
+        ])->exists();
+        $companyId = $user->empJob->mas_company_id ?? null;
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
         $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
+        $companies = MasCompany::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+
+        $functions = FunctionModel::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('mas_company_id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
         $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name', 'point']);
@@ -89,7 +136,7 @@ class EmployeeController extends Controller
         $suffix = MasEmployeeJob::select('suffix')->get();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
 
-        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles', 'employeeGroups'));
+        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'companies', 'functions', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles', 'employeeGroups'));
     }
 
     /**
@@ -99,12 +146,21 @@ class EmployeeController extends Controller
     {
         $employeeId = $request->employee_id ?? "";
         $nextTab = 'address';
+
         try {
             $employeeId = $this->savePersonalInfo($request->personal, $request);
 
-            return redirect()->route('employee-lists.edit', ['employee_list' => $employeeId, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully.');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('msg_error', $e->getMessage());
+            return redirect()
+                ->route('employee-lists.edit', [
+                    'employee_list' => $employeeId,
+                    'tab' => $nextTab
+                ])
+                ->with('msg_success', 'Data saved successfully.');
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('msg_error', $e->getMessage());
         }
     }
 
@@ -136,8 +192,23 @@ class EmployeeController extends Controller
     public function edit(string $id)
 
     {
+        $user = auth()->user();
+        $isAdmin = $user->roles()->where('name', 'Administrator')->exists();
+        $isHRorHOD = $user->roles()->whereIn('name', [
+            'Human Resource',
+            'Head Of Department'
+        ])->exists();
+        $companyId = $user->empJob->mas_company_id ?? null;
         $employee = User::findOrFail($id);
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
+        $companies = MasCompany::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+
+        $functions = FunctionModel::when(!$isAdmin && $companyId, function ($q) use ($companyId) {
+            $q->where('mas_company_id', $companyId);
+        })->orderBy('name')->get(['id', 'name']);
+
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
@@ -148,22 +219,21 @@ class EmployeeController extends Controller
         $rolesAssigned = $employee->roles->pluck('id')->toArray();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
         $employeeGroupMaps = MasEmployeeGroupMap::where('mas_employee_id', $id)->pluck('mas_employee_group_id')->toArray();
-        $points = [];
         $startingSalary = 0;
         $increment = 0;
         $endingSalary = 0;
-        $selectedPoint = 0;
         if (!is_null($employee->empJob) && $employee->empJob->mas_grade_step_id) {
             $gradeStep = MasGradeStep::where('id', $employee->empJob->mas_grade_step_id)->first();
             $startingSalary = $gradeStep->starting_salary;
+            $midSalary = $gradeStep->mid_salary;
             $endingSalary = $gradeStep->ending_salary;
             $increment = $gradeStep->increment;
-            $points = range(1, $gradeStep->point);
+            $increment2 = $gradeStep->increment2;
         }
         if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment) {
             $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
         }
-        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'companies', 'functions', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'startingSalary', 'increment', 'endingSalary'));
     }
 
     /**
@@ -215,9 +285,9 @@ class EmployeeController extends Controller
             }
             $employee = User::where('id', $id)->first();
 
-            if ($employee->status == 'Completed' && !$employee->registered_email_sent) {
-                Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
-            }
+            // if ($employee->status == 'Completed' && !$employee->registered_email_sent) {
+            //     Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
+            // }
             $employee->registered_email_sent = true;
             $employee->save();
             if ($employee->status == 'Completed') {
@@ -264,7 +334,20 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
+        $exitStatuses = [
+            'resigned',
+            'compulsory_retirement',
+            'super_annuate'
+        ];
+        $activeStatus = 'active';
+        $existingUser = $employeeId ? User::find($employeeId) : null;
+        $oldStatus     = $existingUser?->is_active;
+        $oldFunctionId = $existingUser?->empJob?->mas_function_id;
+
         $user = $employeeId ? User::findOrFail($employeeId) : null;
+        $oldStatus = $user?->is_active;
+        $oldFunctionId = $user?->empJob?->mas_function_id;
+
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -279,6 +362,7 @@ class EmployeeController extends Controller
             'personal.nationality' => 'required',
             'personal.date_of_appointment' => 'required|date',
             'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'personal.is_active' => 'required|in:active,resigned,compulsory_retirement,super_annuate',
         ];
 
         $userPassword = $user ? $user->password : null;
@@ -314,7 +398,6 @@ class EmployeeController extends Controller
         } else {
             throw new \Exception('Please upload the employee CID copy.');
         }
-
         // Prepare the data to be saved
         $userData = [
             'first_name' => $personalInfo['first_name'] ?? null,
@@ -337,7 +420,7 @@ class EmployeeController extends Controller
             'contact_number' => $personalInfo['contact_number'],
             'nationality' => $personalInfo['nationality'],
             'date_of_appointment' => $personalInfo['date_of_appointment'],
-            'is_active' => $personalInfo['is_active'],
+            'is_active' => $personalInfo['is_active'] ?? 'active',
             'profile_pic' => $profilePic,
             'cid_copy' => $empCidCopy,
             'status' => $request->status ?? ($user->status == 'Completed' ? 1 : 0),
@@ -348,10 +431,59 @@ class EmployeeController extends Controller
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
+        $newStatus = $user->is_active;
+        if ($employeeId && $oldStatus && $oldStatus !== $newStatus && $oldFunctionId) {
+
+            $wasActive   = $oldStatus === $activeStatus;
+            $isNowActive = $newStatus === $activeStatus;
+
+            $wasExit   = in_array($oldStatus, $exitStatuses);
+            $isNowExit = in_array($newStatus, $exitStatuses);
+
+            $function = \App\Models\FunctionModel::findOrFail($oldFunctionId);
+            $strengthChanged = false;
+
+            // Active → Exit  (-1)
+            if ($wasActive && $isNowExit && $function->current_strength > 0) {
+                $function->current_strength--;
+                $strengthChanged = true;
+            }
+
+            // Exit → Active  (+1)
+            if ($wasExit && $isNowActive) {
+                $function->current_strength++;
+                $strengthChanged = true;
+            }
+
+            if ($strengthChanged) {
+                $function->save();
+
+                if ($function->current_strength < $function->approved_strength) {
+
+                    $hodUsers = User::whereHas('roles', fn($q) => $q->where('name', 'Head Of Department')) // HOD role
+                        ->whereHas('empJob', fn($q) => $q->where('mas_company_id', $function->mas_company_id)) // same company
+                        ->active()
+                        ->get();
+
+                    foreach ($hodUsers as $hod) {
+                        SystemNotification::create([
+                            'mas_employee_id' => $hod->id,
+                            'title'           => 'Manpower Requisition Required',
+                            'message'         => sprintf(
+                                'Employee %s has %s. Function "%s" now has less manpower than approved strength. Please raise MPR.',
+                                $user->name,
+                                str_replace('_', ' ', $newStatus),
+                                $function->name
+                            ),
+                            'created_by'      => auth()->id() ?? 1,
+                        ]);
+                    }
+                }
+            }
+        }
 
         return $user->id;
     }
-
 
     private function saveAddress($permanentAddress, $currentAddress, $employeeId, $request)
     {
@@ -401,7 +533,7 @@ class EmployeeController extends Controller
         ];
         $request->validate([
             'job.mas_department_id' => 'required',
-            // 'job.mas_section_id' => 'required',
+            'job.mas_section_id' => 'required',
             'job.mas_designation_id' => 'required',
             'job.mas_grade_id' => 'required',
             'job.mas_grade_step_id' => 'required',
@@ -411,9 +543,57 @@ class EmployeeController extends Controller
             'job.salary_disbursement_mode' => 'required',
             'job.bank' => 'required_if:job.salary_disbursement_mode,2',
             'job.account_number' => 'requiredif:salary_disbursement_mode,2',
+            'job.mas_company_id' => 'required',
+            'job.mas_function_id' => 'required',
 
         ], $messages);
 
+
+        // Handle function strength safely
+        if (!empty($job['mas_function_id'])) {
+
+            $newFunctionId = $job['mas_function_id'];
+
+            // Get existing job BEFORE updateOrCreate
+            $oldJob = MasEmployeeJob::where('mas_employee_id', $employeeId)->first();
+            $oldFunctionId = $oldJob?->mas_function_id;
+
+            // NEW employee
+            if (!$oldJob) {
+
+                $function = FunctionModel::findOrFail($newFunctionId);
+
+                if ($function->current_strength >= $function->approved_strength) {
+                    throw ValidationException::withMessages([
+                        'job.mas_function_id' =>
+                        'Approved strength is full. Cannot assign employee.',
+                    ]);
+                }
+
+                $function->increment('current_strength');
+            }
+
+            // EDIT employee → function changed
+            elseif ($oldFunctionId != $newFunctionId) {
+
+                $newFunction = FunctionModel::findOrFail($newFunctionId);
+
+                if ($newFunction->current_strength >= $newFunction->approved_strength) {
+                    throw ValidationException::withMessages([
+                        'job.mas_function_id' =>
+                        'Approved strength is full for the selected function.',
+                    ]);
+                }
+
+                // Decrease old function strength
+                FunctionModel::where('id', $oldFunctionId)
+                    ->where('current_strength', '>', 0)
+                    ->decrement('current_strength');
+
+                // Increase new function strength
+                $newFunction->increment('current_strength');
+            }
+        }
         $empJob = MasEmployeeJob::updateOrCreate(
             ['mas_employee_id' => $employeeId],
             [
@@ -421,7 +601,6 @@ class EmployeeController extends Controller
                 'mas_department_id' => $job['mas_department_id'],
                 'mas_section_id' => $job['mas_section_id'] ?? null,
                 'mas_designation_id' => $job['mas_designation_id'],
-                'suffix' => $job['suffix'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
                 'has_probation' => $job['mas_employment_type_id'] == 2 ? 1 : 0,
@@ -435,29 +614,10 @@ class EmployeeController extends Controller
                 'account_number' => $job['account_number'] ?? null,
                 'pf_number' => $job['pf_number'],
                 'tpn_number' => $job['tpn_number'],
-                'gis_policy_number' => $job['gis_policy_number'],
+                'mas_company_id' => $job['mas_company_id'],
+                'mas_function_id' => $job['mas_function_id'],
             ]
         );
-
-        // Handle employee group mapping
-        if (!empty($job['employee_group'])) {
-            $empGroupMaps = [];
-            // Prepare data for employee groups
-            foreach ($job['employee_group'] as $value) {
-                $empGroupMaps[] = [
-                    'mas_employee_id' => $employeeId,
-                    'mas_employee_group_id' => $value,
-                    'created_by' => $request->user()->id,
-                    'updated_by' => $request->user()->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-            // Delete existing mappings for this employee to avoid duplicates
-            MasEmployeeGroupMap::where('mas_employee_id', $employeeId)->delete();
-            // Insert new mappings
-            MasEmployeeGroupMap::insert($empGroupMaps);
-        }
     }
 
     private function saveQualifications($qualifications, $employeeId, $request)
@@ -781,7 +941,7 @@ class EmployeeController extends Controller
             'Active' => 'Y'
         ];
 
-        $this ->apiController->postProfitCenter($profitCenterEmpData);
+        $this->apiController->postProfitCenter($profitCenterEmpData);
         $this->apiController->postEmployeeToSap($sapData);
     }
 
@@ -880,8 +1040,8 @@ class EmployeeController extends Controller
 
             // Update the employee record and related job details
             $record->regularized_on = Carbon::parse($record->date_of_appointment)
-                                ->addMonths(6)
-                                ->format('Y-m-d');
+                ->addMonths(6)
+                ->format('Y-m-d');
             $record->empJob->mas_employment_type_id = 2;
             $record->empJob->save();
             $record->save();

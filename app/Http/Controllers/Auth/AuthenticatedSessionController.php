@@ -24,18 +24,32 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $activeUser = User::where('username', $request->username)->value('is_active');
-        if($activeUser != "Active"){
-            return back()->withInput()->with('msg_error', 'The user associated with these credentials has been deactivated. Please contact the system administrator for further assistance.');
-        }
-        $request->authenticate();
+ public function store(LoginRequest $request): RedirectResponse
+{
+    // Fetch the user by username
+    $user = User::where('username', $request->username)->first();
 
-        $request->session()->regenerate();
-        
-        return redirect()->intended(RouteServiceProvider::HOME);
+    if (!$user) {
+        return back()->withInput()->with('msg_error', 'Invalid username or password.');
     }
+
+    // Define inactive statuses
+    $inactiveStatuses = ['resigned', 'compulsory_retirement', 'super_annuate'];
+
+    // Check if user is inactive
+    if (in_array(strtolower($user->is_active), $inactiveStatuses)) {
+        return back()->withInput()->with('msg_error', 'The user associated with these credentials has been deactivated. Please contact the system administrator for further assistance.');
+    }
+
+    // Authenticate the request
+    $request->authenticate();
+
+    // Regenerate session
+    $request->session()->regenerate();
+
+    return redirect()->intended(RouteServiceProvider::HOME);
+}
+
 
     /**
      * Destroy an authenticated session.

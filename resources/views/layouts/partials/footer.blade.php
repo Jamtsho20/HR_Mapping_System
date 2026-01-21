@@ -1,16 +1,15 @@
 </div>
 <!-- FOOTER -->
-<footer class="footer">
-    <div class="container">
-        <div class="row align-items-center flex-row-reverse">
-            <div class="col-md-12 col-sm-12 text-center">
-                Copyright © <span id="year">2023</span>
-                Designed with <span class="fa fa-heart text-danger"></span> by <a href="https://sas.tashicell.com/"> SAS</a>
-                All rights reserved
-            </div>
-        </div>
+<footer class="footer bg-gray-100 py-4">
+    <div class="container text-center">
+        <p class="text-gray-700">
+            &copy; <span id="year">2025</span> Designed & Developed by 
+            <a href="https://sas.tashicell.com/" class="text-blue-600 hover:underline">SAS</a>. 
+            All rights reserved.
+        </p>
     </div>
 </footer>
+
 <!-- FOOTER END -->
 </div>
 <!-- BACK-TO-TOP -->

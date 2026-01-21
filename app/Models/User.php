@@ -148,10 +148,16 @@ class User extends Authenticatable
         return $this->hasMany(AttendanceDetail::class, 'employee_id');
     }
 
+    public function company()
+    {
+        return $this->belongsTo(MasCompany::class);
+    }
+
     public function isActive()
     {
-        return $this->is_active == 1;
+        return $this->is_active === 'active';
     }
+
 
     public function durationOfService()
     {
@@ -227,20 +233,28 @@ class User extends Authenticatable
             });
         }
 
-        if ($request->has('is_active') && $request->query('is_active') != '') {
-            $status = $request->query('is_active') === 'Active' ? 1 : 0;
-            $query->where('is_active', $status);
+        if ($request->has('is_active') && $request->query('is_active') !== '') {
+            $status = strtolower($request->query('is_active'));
+            $query->whereRaw('LOWER(is_active) = ?', [$status]);
         }
     }
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', 1);
+        return $query->where('is_active', 'active');
     }
 
-    public function scopeEmployee($query){
-        return $query->where('id', '<>', SUPER_USER_ID)->where('id', '<>', SAP_USER_ID);
+    public function scopeEmployee($query)
+    {
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'Administrator');
+        });
     }
+
+    //    public function scopeEmployee($query)
+    //     {
+    //         return $query->where('id', '<>', SUPER_USER_ID)->where('id', '<>', SAP_USER_ID);
+    //     }
 
 
     public function scopeCompleted($query)
@@ -251,7 +265,7 @@ class User extends Authenticatable
     //accessors & mutators refeer this
     public function getIsActiveAttribute($value)
     {
-        return ucwords($value == 1 ? 'active' : 'inactive');
+        return $value;
     }
 
     public function getStatusAttribute($value)

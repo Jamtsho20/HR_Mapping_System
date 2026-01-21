@@ -33,10 +33,10 @@
             <select name="personal[title]" id="" class="form-control form-control-sm" required>
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach (config('global.title') as $title)
-                    <option value="{{ $title }}"
-                        {{ old('personal.title', isset($employee) ? $employee->title : '') == $title ? 'selected' : '' }}>
-                        {{ $title }}
-                    </option>
+                <option value="{{ $title }}"
+                    {{ old('personal.title', isset($employee) ? $employee->title : '') == $title ? 'selected' : '' }}>
+                    {{ $title }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -58,9 +58,10 @@
             <select name="personal[gender]" class="form-control form-control-sm" required>
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach (config('global.gender') as $key => $value)
-                    <option value="{{ $key }}"
-                        {{ old('personal.gender', isset($employee) ? $employee->gender : '') == $key ? 'selected' : '' }}>
-                        {{ $value }}</option>
+                <option value="{{ $key }}"
+                    {{ old('personal.gender', isset($employee) ? $employee->gender : '') == $key ? 'selected' : '' }}>
+                    {{ $value }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -89,9 +90,10 @@
             <select name="personal[marital_status]" class="form-control form-control-sm" required>
                 <option value="" disabled selected hidden>select your option</option>
                 @foreach (config('global.marital_status') as $key => $value)
-                    <option value="{{ $key }}"
-                        {{ old('personal.marital_status', isset($employee) ? $employee->marital_status : '') == $key ? 'selected' : '' }}>
-                        {{ $value }}</option>
+                <option value="{{ $key }}"
+                    {{ old('personal.marital_status', isset($employee) ? $employee->marital_status : '') == $key ? 'selected' : '' }}>
+                    {{ $value }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -118,9 +120,10 @@
             <select name="personal[nationality]" class="form-control form-control-sm" required>
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach (config('global.nationality') as $nationality)
-                    <option value="{{ $nationality }}"
-                        {{ old('personal.nationality', isset($employee) ? $employee->nationality : '') == $nationality ? 'selected' : '' }}>
-                        {{ $nationality }}</option>
+                <option value="{{ $nationality }}"
+                    {{ old('personal.nationality', isset($employee) ? $employee->nationality : '') == $nationality ? 'selected' : '' }}>
+                    {{ $nationality }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -136,40 +139,66 @@
             <input type="file" class="form-control form-control-sm" name="personal[cid_copy]" id="imageInput"
                 accept="image/*" @if (empty($employee->cid_copy)) required @endif>
             @if (!empty($employee->cid_copy))
-                <div class="mt-2">
-                    <a href="{{ asset($employee->cid_copy) }}" target="_blank" class="btn btn-link">
-                        <i class="fas fa-file-alt"></i> View Current CID Copy
-                    </a>
-                </div>
+            <div class="mt-2">
+                <a href="{{ asset($employee->cid_copy) }}" target="_blank" class="btn btn-link">
+                    <i class="fas fa-file-alt"></i> View Current CID Copy
+                </a>
+            </div>
             @endif
         </div>
         <div class="form-group col-md-4">
             <label for="profile_pic">Profile Picture</label>
             <input type="file" class="form-control form-control-sm" name="personal[profile_pic]">
             @if (!empty($employee->profile_picture))
-                <div class="mt-2">
-                    <img src="{{ $employee->profile_picture }}" alt="Profile" class="img-thumbnail">
-                </div>
+            <div class="mt-2">
+                <img src="{{ $employee->profile_picture }}" alt="Profile" class="img-thumbnail">
+            </div>
             @endif
         </div>
-        <div class=" form-group col-md-4">
-            <div class="form-label mt-6"></div>
-            <label class="custom-switch">
-                <input type="hidden" name="personal[is_active]" value="0">
-                <input type="checkbox" name="personal[is_active]"
-                    class="custom-switch-input form-control form-control-sm" value="1"
-                    {{ old('personal.is_active', isset($employee) && $employee->is_active == 'Active' ? 1 : 0) == 1 ? 'checked' : '' }} />
-                <span class="custom-switch-indicator"></span>
-                <span class="custom-switch-description">is Active</span>
+      <div class="form-group col-md-4">
+    <label class="form-label">Employee Status</label>
+
+    @php
+        // Ensure we always get a valid status
+        $validStatuses = ['active','resigned','compulsory_retirement','super_annuate'];
+        $currentStatus = old('personal.is_active', $employee->is_active ?? 'active');
+
+        // If the current value is invalid, fallback to 'active'
+        if (!in_array($currentStatus, $validStatuses)) {
+            $currentStatus = 'active';
+        }
+
+        // Map for labels (optional, makes it cleaner)
+        $statusLabels = [
+            'active' => 'Active',
+            'resigned' => 'Resigned',
+            'compulsory_retirement' => 'Compulsory Retirement',
+            'super_annuate' => 'Superannuate',
+        ];
+    @endphp
+
+    <div class="custom-controls-stacked">
+        @foreach($validStatuses as $status)
+            <label class="custom-control custom-radio">
+                <input type="radio"
+                       class="custom-control-input"
+                       name="personal[is_active]"
+                       value="{{ $status }}"
+                       @checked($currentStatus === $status)>
+                <span class="custom-control-label">{{ $statusLabels[$status] }}</span>
             </label>
-        </div>
+        @endforeach
+    </div>
+</div>
+
+
     </div>
 </div>
 
 @push('page-scripts')
-    <script>
-        $(document).ready(function() {
-            $('#contact_number').mask('--------'); // 8-digit mask
-        });
-    </script>
+<script>
+    $(document).ready(function() {
+        $('#contact_number').mask('--------'); // 8-digit mask
+    });
+</script>
 @endpush

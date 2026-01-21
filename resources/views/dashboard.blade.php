@@ -1,23 +1,12 @@
-{{-- <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-</h2>
-</x-slot>
-
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                {{ __("You're logged in!") }}
-            </div>
-        </div>
-    </div>
-</div>
-</x-app-layout> --}}
-
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
+@section(
+'page-title',
+'Dashboard' . (
+isset(auth()->user()->empJob->company)
+? ' - ' . auth()->user()->empJob->company->name
+: ''
+)
+)
 @section('content')
 @php
 $hour = now()->format('H');
@@ -33,247 +22,219 @@ if ($hour >= 5 && $hour < 12) {
         }
 
         $user=auth()->user();
-        $title = $user->title ?? ''; // fetch title like 'Miss', 'Mr.', etc.
+        $title = $user->title ?? '';
         $employeeName = $user->name ?? 'User';
         @endphp
 
-        <div class="card mb-2 shadow-sm border-0">
-            <div class="card-body py-0">
-                <h4 class="fw-bold mb-0 fs-5">
-                    {{ $icon }} {{ $greeting }}, {{ $title }} {{ $employeeName }}!
-                </h4>
+        <!-- Welcome Card -->
+        <div class="card mb-4 shadow-sm border-0 bg-gradient-primary text-white">
+            <div class="card-body py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-0 fs-5" style="color: #584e4eff;">
+                            {{ $icon }} {{ $greeting }}, {{ $title }} {{ $employeeName }}!
+                        </h4>
+                        <p class="mt-4 mb-0 opacity-75" style="color: #7d8491ff;">Welcome to your dashboard</p>
+                    </div>
+                    <div class="text-end">
+                        <p class="mb-0 fs-6" style="color:#1cc88a">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ now()->format('l, F j, Y') }}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
-
-        {{-- Holiday Alert (Displayed at the Top) --}}
+        <!-- Holiday Alert -->
         @php
         $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
         @endphp
 
         @if ($holidayAlert)
-        <div class="card mb-3 small-card bg-success">
-            <div class="card-body">
-                <p class="card-text text-white">* {{ $holidayAlert['message'] }}</p>
-            </div>
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-bell me-2"></i>
+            <strong>Holiday Alert:</strong> {{ $holidayAlert['message'] }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         @endif
 
-
-
-        <div class="row">
-            <!-- Casual Leave Chart -->
-            <div class="col-md-6">
-                <div class="bg-white p-4 mb-5">
-                    <h5>Casual Leave</h5>
-                    <div style="width:50%; margin: auto;">
-                        <canvas id="casualLeaveChart"></canvas>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <!-- Total Employees -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start-primary border-3 border-0 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                                    Total Employees
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">
+                                    {{ $totalEmployees ?? '0' }}
+                                </div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span class="text-success me-2">
+                                        <i class="fa fa-arrow-up"></i> Active
+                                    </span>
+                                    <span>{{ $activeEmployees ?? '0' }} active</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa fa-users fa-2x text-success"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- Earned Leave Chart -->
-            <div class="col-md-6">
-                <div class="bg-white p-4 mb-5">
-                    <h5>Earned Leave</h5>
-                    @if ($showEarnedLeave)
-                    <div style="width:50%; margin: auto;">
-                        <canvas id="earnedLeaveChart"></canvas>
+            <!-- MRF (Manpower Requisition Forms) -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start-warning border-3 border-0 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                                    Pending MRF
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">
+                                    {{ $pendingMRF ?? '0' }}
+                                </div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span class="text-info me-2">
+                                        <i class="fa fa-clock-o"></i> In Process
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa fa-clock-o fa-2x text-warning"></i>
+                            </div>
+                        </div>
                     </div>
-                    @else
-                    <p>Earned leave chart is not available for your employment type.</p>
-                    @endif
+                </div>
+            </div>
+            <!-- Departments -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start-info border-3 border-0 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                                    Total Departments
+                                </div>
+                                <div class="h5 mb-0 fw-bold">
+                                    {{ $totalDepartments ?? '0' }}
+                                </div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span class="text-success me-2">
+                                        <i class="fa fa-building"></i>
+                                    </span>
+                                    <span>{{ $activeDepartments ?? '0' }} active</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa fa-building fa-2x text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Functions -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-start-success border-3 border-0 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">
+                                    Total Functions
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">
+                                    {{ $totalFunctions ?? '0' }}
+                                </div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span class="text-success me-2">
+                                        <i class="fa fa-sitemap"></i>
+                                    </span>
+                                    <span>{{ $activeFunctions ?? '0' }} active</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa fa-sitemap fa-2x text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="colorBoxContainer" style="margin-top: 20px; text-align: center;"></div> <!-- Container for color box -->
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-
-        <script>
-            // Function to initialize a doughnut chart
-            function createDoughnutChart(ctx, labels, data, chartLabel) {
-                const defaultText = `${labels[1]}`; //default label will be Balance
-                const defaultColor = 'rgb(11, 98, 164)'; //default color for balnce is set from here it self
-                const chart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: chartLabel,
-                            data: data,
-                            backgroundColor: [
-                                'rgb(50, 205, 50)', // Green for Approved
-                                'rgb(11, 98, 164)', // Dark Blue for Balance
-                                'rgb(255, 152, 0)', // Orange for In-Progress
-                            ],
-                            borderColor: [
-                                'rgb(50, 205, 50)',
-                                'rgb(11, 98, 164)',
-                                'rgb(255, 152, 0)',
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        cutout: '65%', // Creates the inner circle
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                align: 'start',
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(tooltipItem) {
-                                        return tooltipItem.label;
-                                    }
-                                }
-                            },
-                            centerText: {
-                                text: defaultText, // Set default text to "Balance"
-                                color: defaultColor,
-                            }
-                        },
-                        onClick: function(event, elements) {
-                            if (elements.length > 0) {
-                                const chartIndex = elements[0].index; // Index of the clicked segment
-                                const clickedLabel = labels[chartIndex]; // Get the label of the clicked segment
-                                const clickedValue = data[chartIndex]; // Get the value of the clicked segment
-
-                                // Update the center text
-                                chart.options.plugins.centerText.text = `${clickedLabel}`;
-                                chart.update();
-
-                                // Get the color of the clicked segment
-                                const clickedColor = chart.data.datasets[0].backgroundColor[chartIndex];
-                                // Call function to display the color in a square box inside the donut chart
-                                displayColorBoxInChart(chart, clickedColor);
-                            }
-                        }
-                    },
-                    plugins: [{
-                        id: 'centerText',
-                        beforeDraw(chart) {
-                            const {
-                                width,
-                                height,
-                                ctx
-                            } = chart;
-                            const text = chart.options.plugins.centerText.text || '';
-
-                            ctx.save();
-                            ctx.font = '13px sans-serif';
-                            ctx.fillStyle = '#333'; // Set text color
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-
-                            // Calculate the exact center of the canvas
-                            const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
-                            const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-
-
-                            ctx.fillText(text, centerX, centerY); // Draw the text
-
-                            // Draw the color box next to the text (just slightly to the right)
-                            const colorBoxSize = 14; // Size of the color box
-                            const colorBoxX = centerX - 60; // X position to the right of the center
-                            const colorBoxY = centerY - 8; // Y position aligned with the text
-                            if (chart.options.plugins.centerText.color) {
-                                ctx.fillStyle = chart.options.plugins.centerText.color;
-                                ctx.fillRect(colorBoxX, colorBoxY, colorBoxSize, colorBoxSize); // Draw color box
-                            }
-
-                            ctx.restore();
-                        }
-                    }]
-                });
-
-                return chart;
-            }
-
-            // Function to display the color box inside the chart
-            function displayColorBoxInChart(chart, color) {
-                // Update color in the chart options for centerText plugin
-                chart.options.plugins.centerText.color = color;
-                chart.update(); // Re-render the chart to show the updated color box
-            }
-
-            // Casual Leave Chart Initialization
-            document.addEventListener('DOMContentLoaded', function() {
-                var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
-                createDoughnutChart(
-                    ctxCasual,
-                    @json($leaveData),
-                    @json($statusCounts),
-                    'Leave Application Statuses'
-                );
-
-                // Earned Leave Chart Initialization
-                var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
-                createDoughnutChart(
-                    ctxEarned,
-                    @json($earnedLeaveData),
-                    @json($earnedLeaveCounts),
-                    'Earned Leave Statuses'
-                );
-            });
-        </script>
-
-        <div class="row">
-            <style>
-                /* Glowing effect */
-                .glow {
-                    animation: glow 1s infinite alternate;
-                    background-color: rgb(11, 98, 164);
-                    /* Set base background color */
-                    color: white;
-                    /* Ensures text is visible */
-                }
-
-                @keyframes glow {
-                    from {
-                        box-shadow: 0 0 5px rgba(11, 98, 164, 0.7);
-                        background-color: rgb(11, 98, 164);
-                    }
-
-                    to {
-                        box-shadow: 0 0 15px rgba(11, 98, 164, 1);
-                        background-color: rgb(15, 120, 190);
-                        /* Slightly lighter shade for animation */
-                    }
-                }
-            </style>
-
-            <div class="col-md-6">
-                <div class="card">
+        <!-- Strength Overview -->
+        <div class="row mb-4">
+            <!-- Strength Statistics -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-primary">Strength Overview</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">All Functions</a></li>
+                                <li><a class="dropdown-item" href="#">Active Only</a></li>
+                                <li><a class="dropdown-item" href="#">By Department</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="card-body">
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-condensed table-striped table-bordered table-sm">
-                                <thead>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th colspan="5">
-                                            <h5><strong>Holidays</strong></h5>
-                                        </th>
-                                    </tr>
-                                    <tr class="thead-light">
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
+                                        <th>Function</th>
+                                        <th>Approved</th>
+                                        <th>Current</th>
+                                        <th>Vacancy</th>
+                                        <th>Utilization</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($holidays as $index => $holiday)
-                                    <tr class="{{ $index == 0 ? 'glow' : '' }}"> <!-- Apply glow class only to the first row -->
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $holiday->holiday_name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
+                                    @forelse($functionsStrength ?? [] as $function)
+                                    @php
+                                    $vacancy = $function->approved_strength - $function->current_strength;
+                                    $utilization = $function->approved_strength > 0
+                                    ? round(($function->current_strength / $function->approved_strength) * 100, 1)
+                                    : 0;
+                                    $utilizationColor = $utilization >= 90 ? 'text-danger' :
+                                    ($utilization >= 75 ? 'text-warning' : 'text-success');
+                                    @endphp
+                                    <tr>
+                                        <td class="fw-medium">{{ $function->name }}</td>
+                                        <td>{{ $function->approved_strength }}</td>
+                                        <td>{{ $function->current_strength }}</td>
+                                        <td>
+                                            <span class="{{ $vacancy > 0 ? 'text-success' : 'text-secondary' }}">
+                                                {{ $vacancy }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                    <div class="progress-bar {{ $utilization >= 90 ? 'bg-danger' : ($utilization >= 75 ? 'bg-warning' : 'bg-primary') }}"
+                                                        role="progressbar" style="width: {{ $utilization }}%;"
+                                                        aria-valuenow="{{ $utilization }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="{{ $utilizationColor }} fw-medium">
+                                                    {{ $utilization }}%
+                                                </span>
+                                            </div>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-danger">No holidays found</td>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle me-2"></i>No function data available
+                                        </td>
                                     </tr>
                                     @endforelse
                                 </tbody>
@@ -283,215 +244,326 @@ if ($hour >= 5 && $hour < 12) {
                 </div>
             </div>
 
-
-
-
-
-            <div class="col-md-6">
-                <div class="card">
+            <!-- Sections Overview -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-primary">Sections Overview</h6>
+                    </div>
                     <div class="card-body">
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-condensed table-striped table-bordered table-sm">
-                                <thead>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="thead-light">
                                     <tr>
-                                        <th colspan="3">
-                                            <h5><strong>Notifications</strong></h5>
-                                        </th>
-                                    </tr>
-
-                                    <tr class="thead-light">
-                                        <th>#</th>
-                                        <th>Title</th>
-                                        <th>Message</th>
+                                        <th>Department</th>
+                                        <th>Sections</th>
+                                        <th>Employees</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $index = 1; @endphp
-
-                                    @foreach ($notifications as $notification)
-                                    @if ($notification['title'] !== 'Holiday Alert') {{-- Exclude Holiday Alert --}}
-                                    <tr class="notification-row" data-id="{{ $notification['id'] ?? 'N/A' }}">
-                                        <td>{{ $index++ }}</td>
-                                        <td>{{ $notification['title'] }}</td>
-                                        <td>{{ $notification['message'] }}</td>
-                                    </tr>
-                                    @endif
-                                    @endforeach
-
-                                    @if ($alerts->isNotEmpty())
-                                    @foreach ($alerts as $alert)
+                                    @forelse($departmentsWithSections ?? [] as $department)
+                                    @php
+                                    // Use sections_count from withCount() or default to 0
+                                    $sectionCount = $department->sections_count ?? 0;
+                                    // Use employees_count that was added in controller
+                                    $employeeCount = $department->employees_count ?? 0;
+                                    @endphp
                                     <tr>
-                                        <td>{{ $index++ }}</td> <!-- Increment index here -->
-                                        <td>{{ $alert->lastPart }}</td>
-                                        <td>You have {{ $alert->count }} new alerts. <a class="text-primary"
-                                                href="{{ url('approval/applications?tab='.$alert->application_type_id) }}">Please review
-                                                them.</a></td>
+                                        <td class="fw-medium">{{ $department->name }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ $sectionCount }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ $employeeCount }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ $department->status == 'active' ? 'success' : 'secondary' }}">
+                                                {{ ucfirst($department->status) }}
+                                            </span>
+                                        </td>
                                     </tr>
-                                    @endforeach
-                                    @endif
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle me-2"></i>No department data available
+                                        </td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
-
                             </table>
                         </div>
-                    </div>
-
-
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                <table class="table table-condensed table-striped table-bordered table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="4">
-                                                <h5><strong>Assets</strong></h5>
-                                            </th>
-                                        </tr>
-                                        <tr class="thead-light">
-                                            <th>#</th>
-                                            <th>Serial Number</th>
-                                            <th>Item Description</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($assetData as $index => $asset)
-                                <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                     <td>
-                                            {{
-                                                ($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? '')
-                                                .
-                                                (($asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_no ?? null) && ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number) ? '-' : '')
-                                                .
-                                                ($asset->receivedSerial?->asset_serial_no ?? $asset->serial_number ?? config('global.null_value'))
-                                            }}
-                                        </td>
-                                        <td>{{ $asset->item->item_description ?? $asset->sapAssets->item_description ?? config('global.null_value')}}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-danger">No assets found</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <!-- Employees Distribution Chart -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-primary">Employees by Department</h6>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px;">
+                            <canvas id="departmentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Function Utilization Chart -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-primary">Function Utilization</h6>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px;">
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Notifications and Holidays -->
+        <div class="row">
+            <!-- Notifications -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-primary">Recent Notifications</h6>
+                        <span class="badge bg-primary">{{ count($notifications ?? []) }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @forelse($notifications ?? [] as $notification)
+                            @if(isset($notification['title']) && $notification['title'] !== 'Holiday Alert')
+                            <div class="list-group-item list-group-item-action border-0 py-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-bell text-warning me-2"></i>
+                                        {{ $notification['title'] ?? 'Notification' }}
+                                    </h6>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($notification['created_at'] ?? now())->diffForHumans() }}</small>
+                                </div>
+                                <p class="mb-1">{{ $notification['message'] ?? '' }}</p>
+                            </div>
+                            @endif
+                            @empty
+                            <div class="list-group-item border-0 py-4 text-center text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <p class="mb-0">No new notifications</p>
+                            </div>
+                            @endforelse
 
+                            @if(isset($alerts) && $alerts->isNotEmpty())
+                            @foreach($alerts as $alert)
+                            <div class="list-group-item list-group-item-action border-0 py-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                        {{ $alert->lastPart ?? 'Alert' }}
+                                    </h6>
+                                    <span class="badge bg-danger">{{ $alert->count ?? 0 }}</span>
+                                </div>
+                                <p class="mb-0">
+                                    You have {{ $alert->count ?? 0 }} new alerts.
+                                    @if(isset($alert->application_type_id))
+                                    <a href="{{ url('approval/applications?tab='.$alert->application_type_id) }}"
+                                        class="text-primary fw-medium">
+                                        Please review them.
+                                    </a>
+                                    @endif
+                                </p>
+                            </div>
+                            @endforeach
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                @endsection
+            <!-- Upcoming Holidays -->
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-primary">Upcoming Holidays</h6>
+                        <span class="badge bg-success">{{ count($holidays ?? []) }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @forelse($holidays ?? [] as $holiday)
+                            <div class="list-group-item list-group-item-action border-0 py-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-calendar-alt text-success me-2"></i>
+                                        {{ $holiday->holiday_name ?? 'Holiday' }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        @if(isset($holiday->start_date))
+                                        {{ \Carbon\Carbon::parse($holiday->start_date)->diffForHumans() }}
+                                        @endif
+                                    </small>
+                                </div>
+                                <p class="mb-0">
+                                    @if(isset($holiday->start_date))
+                                    <span class="badge bg-light text-dark me-2">
+                                        <i class="far fa-calendar me-1"></i>
+                                        {{ \Carbon\Carbon::parse($holiday->start_date)->format('M d') }}
+                                    </span>
+                                    @endif
+                                    @if(isset($holiday->end_date) && $holiday->start_date != $holiday->end_date)
+                                    <span class="badge bg-light text-dark">
+                                        <i class="far fa-calendar me-1"></i>
+                                        to {{ \Carbon\Carbon::parse($holiday->end_date)->format('M d') }}
+                                    </span>
+                                    @endif
+                                </p>
+                            </div>
+                            @empty
+                            <div class="list-group-item border-0 py-4 text-center text-muted">
+                                <i class="fas fa-calendar fa-2x mb-2"></i>
+                                <p class="mb-0">No upcoming holidays</p>
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endsection
 
-                <style>
-                    .glowing-text {
-                        text-shadow: 0 0 10px white,
-                            0 0 20px white,
-                            0 0 30px white;
-                        animation: glow 1.5s infinite alternate;
-                    }
+        @push('page_scripts')
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Initialize charts when DOM is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // Employees by Department Chart
+                const deptCtx = document.getElementById('departmentChart');
+                if (deptCtx) {
+                    new Chart(deptCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: @json($departmentChartLabels ?? []),
+                            datasets: [{
+                                label: 'Employees',
+                                data: @json($departmentChartData ?? []),
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
 
-
-
-
-                    .small-card {
-                        height: 70px;
-                        /* Adjust the height as per your requirement */
-                        overflow: hidden;
-                        /* Ensures content doesn't overflow */
-                        padding: 0px;
-                        /* Optional: Adjust padding to make it look compact */
-                        display: flex;
-                        /* Enable Flexbox */
-                        justify-content: center;
-                        /* Centers content horizontally */
-                        align-items: center;
-                        /* Centers content vertically */
-                    }
-
-                    .card-body {
-                        padding: 0px;
-                        /* Optional: Adjust padding inside the card */
-                        width: 100%;
-                        /* Ensures the card body takes full width */
-                    }
-
-
-                    .card {
-                        background: #fff;
-                        border: 1px solid #ddd;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                        /* margin: 20px; */
-                        padding: 20px;
-                    }
-
-                    .card-header h3 {
-                        font-size: 1.5rem;
-                        font-weight: 600;
-                        color: #333;
-                    }
-
-                    .card-body {
-                        display: flex;
-                    }
-
-                    /* .col-md-4,
-    .col-md-3,
-    .col-md-2 {
-        padding: 20px;
-    } */
-
-                    .col-md-3 {
-                        position: relative;
-                        border-right: 1px solid #ddd;
-                    }
-
-                    .col-md-3:last-child {
-                        border-right: none;
-                    }
-
-                    .profileinfo img {
-                        width: 100%;
-                        border-radius: 50%;
-                    }
-
-                    .divider h4 {
-                        font-weight: 500;
-                        color: #666;
-                    }
-
-                    .table-responsive {
-                        max-height: 300px;
-                        overflow-y: auto;
-
-                    }
-                </style>
-                @push('page_scripts')
-                <!-- <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                // Select all notification rows
-                const rows = document.querySelectorAll(".notification-row");
-
-                // Apply glow effect with delay for new notifications
-                rows.forEach((row, index) => {
-                    setTimeout(() => {
-                        row.classList.add("notification-glow");
-                        // Remove glow after 5 seconds
-                        setTimeout(() => {
-                            row.classList.remove("notification-glow");
-                        }, 5000);
-                    }, index * 1000); // Add delay between rows for effect
-                });
+                // Function Utilization Chart
+                const utilCtx = document.getElementById('utilizationChart');
+                if (utilCtx) {
+                    new Chart(utilCtx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: @json($functionChartLabels ?? []),
+                            datasets: [{
+                                data: @json($functionChartData ?? []),
+                                backgroundColor: [
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(153, 102, 255, 0.7)',
+                                    'rgba(54, 162, 235, 0.7)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right'
+                                }
+                            }
+                        }
+                    });
+                }
             });
-        </script> -->
-    @endpush
+        </script>
+        <style>
+            .card {
+                border-radius: 10px;
+                border: none;
+                transition: transform 0.2s;
+            }
+
+            .card:hover {
+                transform: translateY(-2px);
+            }
+
+            .border-start-primary {
+                border-left: 4px solid #4e73df !important;
+            }
+
+            .border-start-warning {
+                border-left: 4px solid #f6c23e !important;
+            }
+
+            .border-start-info {
+                border-left: 4px solid #36b9cc !important;
+            }
+
+            .border-start-success {
+                border-left: 4px solid #1cc88a !important;
+            }
+
+            .progress {
+                border-radius: 3px;
+            }
+
+            .badge {
+                font-size: 0.75em;
+                font-weight: 500;
+            }
+
+            .table th {
+                font-weight: 600;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                color: #6c757d;
+                border-top: none;
+            }
+
+            .table td {
+                font-size: 0.9rem;
+                vertical-align: middle;
+            }
+
+            .list-group-item {
+                transition: background-color 0.2s;
+            }
+
+            .list-group-item:hover {
+                background-color: #f8f9fa;
+            }
+        </style>
+        @endpush

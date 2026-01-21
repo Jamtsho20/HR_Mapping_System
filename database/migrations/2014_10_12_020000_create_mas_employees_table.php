@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('email');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('is_active')->default(1);
+            $table->enum('is_active', ['active','resigned','compulsory_retirement','super_annuate'])->default('active');
             $table->string('profile_pic')->nullable();
             $table->foreignId('created_by')->nullable()->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees');

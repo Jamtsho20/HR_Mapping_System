@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
 use App\Http\Controllers\Advance\AdvanceSifaLoanController;
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\AssetReport\CommissionReportController;
 use App\Http\Controllers\AssetReport\RequisitionReportController;
@@ -49,11 +50,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Asset\AssetUploadController;
+use App\Http\Controllers\MRF\MRFController;
 use App\Http\Controllers\TrainingApplication\TrainingEvaluationController;
 use App\Http\Controllers\TrainingApplication\MyEvaluationAnswerController;
-
-
-
 
 
 /*
@@ -174,6 +173,8 @@ Route::middleware('auth')->group(function () {
     // MASTERS
     Route::namespace('Master')->prefix('master')->group(function () {
         Route::resource('employment-types', 'EmploymentTypeController');
+        Route::resource('companies', 'CompanyController');
+        Route::resource('functions', 'FunctionController');
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
@@ -208,6 +209,16 @@ Route::middleware('auth')->group(function () {
         // Route::resource('training-lists', 'MasTrainingListController');
 
     });
+
+    // MRF
+    Route::namespace('MRF')->prefix('mrf')->group(function(){
+        Route::post('lists/{id}/approve', [MRFController::class, 'approve'])->name('mrf.approve');
+        Route::post('lists/{id}/reject', [MRFController::class, 'reject'])->name('mrf.reject');
+        Route::resource('lists', 'MRFController');
+    });
+
+
+
     //Training Module
     Route::namespace('TrainingApplication')->prefix('training-application')->name('training-application.')->group(function () {
         Route::resource('training-lists', 'MasTrainingListController');
@@ -226,6 +237,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('my-evaluations', MyEvaluationAnswerController::class)
             ->except('create');
     });
+        Route::get('training-application/my-evaluations', [MyEvaluationAnswerController::class, 'index'])
+        ->name('training-application.my-evaluations.index');
     Route::get('training-application/my-evaluations/{evaluation}/create', [MyEvaluationAnswerController::class, 'create'])
         ->name('training-application.my-evaluations.create');
     Route::delete('training-application/my-evaluations/{evaluationId}', [MyEvaluationAnswerController::class, 'destroy'])
@@ -604,6 +617,9 @@ Route::get('/employee-job/{id}', function ($id) {
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
+    Route::get('getfunctionsbycompany/{company}', 'AjaxRequestController@getFunctionsByCompany');
+    Route::get('/getfunctionstrength/{id}', 'AjaxRequestController@getStrength');
+    Route::get('getdesignationbyfunction/{id}', 'AjaxRequestController@getDesignation');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
     Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
     Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');

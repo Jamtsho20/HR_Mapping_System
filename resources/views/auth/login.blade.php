@@ -9,8 +9,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-center">
-                <h2>Human Resource Management System
-                    <br><br> Login
+                <h2>HR Mapping System
                 </h2>
             </div>
 
@@ -19,8 +18,11 @@
     <div class="container-login100">
         <div class="wrap-login100 p-0">
             <div class="card-body">
-                <img src="{{ asset('assets/images/brand/logo3.png') }}" class="img-fluid mx-auto d-block"
-                    style="width:120px; height:80px" alt="logo">
+                <div class="img-fluid mx-auto d-block" style="width:120px; height:80px;">
+        <img src="{{ asset('assets/images/brand/logo3.png') }}"
+             style="width:100%; height:100%; object-fit:cover; border-radius:50%;"
+             alt="logo">
+    </div>
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 

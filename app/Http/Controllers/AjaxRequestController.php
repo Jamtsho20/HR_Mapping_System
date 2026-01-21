@@ -47,6 +47,7 @@ use App\Models\User;
 use App\Models\MasAssets;
 use App\Models\MasTrainingList;
 use App\Models\MasTrainingType;
+use App\Models\MasDesignation;
 use App\Models\TrainingApplicationType;
 use App\Models\WorkHolidayList;
 use App\Services\AssetAcknowledgementService;
@@ -55,9 +56,11 @@ use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
-
+use App\Models\FunctionModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use function Laravel\Prompts\alert;
 
 class AjaxRequestController extends Controller
 {
@@ -89,6 +92,23 @@ class AjaxRequestController extends Controller
         return $sections;
     }
 
+    public function getDesignation($id)
+    {
+        // Get all designations that belong to the selected function
+        $designations = MasDesignation::where('mas_function_id', $id)->get(['id', 'name']);
+
+        return $designations;
+    }
+    public function getFunctionsByCompany($company_id)
+    {
+        $functions = FunctionModel::where('mas_company_id', $company_id)
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return $functions;
+    }
+
     public function getGradeStep($id)
     {
         $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name', 'starting_salary', 'point']);
@@ -115,7 +135,7 @@ class AjaxRequestController extends Controller
 
     public function getPayScale($id)
     {
-        $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'ending_salary']);
+        $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'mid_salary', 'increment2', 'ending_salary']);
         return $payScale;
     }
 
@@ -175,6 +195,16 @@ class AjaxRequestController extends Controller
             return $this->errorResponse('An error occurred while fetching the leave balance, please try again.');
         }
     }
+
+    public function getStrength($id)
+    {
+        $function = FunctionModel::findOrFail($id);
+        return response()->json([
+            'current_strength' => $function->current_strength,
+            'approved_strength' => $function->approved_strength,
+        ]);
+    }
+
 
     public function getNoOfDays(Request $request)
     {
@@ -330,7 +360,7 @@ class AjaxRequestController extends Controller
             $totalDays = ($dayDifference === 0)
                 ? $fromDayAdjustment + $toDayAdjustment - 1
                 : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
-            
+
             // Adjust total days based on leave policy restrictions and shift employee and check employee designation as well
             if (!empty($leaveLimits)) {
                 $excludeHolidays = in_array(1, $leaveLimits);
@@ -835,17 +865,18 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getAssetNoBySiteEmployee(Request $request, $empID, $siteID = null){
+    public function getAssetNoBySiteEmployee(Request $request, $empID, $siteID = null)
+    {
         try {
 
             $sites = $request->input('sites') ?? null;
-            if($siteID == null){
-                if($sites != null){
+            if ($siteID == null) {
+                if ($sites != null) {
                     $assetNos = MasAssets::whereIn('current_site_id', $sites)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
-                }else{
+                } else {
                     $assetNos = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
                 }
-            }else{
+            } else {
                 $assetNos = MasAssets::where('current_site_id', $siteID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 2)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
             }
 
@@ -861,9 +892,9 @@ class AjaxRequestController extends Controller
     {
         try {
             $id = MasAssets::where('id', $assetNo)->value('received_serial_id') ?? null;
-            if($id == null){
+            if ($id == null) {
                 $item = MasAssets::where('id', $assetNo)->with('site.dzongkhag')->with('sapAssets')->first();
-            }else{
+            } else {
                 $item = ReceivedSerial::where('id', $id)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             }
 
@@ -873,7 +904,7 @@ class AjaxRequestController extends Controller
         }
     }
 
-   public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
+    public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
     {
         try {
             $type = $request->input('type');
@@ -893,7 +924,6 @@ class AjaxRequestController extends Controller
                     'payload' => $result['payload'] ?? null
                 ], 400); // 400 for bad request from SAP
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

@@ -72,7 +72,8 @@ class GradeStepController extends Controller
                     'starting_salary' => $value['starting_salary'],
                     'ending_salary' => $value['ending_salary'],
                     'increment' => $value['increment'],
-                    'point' => $value['point']
+                    'increment2' => $value['increment2'],
+                    'mid_salary' => $value['mid_salary'],
                 ];
             }
 
@@ -132,7 +133,8 @@ class GradeStepController extends Controller
                         'starting_salary' => $value['starting_salary'],
                         'ending_salary' => $value['ending_salary'],
                         'increment' => $value['increment'],
-                        'point' => $value['point']
+                        'increment2' => $value['increment2'],
+                        'mid_salary' => $value['mid_salary'],
                     ]
                 );
             }

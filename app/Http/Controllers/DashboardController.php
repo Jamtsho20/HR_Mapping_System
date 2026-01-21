@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\WorkHolidayList;
 use App\Models\RequisitionDetail;
 use App\Models\MasAssets;
+use App\Models\MRF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -20,22 +21,27 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Models\MasDepartment;
+use App\Models\FunctionModel;
+
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
         $user = auth()->user();
+        $companyId = $user->empJob->mas_company_id ?? null;
         $currentYear = Carbon::now()->year;
         $employmentTypeId = $user->empJob->mas_employment_type_id ?? null;
 
+        // Determine roles
+        $isAdmin = $user->roles()->where('name', 'Administrator')->exists();
+        $isHRorHOD = $user->roles()->whereIn('name', ['Human Resource', 'Head Of Department'])->exists();
         // Fetch holiday list with filtering
-      $holidays = WorkHolidayList::filter($request)
-    ->status(1)
-    ->orderBy('start_date')
-    ->paginate(30)
-    ->withQueryString();
-
+        $holidays = WorkHolidayList::filter($request)
+            ->orderBy('start_date')
+            ->paginate(30)
+            ->withQueryString();
 
         //alert for approver
         $applicationsConfig = config('global.applications');
@@ -56,10 +62,10 @@ class DashboardController extends Controller
             $appTypeId = $classToIdMap[$className] ?? null;
 
             $lastPart = Str::afterLast($className, '\\');
-                $formattedText = Str::of($lastPart)
-                    ->replaceMatches('/([a-z])([A-Z])/', '$1 $2')
-                    ->__toString();
-                $formattedTextWithoutLastWord = preg_replace('/\s\w+$/', '', $formattedText);
+            $formattedText = Str::of($lastPart)
+                ->replaceMatches('/([a-z])([A-Z])/', '$1 $2')
+                ->__toString();
+            $formattedTextWithoutLastWord = preg_replace('/\s\w+$/', '', $formattedText);
 
             if ($appTypeId && isset($applicationsConfig[$appTypeId])) {
                 $config = $applicationsConfig[$appTypeId];
@@ -79,13 +85,9 @@ class DashboardController extends Controller
         });
 
         // Get all system notifications
-        $notifications = SystemNotification::all()->map(function ($notification) {
-            return [
-                'type' => 'notification', // Mark as notification type
-                'title' => $notification->title,
-                'message' => $notification->message,
-            ];
-        });
+        $notifications = SystemNotification::where('mas_employee_id', auth()->id())
+            ->latest()
+            ->get();
 
         // Merge alerts and notifications into a single array
         $combinedItems = collect($alerts)->map(function ($alert) {
@@ -95,8 +97,6 @@ class DashboardController extends Controller
                 'count' => $alert->count,
             ];
         })->merge(collect($notifications));
-
-        $assetData = $this->getAssetData();
 
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
@@ -116,13 +116,105 @@ class DashboardController extends Controller
         [$earnedLeaveData, $earnedLeaveCounts] = $showEarnedLeave
             ? $this->getLeaveData($currentYear, 2)
             : [[], []];
-        // dd($earnedLeaveData, $earnedLeaveCounts);
 
+        // ========== NEW DASHBOARD DATA ==========
 
-        // dd($alerts);
+        // Initialize variables with default values
+        $totalEmployees = $activeEmployees = $pendingMRF = $inProcessMRF = 0;
+        $totalDepartments = $activeDepartments = $totalFunctions = $activeFunctions = 0;
+        $functionsStrength = collect([]);
+        $departmentsWithSections = collect([]);
+        $departmentChartLabels = $departmentChartData = $functionChartLabels = $functionChartData = [];
+
+        // Total Employees - Use User model (which maps to mas_employees table)
+        // --------------------- Employees ---------------------
+        try {
+            $employeeQuery = User::employee();
+
+            if (!$isAdmin && $companyId) {
+                $employeeQuery->whereHas('empJob', fn($q) => $q->where('mas_company_id', $companyId));
+            }
+
+            $totalEmployees = $employeeQuery->count();
+            $activeEmployees = $employeeQuery->where('is_active', 'active')->count();
+        } catch (\Exception $e) {
+            \Log::error('Error fetching employee count: ' . $e->getMessage());
+        }
+        // --------------------- MRFs ---------------------
+        try {
+            if (class_exists(MRF::class)) {
+                $mrfQuery = MRF::query();
+
+                if (!$isAdmin && $companyId) {
+                    // MRFs linked to employee's company through function
+                    $mrfQuery->whereHas('function', fn($q) => $q->where('mas_company_id', $companyId));
+                }
+
+                $pendingMRF = (clone $mrfQuery)->where('status', 'pending')->count();
+                $inProcessMRF = (clone $mrfQuery)->where('status', 'in_process')->count();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error fetching MRF data: ' . $e->getMessage());
+        }
+        // --------------------- Departments ---------------------
+        try {
+            if (class_exists(MasDepartment::class)) {
+                $departmentQuery = MasDepartment::withCount('sections');
+
+                if (!$isAdmin && $companyId) {
+                    $departmentQuery->whereHas('employees.empJob', fn($q) => $q->where('mas_company_id', $companyId));
+                }
+
+                $departmentsWithSections = $departmentQuery->orderBy('name')->get(['id', 'name', 'status']);
+                $totalDepartments = $departmentsWithSections->count();
+                $activeDepartments = $departmentsWithSections->where('status', 'active')->count();
+
+                // Count employees per department
+                $departmentsWithSections->each(function ($department) use ($companyId, $isAdmin) {
+                    $query = User::employee()->whereHas('empJob', fn($q) => $q->where('mas_department_id', $department->id));
+
+                    if (!$isAdmin && $companyId) {
+                        $query->whereHas('empJob', fn($q) => $q->where('mas_company_id', $companyId));
+                    }
+
+                    $department->employees_count = $query->where('is_active', 'active')->count();
+                });
+
+                // Department chart data
+                foreach ($departmentsWithSections as $department) {
+                    $departmentChartLabels[] = $department->name;
+                    $departmentChartData[] = $department->employees_count;
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error fetching department data: ' . $e->getMessage());
+        }
+        // --------------------- Functions ---------------------
+        try {
+            $functionQuery = FunctionModel::withCount('designations')->orderBy('name');
+
+            if (!$isAdmin && $companyId) {
+                $functionQuery->where('mas_company_id', $companyId);
+            }
+
+            $functionsStrength = $functionQuery->get(['id', 'name', 'approved_strength', 'current_strength', 'status']);
+            $totalFunctions = $functionsStrength->count();
+            $activeFunctions = $functionsStrength->where('status', 'active')->count();
+
+            // Function utilization chart
+            $functionChartLabels = $functionsStrength->pluck('name')->toArray();
+            $functionChartData = $functionsStrength->map(
+                fn($f) => $f->approved_strength > 0
+                    ? round(($f->current_strength / $f->approved_strength) * 100)
+                    : 0
+            )->toArray();
+        } catch (\Exception $e) {
+            \Log::error('Error fetching function data: ' . $e->getMessage());
+        }
+        // ========== END NEW DASHBOARD DATA ==========
+
         return view('dashboard', compact(
             'user',
-            'assetData',
             'holidays',
             'notifications',
             'leaveData',
@@ -131,7 +223,22 @@ class DashboardController extends Controller
             'earnedLeaveCounts',
             'showEarnedLeave',
             'alerts',
-            'combinedItems'
+            'combinedItems',
+            // New dashboard data
+            'totalEmployees',
+            'activeEmployees',
+            'pendingMRF',
+            'inProcessMRF',
+            'totalDepartments',
+            'activeDepartments',
+            'totalFunctions',
+            'activeFunctions',
+            'functionsStrength',
+            'departmentsWithSections',
+            'departmentChartLabels',
+            'departmentChartData',
+            'functionChartLabels',
+            'functionChartData'
         ));
     }
 
@@ -192,12 +299,6 @@ class DashboardController extends Controller
         return '';  // Return empty if the conditions are not met
     }
 
-    private function getAssetData(){
-         $empID = auth()->user()->id;
-         $assets = MasAssets::where('current_employee_id', $empID)->where('is_transfered', 0)->where('is_returned', 0)->where('asset_type', 1)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
-
-        return $assets;
-    }
 
 
     /**

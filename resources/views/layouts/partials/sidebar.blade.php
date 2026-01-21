@@ -31,8 +31,6 @@
                             <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
                                 <div class="d-flex order-lg-2">
                                     <!-- Theme-Layout -->
-
-
                                     <div class="dropdown d-md-flex">
                                         <a class="nav-link icon full-screen-link nav-link-bg">
                                             <i class="fe fe-minimize fullscreen-button"></i>
@@ -51,6 +49,8 @@
                                                 <div class="text-center">
                                                     <h5 class="text-dark mb-0">{{ auth()->user()->name }}</h5>
                                                     <small class="text-muted">{{ auth()->user()->email }}</small>
+                                                    <span class="badge" style="color: #30acddff;">{{auth()->user()->roles->pluck('name')->first()}}</span>
+                                                    <span class="badge bg-success mt-2">Online</span>
                                                 </div>
                                             </div>
                                             <div class="dropdown-divider m-0"></div>
@@ -76,9 +76,11 @@
                             </div>
                         </div>
                     </div>
-                   <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div>
+                    <div class="ms-auto">
+                        <h1 class="page-title">@yield('page-title')</h1>
+                    </div>
 
-                 
+
                     {{-- <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent-4" aria-expanded="false"
                         aria-controls="collapseExample">
@@ -106,8 +108,9 @@
                             alt="logo" />
                         <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img light-logo"
                             alt="logo" /> -->
-                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1"
-                            alt="logo" style="width:90px; height:50px" />
+                        <!-- <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1"
+                            alt="logo" style="width:90px; height:50px" /> -->
+                            <span class="text-blue-600 font-semi-bold" style="font-size: 20px;">HR Mapping System</span>
                     </a>
                     <!-- LOGO -->
                 </div>
@@ -131,21 +134,21 @@
                             </a>
                         </li>
                         @foreach ($menus as $menuKey => $menu)
-                            <li class="slide">
-                                <a class="side-menu__item " data-bs-toggle="slide" href="javascript:void(0);" style="padding: 10px 25px!important;">
-                                    <i class="side-menu__icon fa {{ $menu->icon }}"></i>
-                                    <span class="side-menu__label ">{{ $menu->name }}</span> 
-                                    <i class="angle fa fa-angle-right"></i>
-                                </a>
-                                <ul class="slide-menu">
-                                    @foreach ($menu->systemSubMenus as $systemSubMenu)
-                                        <li>
-                                            <a href="{{ url($systemSubMenu->route) }}"
-                                                class="slide-item">{{ $systemSubMenu->name }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
+                        <li class="slide">
+                            <a class="side-menu__item " data-bs-toggle="slide" href="javascript:void(0);" style="padding: 10px 25px!important;">
+                                <i class="side-menu__icon fa {{ $menu->icon }}"></i>
+                                <span class="side-menu__label ">{{ $menu->name }}</span>
+                                <i class="angle fa fa-angle-right"></i>
+                            </a>
+                            <ul class="slide-menu">
+                                @foreach ($menu->systemSubMenus as $systemSubMenu)
+                                <li>
+                                    <a href="{{ url($systemSubMenu->route) }}"
+                                        class="slide-item">{{ $systemSubMenu->name }}</a>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </li>
                         @endforeach
 
                         <li>

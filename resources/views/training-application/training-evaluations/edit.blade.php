@@ -20,26 +20,6 @@
                     </div>
 
                     <div class="row">
-                        <!-- Training List -->
-                        <div class="col-md-6 mb-4">
-                            <label for="training_list_id" class="form-label fw-semibold">
-                                Training List <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select" id="training_list_id" name="training_list_id" required>
-                                <option value="" disabled hidden>Select Training</option>
-                                @foreach ($trainingLists as $list)
-                                <option value="{{ $list->id }}" {{ $evaluation->training_list_id == $list->id ? 'selected' : '' }}>
-                                    {{ $list->title }}
-                                </option>
-                                @endforeach
-                            </select>
-                            @error('training_list_id')
-                            <small class="text-danger">
-                                <i class="fe fe-alert-circle me-1"></i>{{ $message }}
-                            </small>
-                            @enderror
-                        </div>
-
                         <!-- Evaluation Type -->
                         <div class="col-md-6 mb-4">
                             <label for="evaluation_type_id" class="form-label fw-semibold">

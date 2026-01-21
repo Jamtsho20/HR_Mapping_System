@@ -19,8 +19,9 @@ return new class extends Migration
             $table->string('name');
             $table->integer('starting_salary')->default(0);
             $table->integer('increment')->default(0);
+            $table->integer('mid_salary')->default(0);
+            $table->integer('increment')->default(0);
             $table->integer('ending_salary')->default(0);
-            $table->unsignedSmallInteger('point')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

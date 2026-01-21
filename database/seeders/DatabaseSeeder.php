@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionsTableSeeder::class);
         $this->call(MasDepartmentSeeder::class);
         $this->call(MasSectionSeeder::class);
-        $this->call(MasDesignationSeeder::class);
         $this->call(MasDzongkhagSeeder::class);
         $this->call(MasGewogSeeder::class);
         $this->call(MasVillagesSeeder::class);

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_notifications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('mas_employee_id')->index()->constrained('mas_employees');
             $table->string('title');
             $table->text('message');
             $table->foreignId('created_by')->index()->constrained('mas_employees');

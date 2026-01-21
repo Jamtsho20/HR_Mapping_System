@@ -20,6 +20,6 @@ class MasGradeStep extends Model
 
     // accessors & mutators
     public function getPayScaleAttribute(){
-        return $this->starting_salary . ' - ' . $this->increment . ' - ' . $this->ending_salary;
+        return $this->starting_salary . ' - ' . $this->increment . ' - ' . $this->mid_salary . ' - ' . $this->increment2 . ' - ' . $this->ending_salary;
     }
 }

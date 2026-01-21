@@ -22,41 +22,30 @@
         </div>
         @endif
 
-        <!-- Filters Card -->
+        <!-- Evaluation Type Dropdown -->
         <div class="card">
             <div class="card-body">
-                @component('layouts.includes.filter')
-                <div class="col-sm-4 form-group">
-                    <label class="form-label small fw-semibold text-muted">Training</label>
-                    <select name="training_list_id" class="form-select">
-                        <option value="">-- Select Training --</option>
-                        @foreach($trainingLists as $training)
-                        <option value="{{ $training->id }}" {{ request('training_list_id') == $training->id ? 'selected' : '' }}>
-                            {{ $training->title }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4 form-group">
-                    <label class="form-label small fw-semibold text-muted">Evaluation Type</label>
-                    <select name="evaluation_type_id" class="form-select">
-                        <option value="">-- Select Evaluation Type --</option>
-                        @foreach($evaluationTypes as $type)
-                        <option value="{{ $type->id }}" {{ request('evaluation_type_id') == $type->id ? 'selected' : '' }}>
-                            {{ $type->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4 form-group">
-                    <label class="form-label small fw-semibold text-muted">Search Question</label>
-                    <input type="text" name="question" class="form-control" value="{{ request()->get('question') }}" placeholder="Type to search...">
-                </div>
-                @endcomponent
+
+                <form method="GET" id="evaluationFilterForm">
+                    <div class="col-md-4 form-group">
+                        <label class="form-label small fw-semibold text-muted">Evaluation Type</label>
+                        <select name="evaluation_type_id" class="form-select" onchange="document.getElementById('evaluationFilterForm').submit()">
+                            <option value="" disabled selected hidden>Select Evaluation Type</option>
+                            @foreach($evaluationTypes as $type)
+                            <option value="{{ $type->id }}" {{ request('evaluation_type_id') == $type->id ? 'selected' : '' }}>
+                                {{ $type->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+
             </div>
         </div>
 
+
         <!-- Evaluations Card -->
+        @if($hasFilter)
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
                 @forelse($evaluations as $evaluation)
@@ -71,20 +60,17 @@
                     <div class="card-header-custom bg-gradient-subtle p-4">
                         <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
                             <div class="flex-grow-1">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="badge bg-primary">
-                                        <i class="fe fe-hash me-1"></i>
+
+                                <h5 class="mb-2 fw-bold">
+                                    <span
+                                        class="badge bg-primary rounded-circle text-white d-inline-flex align-items-center justify-content-center"
+                                        style="width:25px; height:25px; font-size:14px;">
                                         {{ $evaluations->firstItem() + $loop->index }}
                                     </span>
-                                    <span class="badge bg-info-light text-info">
-                                        {{ $evaluation->evaluationType->name ?? 'General' }}
-                                    </span>
-                                    <span class="badge bg-success-light text-success">
-                                        <i class="fe fe-book me-1"></i>
-                                        {{ $evaluation->trainingList->title ?? 'No Training' }}
-                                    </span>
-                                </div>
-                                <h5 class="mb-2 fw-bold">{{ $evaluation->title }}</h5>
+                                    {{ $evaluation->title }}
+                                </h5>
+
+
                                 <div class="d-flex align-items-center gap-3 text-muted small">
                                     <span>
                                         <i class="fe fe-user me-1"></i>
@@ -93,10 +79,6 @@
                                     <span>
                                         <i class="fe fe-file-text me-1"></i>
                                         {{ $totalQuestions }} {{ Str::plural('Question', $totalQuestions) }}
-                                    </span>
-                                    <span>
-                                        <i class="fe fe-users me-1"></i>
-                                        {{ $assignedCount }} {{ Str::plural('Staff', $assignedCount) }}
                                     </span>
                                 </div>
                             </div>
@@ -149,7 +131,7 @@
                             </div>
                         </div>
                         @else
-                        <div class="alert alert-info mb-4 d-flex align-items-center gap-2">
+                        <div class="alert alert-warning mb-4 d-flex align-items-center gap-2">
                             <i class="fe fe-alert-circle"></i>
                             <span>No staff members assigned to this evaluation yet</span>
                         </div>
@@ -178,7 +160,7 @@
                                         </span>
                                         <div class="flex-grow-1">
                                             <p class="mb-2 fw-semibold">{{ $sub->question }}</p>
-                                     
+
 
                                             <!-- Show Options/Scale Info -->
                                             @if($sub->question_type === 'option' && $sub->options->count() > 0)
@@ -206,10 +188,10 @@
                                             </div>
                                             @endif
                                         </div>
-                                               <span class="badge bg-success-light text-success text-capitalize">
-                                                <i class="fe fe-tag me-1"></i>
-                                                {{ str_replace('_', ' ', $sub->question_type) }}
-                                            </span>
+                                        <span class="badge bg-success-light text-success text-capitalize">
+                                            <i class="fe fe-tag me-1"></i>
+                                            {{ str_replace('_', ' ', $sub->question_type) }}
+                                        </span>
                                     </div>
                                 </div>
                                 @endforeach
@@ -229,12 +211,6 @@
                     <i class="fe fe-inbox text-muted mb-3" style="font-size: 4rem;"></i>
                     <h5 class="text-muted">No Training Evaluations Found</h5>
                     <p class="text-muted">Create your first evaluation to get started</p>
-                    @if ($privileges->create)
-                    <a href="{{ route('training-application.training-evaluations.create') }}" class="btn btn-primary mt-2">
-                        <i class="fa fa-plus me-2"></i>
-                        Create Evaluation
-                    </a>
-                    @endif
                 </div>
                 @endforelse
 
@@ -243,6 +219,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
 
@@ -256,7 +233,7 @@
                 <h5 class="modal-title">
                     Confirm Action
                 </h5>
-                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -310,14 +287,14 @@
                     </div>
 
                     <div class="d-flex justify-content-left align-items-center gap-4 mt-3">
-                           <button type="button" class="btn btn-sm btn-danger" id="clearAll">
+                        <button type="button" class="btn btn-sm btn-danger" id="clearAll">
                             <i class="fa fa-trash me-1"></i>
                             Clear All
                         </button>
                         <span class="text-muted medium">
                             <span id="selectedCount">0</span> staff member(s) selected
                         </span>
-                     
+
                     </div>
                 </div>
 
@@ -415,11 +392,12 @@
         font-weight: 600;
         color: #0b62a4;
     }
+
     .modal-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-}
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
 </style>
 @endpush
 

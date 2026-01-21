@@ -18,31 +18,23 @@ class MasGradeStepsSeeder extends Seeder
 
         $data = [
             ['name' => 'T2', 'steps' => [
-                ['name' => 'T2 Step 1', 'starting_salary' => 42060, 'increment' => 1050, 'ending_salary' => 52560,  'created_by' => 1],
-                ['name' => 'T2 Step 2', 'starting_salary' => 38240, 'increment' => 960, 'ending_salary' => 47840,  'created_by' => 1],
-                ['name' => 'T2 Step 3', 'starting_salary' => 34765, 'increment' => 870, 'ending_salary' => 43465,  'created_by' => 1],
-                ['name' => 'T2 Step 4', 'starting_salary' => 31605, 'increment' => 790, 'ending_salary' => 39505,  'created_by' => 1],
-                ['name' => 'T2 Step 5', 'starting_salary' => 28665, 'increment' => 720, 'ending_salary' => 35865,  'created_by' => 1],
-                ['name' => 'T2 Step 6', 'starting_salary' => 26060, 'increment' => 650, 'ending_salary' => 32560,  'created_by' => 1],
-                ['name' => 'T2 Step 7', 'starting_salary' => 23695, 'increment' => 590, 'ending_salary' => 29595,  'created_by' => 1],
-                ['name' => 'T2 Step 8', 'starting_salary' => 21540, 'increment' => 540, 'ending_salary' => 26940,  'created_by' => 1],
-                ['name' => 'T2 Step 9', 'starting_salary' => 19585, 'increment' => 490, 'ending_salary' => 24485,  'created_by' => 1],
-                ['name' => 'T2 Step 10', 'starting_salary' => 17800, 'increment' => 450, 'ending_salary' => 22300,  'created_by' => 1],
-                ['name' => 'T2 Step 11', 'starting_salary' => 16180, 'increment' => 400, 'ending_salary' => 20180,  'created_by' => 1],
-            ]],
+                ['name' => 'T2 Step 1', 'starting_salary' => 42060, 'increment' => 1050, 'mid_salary' => 47060, 'increment2' => 1050, 'ending_salary' => 52560,  'created_by' => 1],
+                ['name' => 'T2 Step 2', 'starting_salary' => 38240, 'increment' => 960, 'mid_salary' => 43240, 'increment2' => 960, 'ending_salary' => 47840,  'created_by' => 1],
+                ['name' => 'T2 Step 3', 'starting_salary' => 34765, 'increment' => 870, 'mid_salary' => 39765, 'increment2' => 870, 'ending_salary' => 43465,  'created_by' => 1],
+                ['name' => 'T2 Step 4', 'starting_salary' => 31605, 'increment' => 790, 'mid_salary' => 36605, 'increment2' => 790, 'ending_salary' => 39505,  'created_by' => 1],
+                ['name' => 'T2 Step 5', 'starting_salary' => 28665, 'increment' => 720, 'mid_salary' => 33665, 'increment2' => 720, 'ending_salary' => 35865,  'created_by' => 1],
+                ['name' => 'T2 Step 6', 'starting_salary' => 26060, 'increment' => 650, 'mid_salary' => 31060, 'increment2' => 650, 'ending_salary' => 32560,  'created_by' => 1],
+                ['name' => 'T2 Step 7', 'starting_salary' => 23695, 'increment' => 590, 'mid_salary' => 28695, 'increment2' => 590, 'ending_salary' => 29595,  'created_by' => 1],            ]],
 
             ['name' => 'T1', 'steps' => [
-                ['name' => 'T1 Step 1', 'starting_salary' => 61600, 'increment' => 1540, 'ending_salary' => 77000,  'created_by' => 1],
-                ['name' => 'T1 Step 2', 'starting_salary' => 56000, 'increment' => 1400, 'ending_salary' => 70000,  'created_by' => 1],
-                ['name' => 'T1 Step 3', 'starting_salary' => 50190, 'increment' => 1270, 'ending_salary' => 63610,  'created_by' => 1],
-                ['name' => 'T1 Step 4', 'starting_salary' => 46280, 'increment' => 1160, 'ending_salary' => 57880,  'created_by' => 1],
-                ['name' => 'T1 Step 5', 'starting_salary' => 42070, 'increment' => 1050, 'ending_salary' => 52570,  'created_by' => 1],
-                ['name' => 'T1 Step 6', 'starting_salary' => 38245, 'increment' => 960, 'ending_salary' => 47845,  'created_by' => 1],
-                ['name' => 'T1 Step 7', 'starting_salary' => 34765, 'increment' => 870, 'ending_salary' => 43465,  'created_by' => 1],
-                ['name' => 'T1 Step 8', 'starting_salary' => 31605, 'increment' => 790, 'ending_salary' => 39505,  'created_by' => 1],
-                ['name' => 'T1 Step 9', 'starting_salary' => 28665, 'increment' => 720, 'ending_salary' => 35865,  'created_by' => 1],
-                ['name' => 'T1 Step 10', 'starting_salary' => 26060, 'increment' => 650, 'ending_salary' => 32560,  'created_by' => 1],
-                ['name' => 'T1 Step 11', 'starting_salary' => 23695, 'increment' => 590, 'ending_salary' => 29595,  'created_by' => 1],
+                ['name' => 'T1 Step 2', 'starting_salary' => 56000, 'increment' => 1400, 'mid_salary' => 57400, 'increment2' => 1400, 'ending_salary' => 70000,  'created_by' => 1],
+                ['name' => 'T1 Step 1', 'starting_salary' => 61600, 'increment' => 1540, 'mid_salary' => 63140, 'increment2' => 1540, 'ending_salary' => 77000,  'created_by' => 1],
+                ['name' => 'T1 Step 3', 'starting_salary' => 50190, 'increment' => 1270, 'mid_salary' => 51460, 'increment2' => 1270, 'ending_salary' => 63610,  'created_by' => 1],
+                ['name' => 'T1 Step 4', 'starting_salary' => 46280, 'increment' => 1160, 'mid_salary' => 47440, 'increment2' => 1160, 'ending_salary' => 57880,  'created_by' => 1],
+                ['name' => 'T1 Step 5', 'starting_salary' => 42070, 'increment' => 1050, 'mid_salary' => 43120, 'increment2' => 1050, 'ending_salary' => 52570,  'created_by' => 1],
+                ['name' => 'T1 Step 6', 'starting_salary' => 38245, 'increment' => 960, 'mid_salary' => 39285, 'increment2' => 960, 'ending_salary' => 47845, 'created_by' => 1],
+                ['name' =>'T1 Step_7',	'starting_salary'=>34765,'increment'=>870,'mid_salary'=>35635,'increment'=>870,'ending_salary'=>43465,'created_by'=>1],
+
             ]],
             // ['name' => 'P2', 'steps' => [
             //     ['name' => 'P2 Step 1', 'starting_salary' => 56986, 'increment' => 1425, 'ending_salary' => 71236, 'pay_scale' => '56986 - 1425 - 71236', 'created_by' => 1],
@@ -69,35 +61,7 @@ class MasGradeStepsSeeder extends Seeder
             //     ['name' => 'P1 Step 11', 'starting_salary' => 34109, 'increment' => 853, 'ending_salary' => 42639, 'pay_scale' => '34109 - 853 - 42639', 'created_by' => 1],
             //     ['name' => 'P1 Step 12', 'starting_salary' => 31008, 'increment' => 775, 'ending_salary' => 38758, 'pay_scale' => '31008 - 775 - 38758', 'created_by' => 1],
             // ]],
-            ['name' => 'E0', 'steps' => [
-                ['name' => 'E0 Step 1', 'starting_salary' => 0, 'increment' => 0, 'ending_salary' => 0, 'created_by' => 1],
-                ['name' => 'E0 Step 2', 'starting_salary' => 0, 'increment' => 0, 'ending_salary' => 0, 'created_by' => 1],
-                ['name' => 'E0 Step 3', 'starting_salary' => 0, 'increment' => 0, 'ending_salary' => 0, 'created_by' => 1],
-            ]],
-              ['name' => 'S', 'steps' => [
-                ['name' => 'S Step 1', 'starting_salary' => 15979, 'increment' => 399, 'ending_salary' => 19973,  'created_by' => 1],
-                ['name' => 'S Step 2', 'starting_salary' => 14523, 'increment' => 363, 'ending_salary' => 18154,  'created_by' => 1],
-                ['name' => 'S Step 3', 'starting_salary' => 13202, 'increment' => 330, 'ending_salary' => 16502,  'created_by' => 1],
-                ['name' => 'S Step 4', 'starting_salary' => 12007, 'increment' => 300, 'ending_salary' => 15009,  'created_by' => 1],
-                ['name' => 'S Step 5', 'starting_salary' => 11460, 'increment' => 287, 'ending_salary' => 14325,  'created_by' => 1],
-                ['name' => 'S Step 6', 'starting_salary' => 10920, 'increment' => 273, 'ending_salary' => 13650,  'created_by' => 1],
-                ['name' => 'S Step 7', 'starting_salary' => 10375, 'increment' => 259, 'ending_salary' => 12968,  'created_by' => 1],
-            ]],
-            ['name' => 'P', 'steps' => [
-                ['name' => 'P Step 1 ', 'starting_salary' => 109828, 'increment' => 2746, 'ending_salary' => 137284, 'created_by' => 1],
-                ['name' => 'P Step 2', 'starting_salary' => 98060, 'increment' => 2452, 'ending_salary' => 122575,  'created_by' => 1],
-                ['name' => 'P Step 3', 'starting_salary' => 87554, 'increment' => 2189, 'ending_salary' => 109442,  'created_by' => 1],
-                ['name' => 'P Step 4', 'starting_salary' => 78173, 'increment' => 1954, 'ending_salary' => 97716,  'created_by' => 1],
-                ['name' => 'P Step 5', 'starting_salary' => 69797, 'increment' => 1745, 'ending_salary' => 87247,  'created_by' => 1],
-                ['name' => 'P Step 6', 'starting_salary' => 62319, 'increment' => 1558, 'ending_salary' => 77899,  'created_by' => 1],
-                ['name' => 'P Step 7', 'starting_salary' => 55642, 'increment' => 1391, 'ending_salary' => 69553,  'created_by' => 1],
-                ['name' => 'P Step 8', 'starting_salary' => 49680, 'increment' => 1242, 'ending_salary' => 62101,  'created_by' => 1],
-                ['name' => 'P Step 9', 'starting_salary' => 44680, 'increment' => 1109, 'ending_salary' => 55447,  'created_by' => 1],
-                ['name' => 'P Step 10', 'starting_salary' => 39605, 'increment' => 990, 'ending_salary' => 49506,  'created_by' => 1],
-                ['name' => 'P Step 11', 'starting_salary' => 35362, 'increment' => 884, 'ending_salary' => 44202,  'created_by' => 1],
-                ['name' => 'P Step 12', 'starting_salary' => 31573, 'increment' => 789, 'ending_salary' => 39466,  'created_by' => 1],
-                ['name' => 'P Step 13', 'starting_salary' => 28190, 'increment' => 705, 'ending_salary' => 35328,  'created_by' => 1],
-            ]],
+
             // ['name' => 'T', 'steps' => [
             //     ['name' => 'T Step 1', 'starting_salary' => 47376, 'increment' => 1184, 'ending_salary' => 59220, 'pay_scale' => '47376 - 1184 - 59220', 'created_by' => 1],
             //     ['name' => 'T Step 2', 'starting_salary' => 43069, 'increment' => 1077, 'ending_salary' => 53836, 'pay_scale' => '43069 - 1077 - 53836', 'created_by' => 1],
@@ -113,18 +77,6 @@ class MasGradeStepsSeeder extends Seeder
             //     ['name' => 'T Step 12', 'starting_salary' => 16605, 'increment' => 415, 'ending_salary' => 20736, 'pay_scale' => '16605 - 415 - 20736', 'created_by' => 1],
             //     ['name' => 'T Step 13', 'starting_salary' => 15095, 'increment' => 377, 'ending_salary' => 18851, 'pay_scale' => '15095 - 377 - 18851', 'created_by' => 1],
             // ]],
-            ['name' => 'GSSG', 'steps' => [
-                ['name' => 'Security Guard', 'starting_salary' => 10625, 'increment' => 266, 'ending_salary' => 10625, 'created_by' => 1],
-                ['name' => 'Tea Lady', 'starting_salary' => 9375, 'increment' => 234, 'ending_salary' => 9375, 'created_by' => 1],
-            ]],
-
-            ['name' => 'CTE', 'steps' => [
-                ['name' => 'Consolidate T Employee', 'starting_salary' => 1000, 'increment' => 0, 'ending_salary' => 1000, 'created_by' => 1],
-            ]],
-
-            ['name' => 'STC', 'steps' => [
-                ['name' => 'Short Term Contract', 'starting_salary' => 17192, 'increment' => 0, 'ending_salary' => 17192, 'created_by' => 1],
-            ]],
 
         ];
 
@@ -137,6 +89,8 @@ class MasGradeStepsSeeder extends Seeder
                         'name' => $step['name'],
                         'starting_salary' => $step['starting_salary'],
                         'increment' => $step['increment'],
+                        'mid_salary' => $step['mid_salary'],
+                        'increment2' => $step['increment2'],
                         'ending_salary' => $step['ending_salary'],
                         'point' => $step['increment'] !== 0 ? (($step['ending_salary'] - $step['starting_salary']) / $step['increment']) : 0,
                         'created_by' => 1,

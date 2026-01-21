@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('mas_dzongkhags', function (Blueprint $table) {
             $table->id();
             $table->string('dzongkhag');
-            $table->string('sap_dzongkhag');
+            $table->string('sap_dzongkhag')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

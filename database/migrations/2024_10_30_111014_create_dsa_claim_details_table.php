@@ -13,8 +13,19 @@ return new class extends Migration
     {
         Schema::create('dsa_claim_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dsa_map_id')->nullable()->constrained('dsa_maps')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('dsa_claim_id')->nullable()->constrained('dsa_claim_applications')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->foreignId('dsa_map_id')
+                ->nullable()
+                ->constrained('dsa_claim_mappings')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignId('dsa_claim_id')
+                ->nullable()
+                ->constrained('dsa_claim_applications')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->date('from_date');
             $table->date('to_date');
             $table->string('from_location');

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('item_id')->index()->nullable()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('current_site_id')->nullable()->constrained('mas_sites');
             $table->foreignId('received_serial_id')->unique()->nullable()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('sap_asset_id')->unique()->nullable()->constrained('sap_assets')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('commission_detail_id')->index()->nullable()->constrained('commission_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('asset_transfer_detail_id')->nullable()->constrained('asset_transfer_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('return_detail_id')->nullable()->constrained('return_details')->cascadeOnUpdate()->cascadeOnDelete();

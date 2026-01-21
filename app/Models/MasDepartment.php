@@ -10,7 +10,8 @@ class MasDepartment extends Model
 {
     use HasFactory, CreatedByTrait;
     //relationship
-    public function employee(){
+    public function employee()
+    {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
 
@@ -19,11 +20,13 @@ class MasDepartment extends Model
         return $this->belongsTo(User::class, 'mas_employee_id'); // Adjust the foreign key if needed
     }
 
-    public function sections(){
+    public function sections()
+    {
         return $this->hasMany(MasSection::class, 'mas_department_id');
     }
 
-    public function departmentWiseShifts(){
+    public function departmentWiseShifts()
+    {
         return $this->hasMany(DepartmentWiseShift::class, 'department_id');
     }
 
@@ -34,11 +37,10 @@ class MasDepartment extends Model
             $query->where('name', 'LIKE', '%' . $request->query('department') . '%');
         }
     }
-    
+
     //accessors & mutators
     public function getCodeNameAttribute()
     {
         return $this->short_name . ' - ' . $this->name;
     }
-
 }

@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('mas_designations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('mas_function_id')->constrained('mas_function')->onDelete('cascade');
             $table->string('name');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

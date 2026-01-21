@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('retirement_benefit_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('retirement_benefit_id')->index()->constrained('retirement_benefit')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('nominee_name');
             $table->string('relation_with_employee');
             $table->string('cid_number');

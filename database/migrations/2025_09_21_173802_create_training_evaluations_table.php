@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('training_evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('training_list_id')->constrained('mas_training_lists')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('evaluation_type_id')->constrained('mas_training_evaluation_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('training_evaluations')->cascadeOnUpdate()->cascadeOnDelete();
             $table->boolean('is_floated_to_trainees')->default(false)->comment('Indicates if question is floated/visible to trainees');

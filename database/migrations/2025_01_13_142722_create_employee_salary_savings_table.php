@@ -13,11 +13,19 @@ return new class extends Migration
     {
         Schema::create('employee_salary_savings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->references('id')->constrained('mas_employees');
-            $table->foreignId('pay_head_id')->references('id')->constrained('mas_pay_heads');
+
+            $table->foreignId('employee_id')
+                ->constrained('mas_employees')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignId('pay_head_id')
+                ->constrained('mas_pay_heads')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
             $table->string('policy_number');
             $table->float('amount');
-
             $table->timestamps();
         });
     }
