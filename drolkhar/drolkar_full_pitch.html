@@ -1,0 +1,528 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --saffron:#E8A020;--forest:#1B5E3B;--crimson:#C0392B;--cream:#FBF7F0;
+    --dark:#0F1A12;--text:#1a2a1c;--muted:#5a7060;--border:#d4c9b0;
+    --teal:#1D9E75;--lightteal:#E1F5EE;--purple:#534AB7;--lightpurple:#EEEDFE;
+  }
+
+  #pitch{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+  .nav{display:flex;gap:4px;padding:12px 16px;background:var(--dark);overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav-btn{background:none;border:0.5px solid rgba(255,255,255,.2);border-radius:20px;color:rgba(255,255,255,.6);font-size:10px;padding:5px 12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s}
+  .nav-btn.active{background:var(--saffron);border-color:var(--saffron);color:var(--dark);font-weight:500}
+
+  .slide{display:none;animation:fadeIn .3s ease}
+  .slide.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  .hero{background:var(--dark);padding:40px 20px 32px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,160,32,.15) 0%,transparent 65%)}
+  .hero-tag{font-size:10px;letter-spacing:.12em;color:var(--saffron);margin-bottom:12px;font-weight:500}
+  .hero-title{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:8px}
+  .hero-title span{color:var(--saffron)}
+  .hero-dzong{font-size:16px;color:rgba(255,255,255,.5);margin-bottom:16px;font-weight:300}
+  .hero-sub{font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;max-width:380px;margin:0 auto 20px}
+  .hero-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-pill{background:rgba(255,255,255,.08);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:11px;color:rgba(255,255,255,.8)}
+
+  .section-pad{padding:24px 16px}
+  .section-label{font-size:9px;letter-spacing:.12em;font-weight:500;color:var(--saffron);margin-bottom:6px;text-transform:uppercase}
+  .section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--dark);margin-bottom:16px;line-height:1.2}
+
+  .card{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+  .card-body{font-size:11px;color:var(--muted);line-height:1.6}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+  .stat-box{background:var(--dark);border-radius:10px;padding:12px 10px;text-align:center}
+  .stat-num{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--saffron)}
+  .stat-lbl{font-size:9px;color:rgba(255,255,255,.55);margin-top:3px;line-height:1.3}
+
+  .pill{display:inline-block;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:500}
+  .pill-green{background:var(--lightteal);color:#085041}
+  .pill-purple{background:var(--lightpurple);color:var(--purple)}
+  .pill-amber{background:#FAEEDA;color:#854F0B}
+  .pill-coral{background:#FAECE7;color:#993C1D}
+  .pill-dark{background:var(--dark);color:var(--saffron)}
+
+  .problem-card{border-left:3px solid var(--crimson);border-radius:0 10px 10px 0;background:#fff9f9;padding:10px 14px;margin-bottom:8px}
+  .sol-card{border-left:3px solid var(--teal);border-radius:0 10px 10px 0;background:var(--lightteal);padding:10px 14px;margin-bottom:8px}
+
+  .user-tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .user-tab{background:#fff;border:0.5px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .2s}
+  .user-tab.active{background:var(--dark);color:var(--saffron);border-color:var(--dark)}
+
+  .benefit-row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border)}
+  .benefit-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .benefit-text{flex:1}
+  .benefit-title{font-size:12px;font-weight:500;color:var(--text)}
+  .benefit-sub{font-size:10px;color:var(--muted);margin-top:1px;line-height:1.5}
+
+  .tech-card{background:var(--dark);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+  .tech-name{font-size:13px;font-weight:500;color:#fff;margin-bottom:2px}
+  .tech-why{font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:6px}
+  .tech-tag{display:inline-block;background:rgba(232,160,32,.15);color:var(--saffron);font-size:9px;padding:2px 8px;border-radius:20px;font-weight:500}
+
+  .journey-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+  .j-num{width:26px;height:26px;border-radius:50%;background:var(--dark);color:var(--saffron);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Playfair Display',serif}
+  .j-body{flex:1;padding-bottom:10px;border-bottom:0.5px solid var(--border)}
+  .j-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+  .j-sub{font-size:10px;color:var(--muted);line-height:1.5}
+  .j-tag{font-size:9px;margin-top:4px}
+
+  .vs-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:12px}
+  .vs-box{border-radius:10px;padding:12px}
+  .vs-label{font-size:9px;font-weight:500;letter-spacing:.08em;margin-bottom:8px}
+  .vs-item{font-size:11px;line-height:1.8;display:flex;gap:6px;align-items:center}
+
+  .phase-bar{background:#fff;border:0.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px}
+  .phase-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .phase-title{font-size:12px;font-weight:500;color:var(--text)}
+  .phase-period{font-size:10px;color:var(--muted)}
+  .phase-track{background:#f0ede6;border-radius:4px;height:6px;margin-bottom:6px}
+  .phase-fill{border-radius:4px;height:6px}
+  .phase-items{font-size:10px;color:var(--muted);line-height:1.7}
+
+  .gnhrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+  .gnhbox{border-radius:10px;padding:10px 12px}
+  .gnhbox-title{font-size:11px;font-weight:500;margin-bottom:3px}
+  .gnhbox-sub{font-size:10px;line-height:1.5}
+
+  .quote-block{background:var(--dark);border-radius:12px;padding:16px;margin-bottom:10px;text-align:center}
+  .quote-text{font-family:'Playfair Display',serif;font-size:16px;color:#fff;line-height:1.5;margin-bottom:8px}
+  .quote-attr{font-size:10px;color:var(--saffron)}
+
+  .fin-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px}
+  .fin-label{color:var(--muted)}
+  .fin-val{font-weight:500;color:var(--text)}
+
+  .cta-box{background:var(--forest);border-radius:12px;padding:20px;text-align:center;margin-top:8px}
+  .cta-title{font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:8px}
+  .cta-sub{font-size:11px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:12px}
+  .cta-pill{background:var(--saffron);color:var(--dark);border-radius:20px;padding:8px 20px;font-size:12px;font-weight:500;display:inline-block}
+
+  .dot-green{color:#1D9E75}
+  .dot-red{color:#C0392B}
+</style>
+
+<div id="pitch">
+  <div class="nav">
+    <button class="nav-btn active" onclick="goSlide(0)">Cover</button>
+    <button class="nav-btn" onclick="goSlide(1)">Problem</button>
+    <button class="nav-btn" onclick="goSlide(2)">Solution</button>
+    <button class="nav-btn" onclick="goSlide(3)">Who benefits</button>
+    <button class="nav-btn" onclick="goSlide(4)">Safety</button>
+    <button class="nav-btn" onclick="goSlide(5)">Technology</button>
+    <button class="nav-btn" onclick="goSlide(6)">vs Others</button>
+    <button class="nav-btn" onclick="goSlide(7)">Roadmap</button>
+    <button class="nav-btn" onclick="goSlide(8)">GNH impact</button>
+    <button class="nav-btn" onclick="goSlide(9)">Business</button>
+    <button class="nav-btn" onclick="goSlide(10)">Close</button>
+  </div>
+
+  <!-- SLIDE 0: COVER -->
+  <div class="slide active" id="s0">
+    <div class="hero">
+      <div class="hero-tag">Women Entrepreneurship Hackathon 2026 · By Women, For Women</div>
+      <div class="hero-title">Drol<span>kar</span></div>
+      <div class="hero-dzong">གདོང་སྐར། · The Liberating Star</div>
+      <div class="hero-sub">Bhutan's first community-powered after-school care platform — connecting working mothers, verified caregivers, and government through one digital backbone, rooted in GNH.</div>
+      <div class="hero-pills">
+        <span class="hero-pill">All 20 dzongkhags</span>
+        <span class="hero-pill">GNH-measured</span>
+        <span class="hero-pill">Works without smartphone</span>
+        <span class="hero-pill">By women · for women</span>
+      </div>
+    </div>
+    <div class="section-pad">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num">72%</div><div class="stat-lbl">Working mothers report after-school care as top worry</div></div>
+        <div class="stat-box"><div class="stat-num">20</div><div class="stat-lbl">Dzongkhags with zero formal after-school system</div></div>
+        <div class="stat-box"><div class="stat-num">0</div><div class="stat-lbl">Existing platforms built for Bhutan's context</div></div>
+      </div>
+      <div class="quote-block">
+        <div class="quote-text">"We are not building one care center.<br>We are building the operating system<br>for all of them."</div>
+        <div class="quote-attr">Drolkar · 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: PROBLEM -->
+  <div class="slide" id="s1">
+    <div class="section-pad">
+      <div class="section-label">The problem</div>
+      <div class="section-title">The invisible gap in every working mother's day</div>
+      <div class="problem-card">
+        <div class="card-title" style="color:#A32D2D">School ends at 1pm. Work ends at 5pm.</div>
+        <div class="card-body">Four hours with no verified, safe, culturally appropriate place for the child. This gap is forcing mothers to leave jobs, miss promotions, or leave children unsupervised.</div>
+      </div>
+      <div class="problem-card">
+        <div class="card-title" style="color:#A32D2D">The journey to care is untracked</div>
+        <div class="card-body">No one is responsible for walking the child from school to a care center. Mothers have no way to know if their child arrived safely — especially from work.</div>
+      </div>
+      <div class="problem-card">
+        <div class="card-title" style="color:#A32D2D">Poor mothers are excluded by fees</div>
+        <div class="card-body">Informal workers and daily wage earners cannot afford even small care fees — yet they are the mothers who need care the most.</div>
+      </div>
+      <div class="problem-card">
+        <div class="card-title" style="color:#A32D2D">Cultural identity eroding in urban areas</div>
+        <div class="card-body">Children in Thimphu are growing up with less Dzongkha, fewer traditional stories, and weaker connection to Bhutanese values — because no structured time exists for cultural transmission after school.</div>
+      </div>
+      <div class="problem-card">
+        <div class="card-title" style="color:#A32D2D">Government has no real-time data</div>
+        <div class="card-body">Dzongkhag offices rely on annual surveys. No live picture of child welfare, caregiver quality, or family well-being exists anywhere in Bhutan today.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: SOLUTION -->
+  <div class="slide" id="s2">
+    <div class="section-pad">
+      <div class="section-label">The solution</div>
+      <div class="section-title">Drolkar — four layers, one platform</div>
+      <div class="sol-card">
+        <div class="card-title" style="color:#085041">Layer 1 · The Care Network</div>
+        <div class="card-body">Verified local women — retired teachers, grandmothers, trained youth — register as caregivers or micro-center hosts on Drolkar. Mothers find, book, and pay them through the app or SMS.</div>
+      </div>
+      <div class="sol-card">
+        <div class="card-title" style="color:#085041">Layer 2 · The Draktshen Escort System</div>
+        <div class="card-body">A trained, background-checked community walker collects children from the school Collection Corner and walks them to the care center as a group. The mother is notified at every step via SMS.</div>
+      </div>
+      <div class="sol-card">
+        <div class="card-title" style="color:#085041">Layer 3 · The Physical Care Card</div>
+        <div class="card-body">Every child — including those without a smartphone — gets a laminated QR card. The caregiver scans it at arrival, triggering an instant SMS to the mother: "Pema arrived safely. 2:18pm."</div>
+      </div>
+      <div class="sol-card">
+        <div class="card-title" style="color:#085041">Layer 4 · The GNH Dashboard</div>
+        <div class="card-body">The dzongkhag sees live data — well-being scores, subsidy routing, caregiver quality, missing-child alerts — replacing annual paper surveys with real-time national intelligence.</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+        <span class="pill pill-dark">App + SMS + QR card</span>
+        <span class="pill pill-green">No smartphone needed</span>
+        <span class="pill pill-purple">Dzongkha-first</span>
+        <span class="pill pill-amber">Offline-capable</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: WHO BENEFITS -->
+  <div class="slide" id="s3">
+    <div class="section-pad">
+      <div class="section-label">Who benefits</div>
+      <div class="section-title">Four people. One platform.</div>
+      <div class="user-tab-row">
+        <button class="user-tab active" onclick="showUser('mother')">Mother</button>
+        <button class="user-tab" onclick="showUser('caregiver')">Caregiver</button>
+        <button class="user-tab" onclick="showUser('child')">Child</button>
+        <button class="user-tab" onclick="showUser('govt')">Government</button>
+      </div>
+      <div id="user-mother">
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightteal)">✓</div><div class="benefit-text"><div class="benefit-title">Peace of mind at work</div><div class="benefit-sub">Real-time SMS alerts at school departure, center arrival, and pickup — no calls needed</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightteal)">✓</div><div class="benefit-text"><div class="benefit-title">Verified, trusted caregivers</div><div class="benefit-sub">Background-checked, community-rated, government-recognised — not a stranger from the internet</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightteal)">✓</div><div class="benefit-text"><div class="benefit-title">Affordable for every income</div><div class="benefit-sub">3-tier fee: free for informal workers, subsidized for mid-income, full for civil servants who cross-fund others</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightteal)">✓</div><div class="benefit-text"><div class="benefit-title">Works on any phone</div><div class="benefit-sub">Full app for smartphones, SMS notifications for basic phones — no mother is excluded</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightteal)">✓</div><div class="benefit-text"><div class="benefit-title">Child growing in Bhutanese values</div><div class="benefit-sub">Dzongkha, traditional stories, arts — cultural identity built into every afternoon</div></div></div>
+      </div>
+      <div id="user-caregiver" style="display:none">
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightpurple)">✓</div><div class="benefit-text"><div class="benefit-title">Dignified income on your own schedule</div><div class="benefit-sub">Retired teachers and grandmothers earn Nu. 2,000–5,000/month without needing a business loan</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightpurple)">✓</div><div class="benefit-text"><div class="benefit-title">GNH Impact Score builds your reputation</div><div class="benefit-sub">A public score — cultural delivery, safety, parent ratings — makes great caregivers visible and rewarded</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightpurple)">✓</div><div class="benefit-text"><div class="benefit-title">Government-backed recognition</div><div class="benefit-sub">Drolkar caregivers get a dzongkhag-issued badge — not just an app rating</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:var(--lightpurple)">✓</div><div class="benefit-text"><div class="benefit-title">Digital record replaces paperwork</div><div class="benefit-sub">Attendance, payments, and session logs handled automatically — no registers to fill</div></div></div>
+      </div>
+      <div id="user-child" style="display:none">
+        <div class="benefit-row"><div class="benefit-icon" style="background:#FAECE7">✓</div><div class="benefit-text"><div class="benefit-title">Safe, supervised journey every day</div><div class="benefit-sub">Draktshen escort walks them school-to-center in a group — never alone, never untracked</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#FAECE7">✓</div><div class="benefit-text"><div class="benefit-title">Homework support daily</div><div class="benefit-sub">Structured study time with a qualified caregiver before play — academic confidence builds</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#FAECE7">✓</div><div class="benefit-text"><div class="benefit-title">Bhutanese identity preserved</div><div class="benefit-sub">Dzongkha stories, thangka colouring, folk songs, traditional games — culture as daily joy</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#FAECE7">✓</div><div class="benefit-text"><div class="benefit-title">Stars, badges and mood check-ins</div><div class="benefit-sub">Gamified learning keeps children engaged — mood reports give caregivers early warning of distress</div></div></div>
+      </div>
+      <div id="user-govt" style="display:none">
+        <div class="benefit-row"><div class="benefit-icon" style="background:#EAF3DE">✓</div><div class="benefit-text"><div class="benefit-title">Live GNH data — not annual surveys</div><div class="benefit-sub">Real-time well-being scores per dzongkhag, updated daily from actual family interactions</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#EAF3DE">✓</div><div class="benefit-text"><div class="benefit-title">Automatic subsidy routing</div><div class="benefit-sub">Low-income families verified and subsidized instantly — no manual paperwork or office visits</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#EAF3DE">✓</div><div class="benefit-text"><div class="benefit-title">Missing child alerts in 20 minutes</div><div class="benefit-sub">If a child's QR card isn't scanned on time, three parties are alerted automatically</div></div></div>
+        <div class="benefit-row"><div class="benefit-icon" style="background:#EAF3DE">✓</div><div class="benefit-text"><div class="benefit-title">National scale at minimal cost</div><div class="benefit-sub">No buildings to fund — the platform activates existing community women across all 20 dzongkhags</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: SAFETY -->
+  <div class="slide" id="s4">
+    <div class="section-pad">
+      <div class="section-label">Child safety system</div>
+      <div class="section-title">Complete chain of custody — school to center</div>
+      <div class="journey-step">
+        <div class="j-num">1</div>
+        <div class="j-body">
+          <div class="j-title">School Collection Corner — 1:00pm</div>
+          <div class="j-sub">School staff supervise enrolled children for 15 min after school. Drolkar MOU with school — one page, no cost. Children wait as a named group.</div>
+          <div class="j-tag"><span class="pill pill-green">School responsible</span></div>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-num">2</div>
+        <div class="j-body">
+          <div class="j-title">Draktshen escort departs — 1:15pm</div>
+          <div class="j-sub">Verified community walker collects the group. Taps "Walk Started" → mother gets SMS: "Pema's group left school. 8 children. Karma Wangmo escorting." Escort carries phone, not child.</div>
+          <div class="j-tag"><span class="pill pill-purple">Draktshen responsible</span></div>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-num">3</div>
+        <div class="j-body">
+          <div class="j-title">QR card scanned at center — 1:30pm</div>
+          <div class="j-sub">Caregiver scans each child's card. Mother gets SMS: "Pema arrived safely. 1:32pm. Changzamtog." Responsibility transfers to caregiver — timestamped, logged, irrefutable.</div>
+          <div class="j-tag"><span class="pill pill-amber">Caregiver responsible</span></div>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-num">4</div>
+        <div class="j-body">
+          <div class="j-title">Auto-alert if card not scanned — T+20min</div>
+          <div class="j-sub">If expected scan doesn't happen, platform alerts mother, Draktshen, and dzongkhag child welfare officer simultaneously. No one has to notice — the system catches it.</div>
+          <div class="j-tag"><span class="pill pill-coral">3-way auto-alert</span></div>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-num">5</div>
+        <div class="j-body" style="border:none">
+          <div class="j-title">Pickup confirmed — 5:00pm</div>
+          <div class="j-sub">Mother scans her own QR at pickup. Child's record closes for the day. Full log available to dzongkhag if ever needed.</div>
+          <div class="j-tag"><span class="pill pill-green">Full daily record</span></div>
+        </div>
+      </div>
+      <div class="sol-card" style="margin-top:4px">
+        <div class="card-title" style="color:#085041">Rural "Nangkha" micro-centers</div>
+        <div class="card-body" style="color:#0F6E56">In villages too remote for a central center, a trusted local woman hosts 3–5 children at home — registered as a micro-center. Same QR system, same SMS alerts, same GNH tracking. No building required.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: TECHNOLOGY -->
+  <div class="slide" id="s5">
+    <div class="section-pad">
+      <div class="section-label">Technology stack</div>
+      <div class="section-title">Cutting-edge tools, grounded in Bhutan's reality</div>
+      <div class="tech-card">
+        <div class="tech-name">AI-powered caregiver matching</div>
+        <div class="tech-why">Instead of a simple search, Drolkar uses a lightweight ML model to match mothers with caregivers based on location, language, child's age, schedule, and past ratings — similar to how Spotify matches music to mood.</div>
+        <div><span class="tech-tag">New · differentiator</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-name">QR + NFC dual-mode check-in</div>
+        <div class="tech-why">Every care card has both a QR code (works on any camera phone) and an NFC chip (tap-to-check-in for modern phones). Future-proofed for when Bhutan's smartphone penetration grows. NFC cards cost Nu. 15 each.</div>
+        <div><span class="tech-tag">New · inclusive</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-name">SMS-first architecture (no internet required)</div>
+        <div class="tech-why">The entire alert system — child departure, arrival, missing-child — runs over basic SMS using a Bhutan Telecom gateway. Works in every dzongkhag with mobile signal, even without data. Built on the Twilio model adapted for BT network.</div>
+        <div><span class="tech-tag">Inclusion · rural-ready</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-name">GNH scoring algorithm</div>
+        <div class="tech-why">A composite well-being score built from: parent satisfaction, child mood check-ins, cultural session completion, caregiver attendance, and subsidy uptake — weighted by the four GNH pillars. First time GNH is computed in real time from behavioral data.</div>
+        <div><span class="tech-tag">Unique to Bhutan · world first</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-name">Offline-first mobile app (PWA)</div>
+        <div class="tech-why">Built as a Progressive Web App — works without internet, syncs when connection returns. Caregivers in remote areas can log attendance offline; it uploads when they reach signal. No app store needed — runs in any browser.</div>
+        <div><span class="tech-tag">No app store · lightweight</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-name">Dzongkha voice interface</div>
+        <div class="tech-why">For caregivers and mothers who are not comfortable reading, Drolkar integrates a basic Dzongkha voice assistant — speak to book, speak to confirm arrival. Built on open-source speech models fine-tuned for Dzongkha phonemes.</div>
+        <div><span class="tech-tag">Accessibility · Dzongkha-first</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: VS OTHERS -->
+  <div class="slide" id="s6">
+    <div class="section-pad">
+      <div class="section-label">Competitive edge</div>
+      <div class="section-title">Why Drolkar wins</div>
+      <div class="vs-grid">
+        <div class="vs-box" style="background:#fff5f5;border:0.5px solid #fcc">
+          <div class="vs-label" style="color:#A32D2D">Other teams</div>
+          <div class="vs-item"><span class="dot-red">✗</span> One physical center</div>
+          <div class="vs-item"><span class="dot-red">✗</span> One location only</div>
+          <div class="vs-item"><span class="dot-red">✗</span> Needs smartphone</div>
+          <div class="vs-item"><span class="dot-red">✗</span> No child transit plan</div>
+          <div class="vs-item"><span class="dot-red">✗</span> No subsidy model</div>
+          <div class="vs-item"><span class="dot-red">✗</span> No cultural content</div>
+          <div class="vs-item"><span class="dot-red">✗</span> No GNH data</div>
+          <div class="vs-item"><span class="dot-red">✗</span> Serves ~20 children</div>
+        </div>
+        <div class="vs-box" style="background:var(--lightteal);border:0.5px solid #9FE1CB">
+          <div class="vs-label" style="color:#085041">Drolkar</div>
+          <div class="vs-item"><span class="dot-green">✓</span> Platform for all centers</div>
+          <div class="vs-item"><span class="dot-green">✓</span> All 20 dzongkhags</div>
+          <div class="vs-item"><span class="dot-green">✓</span> App + SMS + QR card</div>
+          <div class="vs-item"><span class="dot-green">✓</span> Draktshen escort network</div>
+          <div class="vs-item"><span class="dot-green">✓</span> 3-tier + Pay It Forward</div>
+          <div class="vs-item"><span class="dot-green">✓</span> Dzongkha library built-in</div>
+          <div class="vs-item"><span class="dot-green">✓</span> Live GNH dashboard</div>
+          <div class="vs-item"><span class="dot-green">✓</span> Scales to 10,000+</div>
+        </div>
+      </div>
+      <div class="quote-block">
+        <div class="quote-text">"Every other team built a room.<br>We built the roads."</div>
+        <div class="quote-attr">Say this when a judge asks "how are you different?"</div>
+      </div>
+      <div class="card">
+        <div class="card-title">The question no other team can answer</div>
+        <div class="card-body" style="margin-top:4px">Ask any other team: <em>"Who walks the child from school to your center?"</em> They will pause. You will smile and explain the Draktshen system. That pause is your win.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: ROADMAP -->
+  <div class="slide" id="s7">
+    <div class="section-pad">
+      <div class="section-label">Roadmap</div>
+      <div class="section-title">From hackathon to national platform</div>
+      <div class="phase-bar">
+        <div class="phase-head">
+          <div class="phase-title">Phase 1 · Pilot</div>
+          <div class="phase-period">Months 1–3</div>
+        </div>
+        <div class="phase-track"><div class="phase-fill" style="width:100%;background:#1D9E75"></div></div>
+        <div class="phase-items">3 care centers in Thimphu · 50 children · 10 caregivers · 5 Draktshen escorts · SMS system live · QR cards printed · GNH scoring beta</div>
+      </div>
+      <div class="phase-bar">
+        <div class="phase-head">
+          <div class="phase-title">Phase 2 · Dzongkhag rollout</div>
+          <div class="phase-period">Months 4–9</div>
+        </div>
+        <div class="phase-track"><div class="phase-fill" style="width:65%;background:#534AB7"></div></div>
+        <div class="phase-items">6 dzongkhags · 500 children · Dzongkha voice interface · Nangkha micro-center model live · government MOU signed · BDBL subsidy routing integrated</div>
+      </div>
+      <div class="phase-bar">
+        <div class="phase-head">
+          <div class="phase-title">Phase 3 · National scale</div>
+          <div class="phase-period">Months 10–18</div>
+        </div>
+        <div class="phase-track"><div class="phase-fill" style="width:35%;background:#E8A020"></div></div>
+        <div class="phase-items">All 20 dzongkhags · 5,000+ children · NFC cards deployed · AI matching model trained · National GNH dashboard presented to MoESD · export model to similar GNH countries</div>
+      </div>
+      <div class="card" style="margin-top:4px">
+        <div class="card-title">What we need from judges today</div>
+        <div class="card-body">Seed funding of Nu. 500,000 to run the 3-month Thimphu pilot, print 200 QR cards, onboard 10 caregivers, and build the SMS infrastructure. Every ngultrum goes into the system — not rent, not salaries.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: GNH -->
+  <div class="slide" id="s8">
+    <div class="section-pad">
+      <div class="section-label">GNH alignment</div>
+      <div class="section-title">The only solution measured in happiness, not clicks</div>
+      <div class="gnhrow">
+        <div class="gnhbox" style="background:var(--lightteal)">
+          <div class="gnhbox-title" style="color:#085041">Good governance</div>
+          <div class="gnhbox-sub" style="color:#0F6E56">Live data for dzongkhag offices · automatic subsidy routing · MOU with schools · policy-ready reporting</div>
+        </div>
+        <div class="gnhbox" style="background:var(--lightpurple)">
+          <div class="gnhbox-title" style="color:#3C3489">Cultural preservation</div>
+          <div class="gnhbox-sub" style="color:#534AB7">Dzongkha-first interface · built-in story library · thangka, folk songs, traditional games as daily curriculum</div>
+        </div>
+        <div class="gnhbox" style="background:#FAEEDA">
+          <div class="gnhbox-title" style="color:#633806">Time & well-being</div>
+          <div class="gnhbox-sub" style="color:#854F0B">Mothers work without worry · caregiver income is dignified · child mood tracked daily · family stress measured</div>
+        </div>
+        <div class="gnhbox" style="background:#EAF3DE">
+          <div class="gnhbox-title" style="color:#27500A">Ecological balance</div>
+          <div class="gnhbox-sub" style="color:#3B6D11">Nature walks in curriculum · local food at centers · no new buildings · existing spaces reused</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">The GNH Impact Score — Bhutan's first real-time happiness metric</div>
+        <div class="card-body">Drolkar computes a composite score per dzongkhag, per month, from: parent satisfaction surveys, child mood check-ins, cultural session completion rates, caregiver ratings, and subsidy equity. This is GNH written in data — not just in policy documents.</div>
+      </div>
+      <div class="quote-block">
+        <div class="quote-text">"Other apps measure how many users clicked.<br>Drolkar measures how many families<br>became happier."</div>
+        <div class="quote-attr">The line that will make judges remember you</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: BUSINESS -->
+  <div class="slide" id="s9">
+    <div class="section-pad">
+      <div class="section-label">Business model</div>
+      <div class="section-title">Self-sustaining by month 9</div>
+      <div class="fin-row"><div class="fin-label">Tier 3 mother fee (civil servant)</div><div class="fin-val">Nu. 1,000–1,500/mo</div></div>
+      <div class="fin-row"><div class="fin-label">Tier 2 mother fee (semi-formal)</div><div class="fin-val">Nu. 300–600/mo</div></div>
+      <div class="fin-row"><div class="fin-label">Tier 1 mother fee (informal worker)</div><div class="fin-val">Free (cross-subsidized)</div></div>
+      <div class="fin-row"><div class="fin-label">Platform commission per booking</div><div class="fin-val">8% of caregiver earnings</div></div>
+      <div class="fin-row"><div class="fin-label">Dzongkhag government SaaS fee</div><div class="fin-val">Nu. 5,000/dzongkhag/mo</div></div>
+      <div class="fin-row"><div class="fin-label">CSR partnerships (Druk Holdings, BNB)</div><div class="fin-val">Sponsorship of Tier 1 slots</div></div>
+      <div class="fin-row" style="border:none"><div class="fin-label">Diaspora "Pay It Forward" donations</div><div class="fin-val">Voluntary, app-integrated</div></div>
+      <div class="stat-grid" style="margin-top:14px">
+        <div class="stat-box"><div class="stat-num">Nu.48k</div><div class="stat-lbl">Projected monthly revenue at 50 children pilot</div></div>
+        <div class="stat-box"><div class="stat-num">Month 9</div><div class="stat-lbl">Break-even point — no grant dependency</div></div>
+        <div class="stat-box"><div class="stat-num">Nu.10</div><div class="stat-lbl">Cost to print one child's QR care card</div></div>
+      </div>
+      <div class="sol-card">
+        <div class="card-title" style="color:#085041">Why this is not charity — it's infrastructure</div>
+        <div class="card-body" style="color:#0F6E56">Drolkar's model is identical to how Bhutan Telecom sells network access to rural areas — the government pays for coverage, users pay for usage, and the platform is the pipe in the middle. We are not asking for donations. We are building public infrastructure with a business model.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: CLOSE -->
+  <div class="slide" id="s10">
+    <div class="hero" style="padding:32px 20px 24px">
+      <div class="hero-tag">Closing — say this word for word</div>
+      <div class="hero-title" style="font-size:32px">One platform.<br><span>Twenty dzongkhags.</span><br>Ten thousand children.</div>
+      <div class="hero-sub" style="margin-top:12px">Drolkar does not compete with anyone in this room. It empowers everyone in this room — and every working mother in Bhutan who has ever left her desk worrying whether her child arrived safely.</div>
+    </div>
+    <div class="section-pad">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+        <div style="border-left:3px solid var(--teal);padding:8px 12px;border-radius:0 8px 8px 0;background:#fff">
+          <div style="font-size:12px;font-weight:500;color:var(--text)">Only Drolkar works without a smartphone</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">QR card + SMS — no child, no mother excluded</div>
+        </div>
+        <div style="border-left:3px solid var(--purple);padding:8px 12px;border-radius:0 8px 8px 0;background:#fff">
+          <div style="font-size:12px;font-weight:500;color:var(--text)">Only Drolkar solves the school-to-center gap</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">The Draktshen escort — no other team answered this</div>
+        </div>
+        <div style="border-left:3px solid var(--saffron);padding:8px 12px;border-radius:0 8px 8px 0;background:#fff">
+          <div style="font-size:12px;font-weight:500;color:var(--text)">Only Drolkar measures GNH in real time</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">Not clicks. Not revenue. Happiness — per dzongkhag, per month</div>
+        </div>
+        <div style="border-left:3px solid var(--crimson);padding:8px 12px;border-radius:0 8px 8px 0;background:#fff">
+          <div style="font-size:12px;font-weight:500;color:var(--text)">Only Drolkar activates retired women as an asset</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">Grandmothers and retired teachers — Bhutan's most underused resource</div>
+        </div>
+      </div>
+      <div class="cta-box">
+        <div class="cta-title">གདོང་སྐར། Drolkar</div>
+        <div class="cta-sub">The liberating star for every working mother in Bhutan.<br>Built by women. Measured in happiness. Ready to scale.</div>
+        <div class="cta-pill">By Women · For Women · For Bhutan</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const navBtns = document.querySelectorAll('.nav-btn');
+function goSlide(n){
+  slides.forEach((s,i)=>{s.classList.toggle('active',i===n)});
+  navBtns.forEach((b,i)=>{b.classList.toggle('active',i===n)});
+}
+function showUser(u){
+  ['mother','caregiver','child','govt'].forEach(k=>{
+    const el=document.getElementById('user-'+k);
+    if(el) el.style.display=k===u?'block':'none';
+  });
+  document.querySelectorAll('.user-tab').forEach(t=>{
+    t.classList.toggle('active',t.textContent.toLowerCase().startsWith(u==='govt'?'gov':u));
+  });
+}
+</script>
